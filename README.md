@@ -44,11 +44,11 @@ Options:
 
 ````javascript
 
-	var nexe = require('nexe');
+var nexe = require('nexe');
 
-	nexe.compile('input.js', 'output.bin', function() {
-		
-	});
+nexe.compile('input.js', 'output.bin', function() {
+	
+});
 	
 ````
 
