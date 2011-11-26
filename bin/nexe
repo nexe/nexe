@@ -14,7 +14,7 @@ options('o', {
 	demand: true,
 	alias: 'output',
 	desc: 'The output binary',
-	default: process.cwd() + path.basename(process.cwd()) + '.nex'
+	default: process.cwd() + '/' + path.basename(process.cwd()) + '.nex'
 }).
 options('r', {
 	alias: 'runtime',
