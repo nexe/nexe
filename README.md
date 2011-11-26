@@ -1,3 +1,5 @@
+Compile javascript **with** node.js. This allows you to move your executable around *without* needing to install the node.js runtime.
+
 ## Requirements
 
 - Linux / Mac
@@ -15,10 +17,6 @@ Or git:
 ```bash
 	git clone 
 ```
-
-### Features
-
-- Compiled **with** node.js. This allows you to move your executable around *without* needing to install the node.js runtime.
 
 
 ### Motivation
