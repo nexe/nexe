@@ -2,7 +2,7 @@ Compile javascript **with** node.js. This allows you to move your executable aro
 
 ## Requirements
 
-- Linux / Mac
+- Linux / Mac (windows soon)
 
 ## Installation
 
@@ -29,13 +29,13 @@ Or git:
 
 ````text
 	
-Commands:
-	-i 			 the input javascript files
-	-o      	 the output executable
-	--runtime    the runtime version of node.js to compile with
+Usage: nexe -i [sources] -o [binary]
 
-Examples:
-	-i input.js -o my-binary --runtime=0.6.2    compile javascript file with node  
+Options:
+  -i, --input    The entry javascript files  [required]
+  -o, --output   The output binary           [required]
+  -r, --runtime  The node.js runtime to use  [default: "0.6.3"]
+
 
 ```` 
 
