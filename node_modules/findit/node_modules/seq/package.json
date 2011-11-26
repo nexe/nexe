@@ -1,0 +1,33 @@
+{
+    "name" : "seq",
+    "version" : "0.3.5",
+    "description" : "Chainable asynchronous flow control with sequential and parallel primitives and pipeline-style error handling",
+    "main" : "./index.js",
+    "repository" : {
+        "type" : "git",
+        "url" : "http://github.com/substack/node-seq.git"
+    },
+    "dependencies" : {
+        "chainsaw" : ">=0.0.7 <0.1",
+        "hashish" : ">=0.0.2 <0.1"
+    },
+    "devDependencies" : {
+        "expresso" : ">=0.7.x"
+    },
+    "script" : {
+        "test" : "expresso"
+    },
+    "keywords" : [
+        "flow-control", "flow", "control", "async", "asynchronous", "chain",
+        "pipeline", "sequence", "sequential", "parallel", "error"
+    ],
+    "author" : {
+        "name" : "James Halliday",
+        "email" : "mail@substack.net",
+        "url" : "http://substack.net"
+    },
+    "license" : "MIT/X11",
+    "engine" : {
+        "node" : ">=0.4.0"
+    }
+}

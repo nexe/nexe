@@ -10,7 +10,12 @@
   "main": "./lib/index.js",
   "dependencies": {
     "optimist":"*",
-    "sardines":"*"
+    "sardines":"*",
+    "mkdirp":"*",
+    "celeri":"*"
+  },
+  "bin": {
+    "nexe":"./bin/nexe"
   },
   "devDependencies": {}
 }

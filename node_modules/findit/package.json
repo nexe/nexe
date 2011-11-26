@@ -1,0 +1,31 @@
+{
+    "name" : "findit",
+    "version" : "0.1.1",
+    "description" : "Walk a directory tree.",
+    "main" : "./index.js",
+    "dependencies" : {
+        "seq" : ">=0.1.7"
+    },
+    "devDependencies" : {
+        "hashish" : ">=0.0.2 <0.1",
+        "expresso" : "0.7.x"
+    },
+    "repository" : {
+        "type" : "git",
+        "url" : "http://github.com/substack/node-findit.git"
+    },
+    "keywords" : [
+        "find",
+        "walk",
+        "directory",
+        "recursive",
+        "tree"
+    ],
+    "author" : {
+        "name" : "James Halliday",
+        "email" : "mail@substack.net",
+        "url" : "http://substack.net"
+    },
+    "license" : "MIT/X11",
+    "engine" : ["node >=0.2.0"]
+}
