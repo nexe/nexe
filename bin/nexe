@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 
+var path = require('path');
+
 var argv = require('optimist').
 usage('Usage: $0 -i [sources] -o [binary]').
 options('i', {
 	demand: true,
 	alias: 'input',
-	desc: 'The entry javascript files'
+	desc: 'The entry javascript files',
+	default: process.cwd()
 }).
 options('o', {
 	demand: true,
 	alias: 'output',
-	desc: 'The output binary'
+	desc: 'The output binary',
+	default: process.cwd() + path.basename(process.cwd()) + '.nex'
 }).
 options('r', {
 	alias: 'runtime',
@@ -19,7 +23,8 @@ options('r', {
 }).argv;
 
 
-require('../lib').compile({ entries: argv.input.split(' '), output: argv.output, runtime: argv.r }, function(error) {
+
+require('../lib').compile({ entries: argv.i.split(' '), output: argv.o, runtime: argv.r }, function(error) {
 	
 	if(error) console.log(error.message);
 });
