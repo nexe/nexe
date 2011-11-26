@@ -46,7 +46,7 @@ Options:
 
 var nexe = require('nexe');
 
-nexe.compile('input.js', 'output.bin', function() {
+nexe.compile({ entries: 'input.js', output: 'path/to/bin', runtime: '0.6.3' } function() {
 	
 });
 	
