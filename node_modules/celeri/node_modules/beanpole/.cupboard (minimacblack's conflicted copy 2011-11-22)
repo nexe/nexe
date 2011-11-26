@@ -1,0 +1,2 @@
+[commands]
+proj = subl --project project.sublime-project

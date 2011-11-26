@@ -1,0 +1,6 @@
+exports.plugin = function(mediator)
+{
+	
+	
+}
+
