@@ -1,0 +1,547 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "README.md",
+			"settings":
+			{
+				"buffer_size": 931,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "lib/index.js",
+			"settings":
+			{
+				"buffer_size": 4441,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "package.json",
+			"settings":
+			{
+				"buffer_size": 447,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "node_modules/sardines/lib/core/index.js",
+			"settings":
+			{
+				"buffer_size": 1408,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "node_modules/sardines/lib/core/combine.js",
+			"settings":
+			{
+				"buffer_size": 6969,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "bin/nexe",
+			"settings":
+			{
+				"buffer_size": 650,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 51.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Volumes/minimac/Users/craig/Dropbox/Developer/Public/nexe/node_modules/sardines/lib/index.js",
+		"/Volumes/minimac/Users/craig/Dropbox/Developer/Public/nexe/package.json",
+		"/tmp/subl stdin sPb7bK.txt",
+		"/Volumes/minimac/Users/craig/Dropbox/Developer/Public/nexe/bin/nexe",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/fig/lib/core/views/concrete.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/fig/lib/core/views/abstract.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/fig/lib/core/views/model.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/fig/lib/core/views/template.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/spice.io/beans/groups.part.saved.core/delegates.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/node_modules/bean.http/plugin/beans/http.gateway/index.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/spice.io/beans/groups.part.saved.core/index.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/spice.io/beans/groups.part.saved.subscription.email/index.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/shared/beans/teamdigest.creation/index.js",
+		"/Volumes/minimac/Users/craig/Dropbox/Developer/Jobs/Spice/private/teamdigest/package.json",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/shared/beans/teamdigest.core/index.js",
+		"/Users/craig/Desktop/global-lock.png",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/web/views/tpl/digest.mu",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/shared/beans/teamdigest.digest/views.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/shared/beans/teamdigest.bookmarklet/index.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/node_modules/malt/lib/core/models/item.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/spice.io/beans/groups.core/index.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/shared/beans/teamdigest.digest/index.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/leche.spice.io/shared/beans/spice.io.core/models.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/shared/beans/teamdigest.creation/views.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/leche.spice.io/shared/beans/connect.core/index.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/web/views/tpl/creation.mu",
+		"/tmp/subl stdin D0Hull.txt",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/node_modules/malt/lib/core/models/remote.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/node_modules/malt/lib/core/models/abstract.js",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/node_modules/malt/lib/core/models/concrete.js",
+		"/tmp/subl stdin 9SDm50.txt",
+		"/Users/craig/.cupboard/projects/teamdigest/lib/front/node_modules/malt/lib/core/models/collection.js",
+		"/Users/craig/.cupboard/projects/teamdigest/node_modules/spice.io/beans/auth.profile/index.js",
+		"/Users/craig/Library/Application Support/Sublime Text 2/Packages/User/Base File.sublime-settings",
+		"/tmp/subl stdin qOmgFT.txt"
+	],
+	"find":
+	{
+		"height": 33.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			".complete",
+			"include",
+			"onDataChange",
+			"_setEleme",
+			"'update",
+			"update",
+			"group",
+			"c_savedArticles",
+			"group:",
+			"urlParts",
+			"request",
+			"Removing",
+			"EditArt",
+			"editArt",
+			"editArticle",
+			"Digest:",
+			"recipients",
+			"specificEmails",
+			"/login",
+			"stat",
+			"find",
+			"store/pr",
+			"rawProfile",
+			"_load",
+			"load",
+			"Profil",
+			"Profile",
+			"args",
+			"--all"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "README.md",
+					"settings":
+					{
+						"buffer_size": 931,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								617,
+								617
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Markdown/Markdown.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 89.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "lib/index.js",
+					"settings":
+					{
+						"buffer_size": 4441,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1725,
+								1725
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1270.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "package.json",
+					"settings":
+					{
+						"buffer_size": 447,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								375,
+								375
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "node_modules/sardines/lib/core/index.js",
+					"settings":
+					{
+						"buffer_size": 1408,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								603,
+								610
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "node_modules/sardines/lib/core/combine.js",
+					"settings":
+					{
+						"buffer_size": 6969,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2109,
+								2109
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 6039.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "bin/nexe",
+					"settings":
+					{
+						"buffer_size": 650,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								494,
+								494
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 30.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"figabst",
+				"node_modules/fig/lib/core/views/abstract.js"
+			],
+			[
+				"figmode",
+				"node_modules/fig/lib/core/views/model.js"
+			],
+			[
+				"figtemplat",
+				"node_modules/fig/lib/core/views/template.js"
+			],
+			[
+				"figmodel",
+				"node_modules/fig/lib/core/views/model.js"
+			],
+			[
+				"figabs",
+				"node_modules/fig/lib/core/views/abstract.js"
+			],
+			[
+				"figviews/",
+				"node_modules/fig/lib/core/views/concrete.js"
+			],
+			[
+				"figviews",
+				"node_modules/fig/lib/core/views/model.js"
+			],
+			[
+				"saveddelegat",
+				"node_modules/spice.io/beans/groups.part.saved.core/delegates.js"
+			],
+			[
+				"spicesavedinde",
+				"node_modules/spice.io/beans/groups.part.saved.subscription.email/index.js"
+			],
+			[
+				"saveddelega",
+				"node_modules/spice.io/beans/groups.part.saved.core/delegates.js"
+			],
+			[
+				"spice.iosaved",
+				"node_modules/spice.io/beans/groups.part.saved.core/index.js"
+			],
+			[
+				"spice.iosaveddele",
+				"node_modules/spice.io/beans/groups.part.saved.core/delegates.js"
+			],
+			[
+				"spice.iosavedind",
+				"node_modules/spice.io/beans/groups.part.saved.core/index.js"
+			],
+			[
+				"bean.http",
+				"lib/front/node_modules/bean.http/plugin/beans/http.gateway/index.js"
+			],
+			[
+				"maltconcr",
+				"lib/front/node_modules/malt/lib/core/models/concrete.js"
+			],
+			[
+				"maltabst",
+				"lib/front/node_modules/malt/lib/core/models/abstract.js"
+			],
+			[
+				"maltremot",
+				"lib/front/node_modules/malt/lib/core/models/remote.js"
+			],
+			[
+				"bean.http.gat",
+				"lib/front/node_modules/bean.http/plugin/beans/http.gateway/index.js"
+			],
+			[
+				"bean.httpgateway",
+				"lib/front/node_modules/bean.http/plugin/beans/http.gateway/index.js"
+			],
+			[
+				"spice.iosaveditem",
+				"node_modules/spice.io/beans/groups.part.saved.subscription.email/index.js"
+			],
+			[
+				"connect.core/",
+				"node_modules/leche.spice.io/shared/beans/connect.core/index.js"
+			],
+			[
+				"maltmodels",
+				"lib/front/node_modules/malt/lib/core/models/item.js"
+			],
+			[
+				"",
+				"node_modules/leche.spice.io/shared/beans/connect.core/index.js"
+			],
+			[
+				"malt/models",
+				"lib/front/node_modules/malt/lib/core/models/concrete.js"
+			],
+			[
+				"maltabs",
+				"lib/front/node_modules/malt/lib/core/models/abstract.js"
+			],
+			[
+				"maltremo",
+				"lib/front/node_modules/malt/lib/core/models/remote.js"
+			],
+			[
+				"maltcolle",
+				"lib/front/node_modules/malt/lib/core/models/collection.js"
+			],
+			[
+				"maltremote",
+				"lib/front/node_modules/malt/lib/core/models/remote.js"
+			],
+			[
+				"leche.spice.iomodel",
+				"node_modules/leche.spice.io/shared/beans/spice.io.core/models.js"
+			],
+			[
+				"spice.ioauthprofileind",
+				"node_modules/spice.io/beans/auth.profile/index.js"
+			],
+			[
+				"spice.iogroups",
+				"node_modules/spice.io/beans/groups.core/index.js"
+			],
+			[
+				"leche.spice.iomode",
+				"node_modules/leche.spice.io/shared/beans/spice.io.core/models.js"
+			],
+			[
+				"leche.spice.ioconne",
+				"node_modules/leche.spice.io/shared/beans/connect.core/index.js"
+			],
+			[
+				"leche.spice.io/beanconnect",
+				"node_modules/leche.spice.io/shared/beans/connect.core/index.js"
+			],
+			[
+				"lechespice.iomodel",
+				"node_modules/leche.spice.io/shared/beans/spice.io.core/models.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 219.0,
+	"status_bar_visible": true
+}
