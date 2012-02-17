@@ -9,13 +9,13 @@
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "optimist":"*",
-    "sardines":"*",
-    "mkdirp":"*",
-    "celeri":"*"
+    "optimist": "*",
+    "sardines": "*",
+    "mkdirp": "*",
+    "celeri": "*"
   },
   "bin": {
-    "nexe":"./bin/nexe"
+    "nexe": "./bin/nexe"
   },
   "devDependencies": {}
 }
