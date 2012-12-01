@@ -14,7 +14,8 @@
     "step": "0.0.x",
     "optimist": "0.3.x",
     "browserify": "1.16.x",
-    "request": "2.12.x"
+    "request": "2.12.x",
+    "ncp": "0.2.x"
   },
   "bin": {
     "nexe": "./bin/nexe"

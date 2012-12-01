@@ -33,7 +33,7 @@ Usage: nexe -i [sources] -o [binary]
 
 Options:
   -i, --input    The entry javascript files  [default: cwd]
-  -o, --output   The output binary           [default: cwd/app.nex]
+  -o, --output   The output binary           [default: cwd/release/app.nex]
   -r, --runtime  The node.js runtime to use  [default: "0.8.15"]
 
 
