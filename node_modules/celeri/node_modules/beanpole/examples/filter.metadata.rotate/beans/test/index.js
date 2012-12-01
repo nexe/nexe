@@ -1,6 +1,0 @@
-exports.plugin = function(mediator)
-{
-	
-	
-}
-

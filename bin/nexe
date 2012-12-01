@@ -14,17 +14,17 @@ options('o', {
 	demand: true,
 	alias: 'output',
 	desc: 'The output binary',
-	default: process.cwd() + '/' + path.basename(process.cwd()) + '.nex'
+	default: process.cwd() + '/release/' + path.basename(process.cwd()) + '.nex'
 }).
 options('r', {
 	alias: 'runtime',
-	default: '0.6.3',
+	default: '0.8.14',
 	description: 'The node.js runtime to use'
 }).argv;
 
 
 
-require('../lib').compile({ entries: argv.i.split(' '), output: argv.o, runtime: argv.r }, function(error) {
+require('../lib').compile({ input: argv.i, output: argv.o, runtime: argv.r }, function(error) {
 	
 	if(error) console.log(error.message);
 });

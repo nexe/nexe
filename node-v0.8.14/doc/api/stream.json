@@ -1,0 +1,274 @@
+{
+  "source": "doc/api/stream.markdown",
+  "modules": [
+    {
+      "textRaw": "Stream",
+      "name": "stream",
+      "stability": 2,
+      "stabilityText": "Unstable",
+      "desc": "<p>A stream is an abstract interface implemented by various objects in\nNode.  For example a request to an HTTP server is a stream, as is\nstdout. Streams are readable, writable, or both. All streams are\ninstances of [EventEmitter][]\n\n</p>\n<p>You can load up the Stream base class by doing <code>require(&#39;stream&#39;)</code>.\n\n</p>\n",
+      "classes": [
+        {
+          "textRaw": "Readable Stream",
+          "name": "Readable Stream",
+          "type": "class",
+          "desc": "<p>A <code>Readable Stream</code> has the following methods, members, and events.\n\n</p>\n",
+          "events": [
+            {
+              "textRaw": "Event: 'data'",
+              "type": "event",
+              "name": "data",
+              "desc": "<p><code>function (data) { }</code>\n\n</p>\n<p>The <code>&#39;data&#39;</code> event emits either a <code>Buffer</code> (by default) or a string if\n<code>setEncoding()</code> was used.\n\n</p>\n<p>Note that the <strong>data will be lost</strong> if there is no listener when a\n<code>Readable Stream</code> emits a <code>&#39;data&#39;</code> event.\n\n</p>\n",
+              "params": []
+            },
+            {
+              "textRaw": "Event: 'end'",
+              "type": "event",
+              "name": "end",
+              "desc": "<p><code>function () { }</code>\n\n</p>\n<p>Emitted when the stream has received an EOF (FIN in TCP terminology).\nIndicates that no more <code>&#39;data&#39;</code> events will happen. If the stream is\nalso writable, it may be possible to continue writing.\n\n</p>\n",
+              "params": []
+            },
+            {
+              "textRaw": "Event: 'error'",
+              "type": "event",
+              "name": "error",
+              "desc": "<p><code>function (exception) { }</code>\n\n</p>\n<p>Emitted if there was an error receiving data.\n\n</p>\n",
+              "params": []
+            },
+            {
+              "textRaw": "Event: 'close'",
+              "type": "event",
+              "name": "close",
+              "desc": "<p><code>function () { }</code>\n\n</p>\n<p>Emitted when the underlying resource (for example, the backing file\ndescriptor) has been closed. Not all streams will emit this.\n\n</p>\n",
+              "params": []
+            }
+          ],
+          "properties": [
+            {
+              "textRaw": "stream.readable",
+              "name": "readable",
+              "desc": "<p>A boolean that is <code>true</code> by default, but turns <code>false</code> after an\n<code>&#39;error&#39;</code> occurred, the stream came to an <code>&#39;end&#39;</code>, or <code>destroy()</code> was\ncalled.\n\n</p>\n"
+            }
+          ],
+          "methods": [
+            {
+              "textRaw": "stream.setEncoding([encoding])",
+              "type": "method",
+              "name": "setEncoding",
+              "desc": "<p>Makes the <code>&#39;data&#39;</code> event emit a string instead of a <code>Buffer</code>. <code>encoding</code>\ncan be <code>&#39;utf8&#39;</code>, <code>&#39;utf16le&#39;</code> (<code>&#39;ucs2&#39;</code>), <code>&#39;ascii&#39;</code>, or <code>&#39;hex&#39;</code>. Defaults\nto <code>&#39;utf8&#39;</code>.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "encoding",
+                      "optional": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.pause()",
+              "type": "method",
+              "name": "pause",
+              "desc": "<p>Issues an advisory signal to the underlying communication layer,\nrequesting that no further data be sent until <code>resume()</code> is called.\n\n</p>\n<p>Note that, due to the advisory nature, certain streams will not be\npaused immediately, and so <code>&#39;data&#39;</code> events may be emitted for some\nindeterminate period of time even after <code>pause()</code> is called. You may\nwish to buffer such <code>&#39;data&#39;</code> events.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.resume()",
+              "type": "method",
+              "name": "resume",
+              "desc": "<p>Resumes the incoming <code>&#39;data&#39;</code> events after a <code>pause()</code>.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.destroy()",
+              "type": "method",
+              "name": "destroy",
+              "desc": "<p>Closes the underlying file descriptor. Stream is no longer <code>writable</code>\nnor <code>readable</code>.  The stream will not emit any more &#39;data&#39;, or &#39;end&#39;\nevents. Any queued write data will not be sent.  The stream should emit\n&#39;close&#39; event once its resources have been disposed of.\n\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.pipe(destination, [options])",
+              "type": "method",
+              "name": "pipe",
+              "desc": "<p>This is a <code>Stream.prototype</code> method available on all <code>Stream</code>s.\n\n</p>\n<p>Connects this read stream to <code>destination</code> WriteStream. Incoming data on\nthis stream gets written to <code>destination</code>. The destination and source\nstreams are kept in sync by pausing and resuming as necessary.\n\n</p>\n<p>This function returns the <code>destination</code> stream.\n\n</p>\n<p>Emulating the Unix <code>cat</code> command:\n\n</p>\n<pre><code>process.stdin.resume(); process.stdin.pipe(process.stdout);</code></pre>\n<p>By default <code>end()</code> is called on the destination when the source stream\nemits <code>end</code>, so that <code>destination</code> is no longer writable. Pass <code>{ end:\nfalse }</code> as <code>options</code> to keep the destination stream open.\n\n</p>\n<p>This keeps <code>process.stdout</code> open so that &quot;Goodbye&quot; can be written at the\nend.\n\n</p>\n<pre><code>process.stdin.resume();\n\nprocess.stdin.pipe(process.stdout, { end: false });\n\nprocess.stdin.on(&quot;end&quot;, function() {\nprocess.stdout.write(&quot;Goodbye\\n&quot;); });</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "destination"
+                    },
+                    {
+                      "name": "options",
+                      "optional": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "textRaw": "Writable Stream",
+          "name": "Writable Stream",
+          "type": "class",
+          "desc": "<p>A <code>Writable Stream</code> has the following methods, members, and events.\n\n</p>\n",
+          "events": [
+            {
+              "textRaw": "Event: 'drain'",
+              "type": "event",
+              "name": "drain",
+              "desc": "<p><code>function () { }</code>\n\n</p>\n<p>Emitted when the stream&#39;s write queue empties and it&#39;s safe to write without\nbuffering again. Listen for it when <code>stream.write()</code> returns <code>false</code>.\n\n</p>\n<p>The <code>&#39;drain&#39;</code> event can happen at <em>any</em> time, regardless of whether or not\n<code>stream.write()</code> has previously returned <code>false</code>. To avoid receiving unwanted\n<code>&#39;drain&#39;</code> events, listen using <code>stream.once()</code>.\n\n</p>\n",
+              "params": []
+            },
+            {
+              "textRaw": "Event: 'error'",
+              "type": "event",
+              "name": "error",
+              "desc": "<p><code>function (exception) { }</code>\n\n</p>\n<p>Emitted on error with the exception <code>exception</code>.\n\n</p>\n",
+              "params": []
+            },
+            {
+              "textRaw": "Event: 'close'",
+              "type": "event",
+              "name": "close",
+              "desc": "<p><code>function () { }</code>\n\n</p>\n<p>Emitted when the underlying file descriptor has been closed.\n\n</p>\n",
+              "params": []
+            },
+            {
+              "textRaw": "Event: 'pipe'",
+              "type": "event",
+              "name": "pipe",
+              "desc": "<p><code>function (src) { }</code>\n\n</p>\n<p>Emitted when the stream is passed to a readable stream&#39;s pipe method.\n\n</p>\n",
+              "params": []
+            }
+          ],
+          "properties": [
+            {
+              "textRaw": "stream.writable",
+              "name": "writable",
+              "desc": "<p>A boolean that is <code>true</code> by default, but turns <code>false</code> after an\n<code>&#39;error&#39;</code> occurred or <code>end()</code> / <code>destroy()</code> was called.\n\n</p>\n"
+            }
+          ],
+          "methods": [
+            {
+              "textRaw": "stream.write(string, [encoding])",
+              "type": "method",
+              "name": "write",
+              "desc": "<p>Writes <code>string</code> with the given <code>encoding</code> to the stream.  Returns <code>true</code>\nif the string has been flushed to the kernel buffer.  Returns <code>false</code> to\nindicate that the kernel buffer is full, and the data will be sent out\nin the future. The <code>&#39;drain&#39;</code> event will indicate when the kernel buffer\nis empty again. The <code>encoding</code> defaults to <code>&#39;utf8&#39;</code>.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "string"
+                    },
+                    {
+                      "name": "encoding",
+                      "optional": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.write(buffer)",
+              "type": "method",
+              "name": "write",
+              "desc": "<p>Same as the above except with a raw buffer.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "buffer"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.end()",
+              "type": "method",
+              "name": "end",
+              "desc": "<p>Terminates the stream with EOF or FIN.  This call will allow queued\nwrite data to be sent before closing the stream.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.end(string, encoding)",
+              "type": "method",
+              "name": "end",
+              "desc": "<p>Sends <code>string</code> with the given <code>encoding</code> and terminates the stream with\nEOF or FIN. This is useful to reduce the number of packets sent.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "string"
+                    },
+                    {
+                      "name": "encoding"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.end(buffer)",
+              "type": "method",
+              "name": "end",
+              "desc": "<p>Same as above but with a <code>buffer</code>.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "buffer"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.destroy()",
+              "type": "method",
+              "name": "destroy",
+              "desc": "<p>Closes the underlying file descriptor. Stream is no longer <code>writable</code>\nnor <code>readable</code>.  The stream will not emit any more &#39;data&#39;, or &#39;end&#39;\nevents. Any queued write data will not be sent.  The stream should emit\n&#39;close&#39; event once its resources have been disposed of.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            },
+            {
+              "textRaw": "stream.destroySoon()",
+              "type": "method",
+              "name": "destroySoon",
+              "desc": "<p>After the write queue is drained, close the file descriptor.\n<code>destroySoon()</code> can still destroy straight away, as long as there is no\ndata left in the queue for writes.\n\n</p>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "type": "module",
+      "displayName": "Stream"
+    }
+  ]
+}

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Stream Node.js v0.8.14 Manual &amp; Documentation</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/sh.css">
+  <link rel="canonical" href="http://nodejs.org/api/stream.html">
+</head>
+<body class="alt apidoc" id="api-section-stream">
+    <div id="intro" class="interior">
+        <a href="/" title="Go back to the home page">
+            <img id="logo" src="http://nodejs.org/images/logo-light.png" alt="node.js">
+        </a>
+    </div>
+    <div id="content" class="clearfix">
+        <div id="column2" class="interior">
+            <ul>
+                <li><a href="/" class="home">Home</a></li>
+                <li><a href="/download/" class="download">Download</a></li>
+                <li><a href="/about/" class="about">About</a></li>
+                <li><a href="http://search.npmjs.org/" class="npm">npm Registry</a></li>
+                <li><a href="http://nodejs.org/api/" class="docs current">Docs</a></li>
+                <li><a href="http://blog.nodejs.org" class="blog">Blog</a></li>
+                <li><a href="/community/" class="community">Community</a></li>
+                <li><a href="/logos/" class="logos">Logos</a></li>
+                <li><a href="http://jobs.nodejs.org/" class="jobs">Jobs</a></li>
+            </ul>
+            <p class="twitter"><a href="http://twitter.com/nodejs">@nodejs</a></p>
+        </div>
+
+        <div id="column1" class="interior">
+          <header>
+            <h1>Node.js v0.8.14 Manual &amp; Documentation</h1>
+            <div id="gtoc">
+              <p>
+                <a href="index.html" name="toc">Index</a> |
+                <a href="all.html">View on single page</a> |
+                <a href="stream.json">View as JSON</a>
+              </p>
+            </div>
+            <hr>
+          </header>
+
+          <div id="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+<li><a href="#stream_stream">Stream</a><ul>
+<li><a href="#stream_readable_stream">Readable Stream</a><ul>
+<li><a href="#stream_event_data">Event: &#39;data&#39;</a></li>
+<li><a href="#stream_event_end">Event: &#39;end&#39;</a></li>
+<li><a href="#stream_event_error">Event: &#39;error&#39;</a></li>
+<li><a href="#stream_event_close">Event: &#39;close&#39;</a></li>
+<li><a href="#stream_stream_readable">stream.readable</a></li>
+<li><a href="#stream_stream_setencoding_encoding">stream.setEncoding([encoding])</a></li>
+<li><a href="#stream_stream_pause">stream.pause()</a></li>
+<li><a href="#stream_stream_resume">stream.resume()</a></li>
+<li><a href="#stream_stream_destroy">stream.destroy()</a></li>
+<li><a href="#stream_stream_pipe_destination_options">stream.pipe(destination, [options])</a></li>
+</ul>
+</li>
+<li><a href="#stream_writable_stream">Writable Stream</a><ul>
+<li><a href="#stream_event_drain">Event: &#39;drain&#39;</a></li>
+<li><a href="#stream_event_error_1">Event: &#39;error&#39;</a></li>
+<li><a href="#stream_event_close_1">Event: &#39;close&#39;</a></li>
+<li><a href="#stream_event_pipe">Event: &#39;pipe&#39;</a></li>
+<li><a href="#stream_stream_writable">stream.writable</a></li>
+<li><a href="#stream_stream_write_string_encoding">stream.write(string, [encoding])</a></li>
+<li><a href="#stream_stream_write_buffer">stream.write(buffer)</a></li>
+<li><a href="#stream_stream_end">stream.end()</a></li>
+<li><a href="#stream_stream_end_string_encoding">stream.end(string, encoding)</a></li>
+<li><a href="#stream_stream_end_buffer">stream.end(buffer)</a></li>
+<li><a href="#stream_stream_destroy_1">stream.destroy()</a></li>
+<li><a href="#stream_stream_destroysoon">stream.destroySoon()</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+
+          <div id="apicontent">
+            <h1>Stream<span><a class="mark" href="#stream_stream" id="stream_stream">#</a></span></h1>
+<pre><code>Stability: 2 - Unstable</code></pre>
+<p>A stream is an abstract interface implemented by various objects in
+Node.  For example a request to an HTTP server is a stream, as is
+stdout. Streams are readable, writable, or both. All streams are
+instances of <a href="events.html#events_class_events_eventemitter">EventEmitter</a>
+
+</p>
+<p>You can load up the Stream base class by doing <code>require(&#39;stream&#39;)</code>.
+
+</p>
+<h2>Readable Stream<span><a class="mark" href="#stream_readable_stream" id="stream_readable_stream">#</a></span></h2>
+<!--type=class-->
+
+<p>A <code>Readable Stream</code> has the following methods, members, and events.
+
+</p>
+<h3>Event: &#39;data&#39;<span><a class="mark" href="#stream_event_data" id="stream_event_data">#</a></span></h3>
+<p><code>function (data) { }</code>
+
+</p>
+<p>The <code>&#39;data&#39;</code> event emits either a <code>Buffer</code> (by default) or a string if
+<code>setEncoding()</code> was used.
+
+</p>
+<p>Note that the <strong>data will be lost</strong> if there is no listener when a
+<code>Readable Stream</code> emits a <code>&#39;data&#39;</code> event.
+
+</p>
+<h3>Event: &#39;end&#39;<span><a class="mark" href="#stream_event_end" id="stream_event_end">#</a></span></h3>
+<p><code>function () { }</code>
+
+</p>
+<p>Emitted when the stream has received an EOF (FIN in TCP terminology).
+Indicates that no more <code>&#39;data&#39;</code> events will happen. If the stream is
+also writable, it may be possible to continue writing.
+
+</p>
+<h3>Event: &#39;error&#39;<span><a class="mark" href="#stream_event_error" id="stream_event_error">#</a></span></h3>
+<p><code>function (exception) { }</code>
+
+</p>
+<p>Emitted if there was an error receiving data.
+
+</p>
+<h3>Event: &#39;close&#39;<span><a class="mark" href="#stream_event_close" id="stream_event_close">#</a></span></h3>
+<p><code>function () { }</code>
+
+</p>
+<p>Emitted when the underlying resource (for example, the backing file
+descriptor) has been closed. Not all streams will emit this.
+
+</p>
+<h3>stream.readable<span><a class="mark" href="#stream_stream_readable" id="stream_stream_readable">#</a></span></h3>
+<p>A boolean that is <code>true</code> by default, but turns <code>false</code> after an
+<code>&#39;error&#39;</code> occurred, the stream came to an <code>&#39;end&#39;</code>, or <code>destroy()</code> was
+called.
+
+</p>
+<h3>stream.setEncoding([encoding])<span><a class="mark" href="#stream_stream_setencoding_encoding" id="stream_stream_setencoding_encoding">#</a></span></h3>
+<p>Makes the <code>&#39;data&#39;</code> event emit a string instead of a <code>Buffer</code>. <code>encoding</code>
+can be <code>&#39;utf8&#39;</code>, <code>&#39;utf16le&#39;</code> (<code>&#39;ucs2&#39;</code>), <code>&#39;ascii&#39;</code>, or <code>&#39;hex&#39;</code>. Defaults
+to <code>&#39;utf8&#39;</code>.
+
+</p>
+<h3>stream.pause()<span><a class="mark" href="#stream_stream_pause" id="stream_stream_pause">#</a></span></h3>
+<p>Issues an advisory signal to the underlying communication layer,
+requesting that no further data be sent until <code>resume()</code> is called.
+
+</p>
+<p>Note that, due to the advisory nature, certain streams will not be
+paused immediately, and so <code>&#39;data&#39;</code> events may be emitted for some
+indeterminate period of time even after <code>pause()</code> is called. You may
+wish to buffer such <code>&#39;data&#39;</code> events.
+
+</p>
+<h3>stream.resume()<span><a class="mark" href="#stream_stream_resume" id="stream_stream_resume">#</a></span></h3>
+<p>Resumes the incoming <code>&#39;data&#39;</code> events after a <code>pause()</code>.
+
+</p>
+<h3>stream.destroy()<span><a class="mark" href="#stream_stream_destroy" id="stream_stream_destroy">#</a></span></h3>
+<p>Closes the underlying file descriptor. Stream is no longer <code>writable</code>
+nor <code>readable</code>.  The stream will not emit any more &#39;data&#39;, or &#39;end&#39;
+events. Any queued write data will not be sent.  The stream should emit
+&#39;close&#39; event once its resources have been disposed of.
+
+
+</p>
+<h3>stream.pipe(destination, [options])<span><a class="mark" href="#stream_stream_pipe_destination_options" id="stream_stream_pipe_destination_options">#</a></span></h3>
+<p>This is a <code>Stream.prototype</code> method available on all <code>Stream</code>s.
+
+</p>
+<p>Connects this read stream to <code>destination</code> WriteStream. Incoming data on
+this stream gets written to <code>destination</code>. The destination and source
+streams are kept in sync by pausing and resuming as necessary.
+
+</p>
+<p>This function returns the <code>destination</code> stream.
+
+</p>
+<p>Emulating the Unix <code>cat</code> command:
+
+</p>
+<pre><code>process.stdin.resume(); process.stdin.pipe(process.stdout);</code></pre>
+<p>By default <code>end()</code> is called on the destination when the source stream
+emits <code>end</code>, so that <code>destination</code> is no longer writable. Pass <code>{ end:
+false }</code> as <code>options</code> to keep the destination stream open.
+
+</p>
+<p>This keeps <code>process.stdout</code> open so that &quot;Goodbye&quot; can be written at the
+end.
+
+</p>
+<pre><code>process.stdin.resume();
+
+process.stdin.pipe(process.stdout, { end: false });
+
+process.stdin.on(&quot;end&quot;, function() {
+process.stdout.write(&quot;Goodbye\n&quot;); });</code></pre>
+<h2>Writable Stream<span><a class="mark" href="#stream_writable_stream" id="stream_writable_stream">#</a></span></h2>
+<!--type=class-->
+
+<p>A <code>Writable Stream</code> has the following methods, members, and events.
+
+</p>
+<h3>Event: &#39;drain&#39;<span><a class="mark" href="#stream_event_drain" id="stream_event_drain">#</a></span></h3>
+<p><code>function () { }</code>
+
+</p>
+<p>Emitted when the stream&#39;s write queue empties and it&#39;s safe to write without
+buffering again. Listen for it when <code>stream.write()</code> returns <code>false</code>.
+
+</p>
+<p>The <code>&#39;drain&#39;</code> event can happen at <em>any</em> time, regardless of whether or not
+<code>stream.write()</code> has previously returned <code>false</code>. To avoid receiving unwanted
+<code>&#39;drain&#39;</code> events, listen using <code>stream.once()</code>.
+
+</p>
+<h3>Event: &#39;error&#39;<span><a class="mark" href="#stream_event_error_1" id="stream_event_error_1">#</a></span></h3>
+<p><code>function (exception) { }</code>
+
+</p>
+<p>Emitted on error with the exception <code>exception</code>.
+
+</p>
+<h3>Event: &#39;close&#39;<span><a class="mark" href="#stream_event_close_1" id="stream_event_close_1">#</a></span></h3>
+<p><code>function () { }</code>
+
+</p>
+<p>Emitted when the underlying file descriptor has been closed.
+
+</p>
+<h3>Event: &#39;pipe&#39;<span><a class="mark" href="#stream_event_pipe" id="stream_event_pipe">#</a></span></h3>
+<p><code>function (src) { }</code>
+
+</p>
+<p>Emitted when the stream is passed to a readable stream&#39;s pipe method.
+
+</p>
+<h3>stream.writable<span><a class="mark" href="#stream_stream_writable" id="stream_stream_writable">#</a></span></h3>
+<p>A boolean that is <code>true</code> by default, but turns <code>false</code> after an
+<code>&#39;error&#39;</code> occurred or <code>end()</code> / <code>destroy()</code> was called.
+
+</p>
+<h3>stream.write(string, [encoding])<span><a class="mark" href="#stream_stream_write_string_encoding" id="stream_stream_write_string_encoding">#</a></span></h3>
+<p>Writes <code>string</code> with the given <code>encoding</code> to the stream.  Returns <code>true</code>
+if the string has been flushed to the kernel buffer.  Returns <code>false</code> to
+indicate that the kernel buffer is full, and the data will be sent out
+in the future. The <code>&#39;drain&#39;</code> event will indicate when the kernel buffer
+is empty again. The <code>encoding</code> defaults to <code>&#39;utf8&#39;</code>.
+
+</p>
+<h3>stream.write(buffer)<span><a class="mark" href="#stream_stream_write_buffer" id="stream_stream_write_buffer">#</a></span></h3>
+<p>Same as the above except with a raw buffer.
+
+</p>
+<h3>stream.end()<span><a class="mark" href="#stream_stream_end" id="stream_stream_end">#</a></span></h3>
+<p>Terminates the stream with EOF or FIN.  This call will allow queued
+write data to be sent before closing the stream.
+
+</p>
+<h3>stream.end(string, encoding)<span><a class="mark" href="#stream_stream_end_string_encoding" id="stream_stream_end_string_encoding">#</a></span></h3>
+<p>Sends <code>string</code> with the given <code>encoding</code> and terminates the stream with
+EOF or FIN. This is useful to reduce the number of packets sent.
+
+</p>
+<h3>stream.end(buffer)<span><a class="mark" href="#stream_stream_end_buffer" id="stream_stream_end_buffer">#</a></span></h3>
+<p>Same as above but with a <code>buffer</code>.
+
+</p>
+<h3>stream.destroy()<span><a class="mark" href="#stream_stream_destroy_1" id="stream_stream_destroy_1">#</a></span></h3>
+<p>Closes the underlying file descriptor. Stream is no longer <code>writable</code>
+nor <code>readable</code>.  The stream will not emit any more &#39;data&#39;, or &#39;end&#39;
+events. Any queued write data will not be sent.  The stream should emit
+&#39;close&#39; event once its resources have been disposed of.
+
+</p>
+<h3>stream.destroySoon()<span><a class="mark" href="#stream_stream_destroysoon" id="stream_stream_destroysoon">#</a></span></h3>
+<p>After the write queue is drained, close the file descriptor.
+<code>destroySoon()</code> can still destroy straight away, as long as there is no
+data left in the queue for writes.
+
+</p>
+
+          </div>
+        </div>
+    </div>
+    <div id="footer">
+        <ul class="clearfix">
+            <li><a href="/">Node.js</a></li>
+            <li><a href="/download/">Download</a></li>
+            <li><a href="/about/">About</a></li>
+            <li><a href="http://search.npmjs.org/">npm Registry</a></li>
+            <li><a href="http://nodejs.org/api/">Docs</a></li>
+            <li><a href="http://blog.nodejs.org">Blog</a></li>
+            <li><a href="/community/">Community</a></li>
+            <li><a href="/logos/">Logos</a></li>
+            <li><a href="http://jobs.nodejs.org/">Jobs</a></li>
+            <li><a href="http://twitter.com/nodejs" class="twitter">@nodejs</a></li>
+        </ul>
+
+        <p>Copyright <a href="http://joyent.com/">Joyent, Inc</a>, Node.js is a <a href="/trademark-policy.pdf">trademark</a> of Joyent, Inc. View <a href="https://raw.github.com/joyent/node/v0.8.14/LICENSE">license</a>.</p>
+    </div>
+
+  <script src="../sh_main.js"></script>
+  <script src="../sh_javascript.min.js"></script>
+  <script>highlight(undefined, undefined, 'pre');</script>
+  <script>
+    window._gaq = [['_setAccount', 'UA-10874194-2'], ['_trackPageview']];
+    (function(d, t) {
+      var g = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      g.src = '//www.google-analytics.com/ga.js';
+      s.parentNode.insertBefore(g, s);
+    }(document, 'script'));
+  </script>
+</body>
+</html>
+
