@@ -2,17 +2,19 @@
   "author": "Craig Condon <craig.j.condon@gmail.com>",
   "name": "nexe",
   "description": "Roll node.s applications into a single executable",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/crcn/nexe.git"
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "optimist": "*",
-    "sardines": "*",
-    "mkdirp": "*",
-    "celeri": "*"
+    "outcome": "0.0.x",
+    "sprintf": "0.1.x",
+    "step": "0.0.x",
+    "optimist": "0.3.x",
+    "browserify": "1.16.x",
+    "request": "2.12.x"
   },
   "bin": {
     "nexe": "./bin/nexe"
