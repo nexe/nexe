@@ -24,6 +24,7 @@ Or git:
 - Developing client-side utilities without requiring to install a bunch of dependencies first (node.js, npm).
 - Ability to run multiple node.js applications with *different* node.js runtimes. 
 - Distributable packages without needing node / npm.
+- Loads faster.
 
 ### CLI Usage
 
