@@ -15,7 +15,8 @@
     "optimist": "0.3.x",
     "browserify": "1.16.x",
     "request": "2.12.x",
-    "ncp": "0.2.x"
+    "ncp": "0.2.x",
+    "mkdirp": "0.3.x"
   },
   "bin": {
     "nexe": "./bin/nexe"
