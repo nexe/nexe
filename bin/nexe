@@ -23,8 +23,13 @@ options('r', {
 }).argv;
 
 
+function toRelative(pt) {
+	return path.normalize(pt.replace(/^\.\//, process.cwd() + "/"));
+}
 
-require('../lib').compile({ input: argv.i, output: argv.o, runtime: argv.r }, function(error) {
+
+
+require('../lib').compile({ input: toRelative(argv.i), output: toRelative(argv.o), runtime: argv.r }, function(error) {
 	
 	if(error) console.log(error.message);
 });
