@@ -24,7 +24,7 @@ options('r', {
 
 
 function toRelative(pt) {
-	return path.normalize(pt.replace(/^\.\//, process.cwd() + "/"));
+	return path.normalize(pt.replace(/^\./, process.cwd() + "/"));
 }
 
 
