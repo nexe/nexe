@@ -4,6 +4,10 @@ Compile javascript **with** node.js. This allows you to move your executable aro
 
 - Linux / Mac
 
+## Caveats
+
+- Doesn't support native modules
+
 ## Installation
 
 Via NPM:
