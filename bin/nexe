@@ -2,7 +2,7 @@
 
 var path = require('path');
 
-var argv = require('optimist').
+var cli = require('optimist').
 usage('Usage: $0 -i [sources] -o [binary]').
 options('i', {
 	demand: true,
@@ -18,9 +18,17 @@ options('o', {
 }).
 options('r', {
 	alias: 'runtime',
-	default: '0.8.14',
+	default: '0.8.21',
 	description: 'The node.js runtime to use'
-}).argv;
+});
+
+var argv = cli.argv;
+
+
+if(argv.h || argv.help) {
+	cli.showHelp();
+	process.exit();
+}
 
 
 function toRelative(pt) {
