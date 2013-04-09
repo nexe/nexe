@@ -1,10 +1,10 @@
 var http = require("http"),
+fs = require("fs"),
+path = require("path"),
 port = 1337;
 
-console.log(process.argv);
-
-console.log("started HTTP server on port %d", 1337);
+console.log("started HTTP server on port %d", port = Number(process.argv.concat().pop()) || port);
 
 http.createServer(function(req, res) {
-  res.end("Hello World!!");
+  fs.createReadStream(path.join(process.cwd(), "message.txt")).pipe(res);
 }).listen(port);
