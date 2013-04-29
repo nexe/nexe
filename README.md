@@ -6,7 +6,8 @@ Compile javascript **with** node.js. This allows you to move your executable aro
 
 ## Caveats
 
-- Doesn't support native modules
+- Doesn't support native modules (yet).
+- Doesn't support windows (yet).
 
 ## Installation
 
