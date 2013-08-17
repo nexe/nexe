@@ -38,9 +38,10 @@ Or git:
 Usage: nexe -i [sources] -o [binary]
 
 Options:
-  -i, --input    The entry javascript files  [default: cwd]
-  -o, --output   The output binary           [default: cwd/release/app.nex]
-  -r, --runtime  The node.js runtime to use  [default: "0.8.15"]
+  -i, --input    The entry javascript files         [default: cwd]
+  -o, --output   The output binary                  [default: cwd/release/app.nex]
+  -r, --runtime  The node.js runtime to use         [default: "0.8.15"]
+  -t, --temp     The path to store node.js sources  [default: /tmp/nexe]
 
 
 ```` 

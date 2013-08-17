@@ -20,6 +20,11 @@ options('r', {
 	alias: 'runtime',
 	default: '0.8.21',
 	description: 'The node.js runtime to use'
+}).
+options('t', {
+	alias: 'temp',
+	default: '/tmp/nexe',
+	description: 'The path to store node.js sources'
 });
 
 var argv = cli.argv;
@@ -38,7 +43,7 @@ function toRelative(pt) {
 
 
 
-require('../lib').compile({ input: toRelative(argv.i), output: toRelative(argv.o), runtime: argv.r }, function(error) {
-	
+require('../lib').compile({ input: toRelative(argv.i), output: toRelative(argv.o), runtime: argv.r, temp: toRelative(argv.t) }, function(error) {
+
 	if(error) console.log(error.message);
 });
