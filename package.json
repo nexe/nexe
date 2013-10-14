@@ -18,6 +18,7 @@
     "mkdirp": "0.3.x",
     "sardines": "0.4.x"
   },
+  "preferGlobal": "true",
   "bin": {
     "nexe": "./bin/nexe"
   },
