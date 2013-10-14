@@ -18,7 +18,7 @@ options('o', {
 }).
 options('r', {
 	alias: 'runtime',
-	default: '0.8.21',
+	default: '0.10.20',
 	description: 'The node.js runtime to use'
 }).
 options('t', {
