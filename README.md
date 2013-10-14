@@ -14,7 +14,7 @@ Compile javascript **with** node.js. This allows you to move your executable aro
 Via NPM:
 
 ```bash
-	npm install nexe
+	npm install nexe [-g]
 ```
 
 Or git:
