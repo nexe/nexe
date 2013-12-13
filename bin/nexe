@@ -25,6 +25,10 @@ options('t', {
 	alias: 'temp',
 	default: '/tmp/nexe',
 	description: 'The path to store node.js sources'
+}).
+options('v', {
+	alias: 'version',
+	description: 'Display version number'
 });
 
 var argv = cli.argv;
@@ -32,6 +36,10 @@ var argv = cli.argv;
 
 if(argv.h || argv.help) {
 	cli.showHelp();
+	process.exit();
+} else if (argv.v || argv.version) {
+	var pkginfo = require('../package.json');
+	console.log(pkginfo.version);
 	process.exit();
 }
 
