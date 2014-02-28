@@ -1,4 +1,6 @@
-#### Nexe is a command-line utility that compiles your Node.js application into a single executable file.
+### Nexe
+
+Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
 ### Motivation
 
