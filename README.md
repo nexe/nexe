@@ -1,5 +1,4 @@
-Compile javascript **with** node.js. This allows you to move your executable around *without* needing to install the node.js runtime.
-
+#### Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
 ### Motivation
 
