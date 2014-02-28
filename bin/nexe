@@ -43,7 +43,11 @@ function toRelative(pt) {
 
 
 
-require('../lib').compile({ input: toRelative(argv.i), output: toRelative(argv.o), runtime: argv.r, temp: toRelative(argv.t) }, function(error) {
+require('../lib').compile({ 
+	input       : toRelative(argv.i),
+	output      : toRelative(argv.o), 
+	nodeVersion : argv.r, 
+	temp        : toRelative(argv.t) }, function(error) {
 
 	if(error) console.log(error.message);
 });
