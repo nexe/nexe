@@ -1,5 +1,15 @@
 Compile javascript **with** node.js. This allows you to move your executable around *without* needing to install the node.js runtime.
 
+
+### Motivation
+
+- Developing client-side utilities without requiring to install a bunch of dependencies first (node.js, npm).
+- Ability to run multiple node.js applications with *different* node.js runtimes. 
+- Distributable packages without needing node / npm.
+- Starts faster.
+- Lockdown specific application versions, and easily rollback.
+- Faster deployments.
+
 ## Requirements
 
 - Linux / Mac
@@ -22,14 +32,6 @@ Or git:
 ```bash
 	git clone 
 ```
-
-
-### Motivation
-
-- Developing client-side utilities without requiring to install a bunch of dependencies first (node.js, npm).
-- Ability to run multiple node.js applications with *different* node.js runtimes. 
-- Distributable packages without needing node / npm.
-- Loads faster.
 
 ### CLI Usage
 
