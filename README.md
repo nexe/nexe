@@ -3,7 +3,7 @@ Compile javascript **with** node.js. This allows you to move your executable aro
 
 ### Motivation
 
-- Developing client-side utilities without requiring to install a bunch of dependencies first (node.js, npm, additional deps).
+- Developing client-side utilities without requiring to install a bunch of dependencies first (node.js, npm, other libs).
 - Ability to run multiple node.js applications with *different* node.js runtimes. 
 - Distributable packages without needing node / npm.
 - Starts faster.
