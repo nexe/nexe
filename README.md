@@ -1,4 +1,17 @@
-Compile javascript **with** node.js. This allows you to move your executable around *without* needing to install the node.js runtime.
+### Nexe
+
+Nexe is a command-line utility that compiles your Node.js application into a single executable file.
+
+![screen shot 2014-02-28 at 10 32 54 am](https://f.cloud.github.com/assets/757408/2296993/c276f7b6-a0a6-11e3-86d3-e6c5feba2a85.png)
+
+
+### Motivation
+
+- Ability to run multiple applications with *different* node.js runtimes. 
+- Distributable binaries without needing node / npm.
+- Starts faster.
+- Lockdown specific application versions, and easily rollback.
+- Faster deployments.
 
 ## Requirements
 
@@ -22,14 +35,6 @@ Or git:
 ```bash
 	git clone 
 ```
-
-
-### Motivation
-
-- Developing client-side utilities without requiring to install a bunch of dependencies first (node.js, npm).
-- Ability to run multiple node.js applications with *different* node.js runtimes. 
-- Distributable packages without needing node / npm.
-- Loads faster.
 
 ### CLI Usage
 
