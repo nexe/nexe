@@ -26,6 +26,11 @@ options('t', {
 	default: '/tmp/nexe',
 	description: 'The path to store node.js sources'
 }).
+options('f', {
+	alias: 'flags',
+	description: 'Don\'t parse node and v8 flags, pass through app flags',
+	default: false
+}).
 options('v', {
 	alias: 'version',
 	description: 'Display version number'
@@ -54,6 +59,7 @@ function toRelative(pt) {
 require('../lib').compile({ 
 	input       : toRelative(argv.i),
 	output      : toRelative(argv.o), 
+	flags       : argv.f,
 	nodeVersion : argv.r, 
 	nodeTempDir : toRelative(argv.t) }, function(error) {
 
