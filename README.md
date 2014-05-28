@@ -52,13 +52,18 @@ Options:
 ```` 
 
 
-### Code usage
+### Code Usage
 
 ````javascript
 
 var nexe = require('nexe');
 
-nexe.compile({ input: 'input.js', output: 'path/to/bin', runtime: '0.8.15', flags: true } function() {
+nexe.compile({
+	input: 'input.js',
+	output: 'path/to/bin',
+	runtime: '0.8.15',
+	flags: true
+}, function(err) {
 	
 });
 	
