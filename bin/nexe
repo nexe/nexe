@@ -55,9 +55,8 @@ function toRelative(pt) {
 }
 
 
-
 require('../lib').compile({ 
-	input       : toRelative(argv.i),
+	input       : require.resolve(toRelative(argv.i)),
 	output      : toRelative(argv.o), 
 	flags       : argv.f,
 	nodeVersion : argv.r, 
