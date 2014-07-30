@@ -2,7 +2,7 @@
   "author": "Craig Condon <craig.j.condon@gmail.com>",
   "name": "nexe",
   "description": "Roll node.s applications into a single executable",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/crcn/nexe.git"
