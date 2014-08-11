@@ -1,0 +1,119 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'publish' ]
+2 info using npm@1.4.21
+3 info using node@v0.10.30
+4 verbose publish [ '.' ]
+5 verbose cache add [ '.', null ]
+6 verbose cache add name=undefined spec="." args=[".",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: '.',
+7 verbose parsed url   path: '.',
+7 verbose parsed url   href: '.' }
+8 silly lockFile 3a52ce78- .
+9 verbose lock . /Users/craig/.npm/3a52ce78-.lock
+10 verbose tar pack [ '/Users/craig/.npm/nexe/0.3.2/package.tgz', '.' ]
+11 verbose tarball /Users/craig/.npm/nexe/0.3.2/package.tgz
+12 verbose folder .
+13 info prepublish nexe@0.3.2
+14 silly lockFile 1f1177db-tar tar://.
+15 verbose lock tar://. /Users/craig/.npm/1f1177db-tar.lock
+16 silly lockFile bf6988ee-craig-npm-nexe-0-3-2-package-tgz tar:///Users/craig/.npm/nexe/0.3.2/package.tgz
+17 verbose lock tar:///Users/craig/.npm/nexe/0.3.2/package.tgz /Users/craig/.npm/bf6988ee-craig-npm-nexe-0-3-2-package-tgz.lock
+18 silly lockFile 1f1177db-tar tar://.
+19 silly lockFile 1f1177db-tar tar://.
+20 silly lockFile bf6988ee-craig-npm-nexe-0-3-2-package-tgz tar:///Users/craig/.npm/nexe/0.3.2/package.tgz
+21 silly lockFile bf6988ee-craig-npm-nexe-0-3-2-package-tgz tar:///Users/craig/.npm/nexe/0.3.2/package.tgz
+22 silly lockFile 845e39f1-ers-craig-npm-nexe-0-3-2-package /Users/craig/.npm/nexe/0.3.2/package
+23 verbose lock /Users/craig/.npm/nexe/0.3.2/package /Users/craig/.npm/845e39f1-ers-craig-npm-nexe-0-3-2-package.lock
+24 silly lockFile 845e39f1-ers-craig-npm-nexe-0-3-2-package /Users/craig/.npm/nexe/0.3.2/package
+25 silly lockFile 845e39f1-ers-craig-npm-nexe-0-3-2-package /Users/craig/.npm/nexe/0.3.2/package
+26 silly lockFile 3a52ce78- .
+27 silly lockFile 3a52ce78- .
+28 silly publish { author: { name: 'Craig Condon', email: 'craig.j.condon@gmail.com' },
+28 silly publish   name: 'nexe',
+28 silly publish   description: 'Roll node.s applications into a single executable',
+28 silly publish   version: '0.3.2',
+28 silly publish   repository: { type: 'git', url: 'git://github.com/crcn/nexe.git' },
+28 silly publish   main: './lib/index.js',
+28 silly publish   dependencies:
+28 silly publish    { async: '~0.2.10',
+28 silly publish      builtins: '0.0.5',
+28 silly publish      colors: '~0.6.2',
+28 silly publish      glob: '~3.2.9',
+28 silly publish      mkdirp: '~0.3.5',
+28 silly publish      'module-deps': '^3.5.4',
+28 silly publish      ncp: '~0.2.7',
+28 silly publish      optimist: '~0.3.7',
+28 silly publish      outcome: '0.0.18',
+28 silly publish      progress: '~1.1.3',
+28 silly publish      request: '~2.12.0',
+28 silly publish      sprintf: '~0.1.3',
+28 silly publish      step: '0.0.x',
+28 silly publish      'tar.gz': '0.1.1',
+28 silly publish      through: '^2.3.4',
+28 silly publish      'uglify-js': '^2.4.15' },
+28 silly publish   preferGlobal: 'true',
+28 silly publish   bin: { nexe: './bin/nexe' },
+28 silly publish   devDependencies: { 'expect.js': '~0.3.1', mocha: '~1.17.1' },
+28 silly publish   readme: '### Nexe\n\nNexe is a command-line utility that compiles your Node.js application into a single executable file.\n\n![screen shot 2014-02-28 at 10 32 54 am](https://f.cloud.github.com/assets/757408/2296993/c276f7b6-a0a6-11e3-86d3-e6c5feba2a85.png)\n\n\n### Motivation\n\n- Ability to run multiple applications with *different* node.js runtimes. \n- Distributable binaries without needing node / npm.\n- Starts faster.\n- Lockdown specific application versions, and easily rollback.\n- Faster deployments.\n\n## Requirements\n\n- Linux / Mac / BSD / Windows\n- Windows: Python 2.6 or 2.7 (in PATH), Visual Studio 2010 or 2012\n\n## Caveats\n\n- Doesn\'t support native modules (yet).\n\n## Installation\n\nVia NPM:\n\n```bash\n\tnpm install nexe [-g]\n```\n\nOr git:\n\n```bash\n\tgit clone \n```\n\n### CLI Usage\n\n````text\n\t\nUsage: nexe -i [sources] -o [binary]\n\nOptions:\n  -i, --input    The entry javascript files         [default: cwd]\n  -o, --output   The output binary                  [default: cwd/release/app.nex]\n  -r, --runtime  The node.js runtime to use         [default: "0.8.15"]\n  -t, --temp     The path to store node.js sources  [default: /tmp/nexe]\n  -f, --flags    Don\'t parse node and v8 flags, pass through app flags  [default: false]\n\n```` \n\n\n### Code Usage\n\n````javascript\n\nvar nexe = require(\'nexe\');\n\nnexe.compile({\n\tinput: \'input.js\',\n\toutput: \'path/to/bin\',\n\truntime: \'0.8.15\',\n\tflags: true\n}, function(err) {\n\t\n});\n\t\n````\n\n\n\n\n\n',
+28 silly publish   readmeFilename: 'README.md',
+28 silly publish   gitHead: '85c88312486871fe67457b82202fe315abfb69a1',
+28 silly publish   bugs: { url: 'https://github.com/crcn/nexe/issues' },
+28 silly publish   homepage: 'https://github.com/crcn/nexe',
+28 silly publish   _id: 'nexe@0.3.2',
+28 silly publish   scripts: {},
+28 silly publish   _shasum: '6a317a683687ab4640a531f477f1d3c7a977966e',
+28 silly publish   _from: '.' }
+29 verbose request where is /nexe
+30 verbose request registry http://registry.npmjs.org/
+31 verbose request id c4d40298707f07ee
+32 verbose url raw /nexe
+33 verbose url resolving [ 'http://registry.npmjs.org/', './nexe' ]
+34 verbose url resolved http://registry.npmjs.org/nexe
+35 verbose request where is http://registry.npmjs.org/nexe
+36 info trying registry request attempt 1 at 23:46:17
+37 http PUT http://registry.npmjs.org/nexe
+38 http 403 http://registry.npmjs.org/nexe
+39 verbose headers { server: 'CouchDB/1.5.0 (Erlang OTP/R14B04)',
+39 verbose headers   'content-type': 'application/json',
+39 verbose headers   'cache-control': 'max-age=60',
+39 verbose headers   'content-length': '4852',
+39 verbose headers   'accept-ranges': 'bytes',
+39 verbose headers   date: 'Mon, 11 Aug 2014 06:46:17 GMT',
+39 verbose headers   via: '1.1 varnish',
+39 verbose headers   connection: 'keep-alive',
+39 verbose headers   'x-served-by': 'cache-sjc3131-SJC',
+39 verbose headers   'x-cache': 'MISS',
+39 verbose headers   'x-cache-hits': '0',
+39 verbose headers   'x-timer': 'S1407739577.353808,VS0,VE116' }
+40 error publish Failed PUT 403
+41 error Error: forbidden cannot modify pre-existing version: 0.3.2
+41 error old={"author":{"name":"Craig Condon","email":"craig.j.condon@gmail.com"},"name":"nexe","description":"Roll node.s applications into a single executable","version":"0.3.2","repository":{"type":"git","url":"git://github.com/crcn/nexe.git"},"main":"./lib/index.js","dependencies":{"async":"~0.2.10","builtins":"0.0.5","colors":"~0.6.2","glob":"~3.2.9","mkdirp":"~0.3.5","module-deps":"^3.5.4","ncp":"~0.2.7","optimist":"~0.3.7","outcome":"0.0.18","progress":"~1.1.3","request":"~2.12.0","sprintf":"~0.1.3","step":"0.0.x","tar.gz":"0.1.1","through":"^2.3.4","uglify-js":"^2.4.15"},"preferGlobal":"true","bin":{"nexe":"./bin/nexe"},"devDependencies":{"expect.js":"~0.3.1","mocha":"~1.17.1"},"gitHead":"85c88312486871fe67457b82202fe315abfb69a1","bugs":{"url":"https://github.com/crcn/nexe/issues"},"homepage":"https://github.com/crcn/nexe","_id":"nexe@0.3.2","scripts":{},"_shasum":"a1172674d2c8deff12f2d6683d381ec1d0da3342","_from":".","_npmVersion":"1.4.21","_npmUser":{"name":"architectd","email":"craig.j.condon@gmail.com"},"maintainers":[{"name":"architectd","email":"craig.j.condon@gmail.com"}],"dist":{"shasum":"a1172674d2c8deff12f2d6683d381ec1d0da3342","tarball":"http://registry.npmjs.org/nexe/-/nexe-0.3.2.tgz"}}
+41 error new={"author":{"name":"Craig Condon","email":"craig.j.condon@gmail.com"},"name":"nexe","description":"Roll node.s applications into a single executable","version":"0.3.2","repository":{"type":"git","url":"git://github.com/crcn/nexe.git"},"main":"./lib/index.js","dependencies":{"async":"~0.2.10","builtins":"0.0.5","colors":"~0.6.2","glob":"~3.2.9","mkdirp":"~0.3.5","module-deps":"^3.5.4","ncp":"~0.2.7","optimist":"~0.3.7","outcome":"0.0.18","progress":"~1.1.3","request":"~2.12.0","sprintf":"~0.1.3","step":"0.0.x","tar.gz":"0.1.1","through":"^2.3.4","uglify-js":"^2.4.15"},"preferGlobal":"true","bin":{"nexe":"./bin/nexe"},"devDependencies":{"expect.js":"~0.3.1","mocha":"~1.17.1"},"readme":"### Nexe\u000a\u000aNexe is a command-line utility that compiles your Node.js application into a single executable file.\u000a\u000a![screen shot 2014-02-28 at 10 32 54 am](https://f.cloud.github.com/assets/757408/2296993/c276f7b6-a0a6-11e3-86d3-e6c5feba2a85.png)\u000a\u000a\u000a### Motivation\u000a\u000a- Ability to run multiple applications with *different* node.js runtimes. \u000a- Distributable binaries without needing node / npm.\u000a- Starts faster.\u000a- Lockdown specific application versions, and easily rollback.\u000a- Faster deployments.\u000a\u000a## Requirements\u000a\u000a- Linux / Mac / BSD / Windows\u000a- Windows: Python 2.6 or 2.7 (in PATH), Visual Studio 2010 or 2012\u000a\u000a## Caveats\u000a\u000a- Doesn't support native modules (yet).\u000a\u000a## Installation\u000a\u000aVia NPM:\u000a\u000a```bash\u000a\u0009npm install nexe [-g]\u000a```\u000a\u000aOr git:\u000a\u000a```bash\u000a\u0009git clone \u000a```\u000a\u000a### CLI Usage\u000a\u000a````text\u000a\u0009\u000aUsage: nexe -i [sources] -o [binary]\u000a\u000aOptions:\u000a  -i, --input    The entry javascript files         [default: cwd]\u000a  -o, --output   The output binary                  [default: cwd/release/app.nex]\u000a  -r, --runtime  The node.js runtime to use         [default: \"0.8.15\"]\u000a  -t, --temp     The path to store node.js sources  [default: /tmp/nexe]\u000a  -f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]\u000a\u000a```` \u000a\u000a\u000a### Code Usage\u000a\u000a````javascript\u000a\u000avar nexe = require('nexe');\u000a\u000anexe.compile({\u000a\u0009input: 'input.js',\u000a\u0009output: 'path/to/bin',\u000a\u0009runtime: '0.8.15',\u000a\u0009flags: true\u000a}, function(err) {\u000a\u0009\u000a});\u000a\u0009\u000a````\u000a\u000a\u000a\u000a\u000a\u000a","readmeFilename":"README.md","gitHead":"85c88312486871fe67457b82202fe315abfb69a1","bugs":{"url":"https://github.com/crcn/nexe/issues"},"homepage":"https://github.com/crcn/nexe","_id":"nexe@0.3.2","scripts":{},"_shasum":"6a317a683687ab4640a531f477f1d3c7a977966e","_from":".","_npmVersion":"1.4.21","_npmUser":{"name":"architectd","email":"craig.j.condon@gmail.com"},"maintainers":[{"name":"architectd","email":"craig.j.condon@gmail.com"}],"dist":{"shasum":"6a317a683687ab4640a531f477f1d3c7a977966e","tarball":"http://registry.npmjs.org/nexe/-/nexe-0.3.2.tgz"}}: nexe
+41 error     at RegClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:300:14)
+41 error     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:238:65)
+41 error     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:123:22)
+41 error     at Request.emit (events.js:98:17)
+41 error     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:893:14)
+41 error     at Request.emit (events.js:117:20)
+41 error     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:844:12)
+41 error     at IncomingMessage.emit (events.js:117:20)
+41 error     at _stream_readable.js:938:16
+41 error     at process._tickCallback (node.js:419:13)
+42 error If you need help, you may report this *entire* log,
+42 error including the npm and node versions, at:
+42 error     <http://github.com/npm/npm/issues>
+43 error System Darwin 13.3.0
+44 error command "node" "/usr/local/bin/npm" "publish"
+45 error cwd /Users/craig/Developer/Public/nexe
+46 error node -v v0.10.30
+47 error npm -v 1.4.21
+48 verbose exit [ 1, true ]
