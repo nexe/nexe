@@ -2,7 +2,7 @@
 
 var path = require('path');
 
-var cli = require('optimist').
+var cli = require('yargs').
 usage('Usage: $0 -i [sources] -o [binary]').
 options('i', {
 	demand: true,
