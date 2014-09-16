@@ -61,7 +61,8 @@ var nexe = require('nexe');
 nexe.compile({
 	input: 'input.js',
 	output: 'path/to/bin',
-	runtime: '0.8.15',
+	nodeVersion: '0.8.15',
+	nodeTempDir: __dirname
 	flags: true
 }, function(err) {
 	
