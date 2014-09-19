@@ -1,3 +1,5 @@
+## This repository is not actively maintained. 
+
 ### Nexe
 
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
