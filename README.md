@@ -1,3 +1,5 @@
+## This repository is not actively maintained. 
+
 ### Nexe
 
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
@@ -61,7 +63,8 @@ var nexe = require('nexe');
 nexe.compile({
 	input: 'input.js',
 	output: 'path/to/bin',
-	runtime: '0.8.15',
+	nodeVersion: '0.8.15',
+	nodeTempDir: __dirname
 	flags: true
 }, function(err) {
 	
