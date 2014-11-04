@@ -64,7 +64,7 @@ nexe.compile({
 	input: 'input.js',
 	output: 'path/to/bin',
 	nodeVersion: '0.8.15',
-	nodeTempDir: __dirname
+	nodeTempDir: __dirname,
 	flags: true
 }, function(err) {
 	
