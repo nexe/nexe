@@ -24,7 +24,7 @@ Nexe is a command-line utility that compiles your Node.js application into a sin
 
 ### Doesn't support native modules
 
-- Use the techniques below for working around dynamic require statments to exclude the module from the bundling, and deploy along side the executable in a node_module folder so your app can find it.
+- Use the techniques below for working around dynamic require statments to exclude the module from the bundling, and deploy along side the executable in a node_module folder so your app can find it. Note: On windows you may need to have your app be named node.exe if .node file depends on node.
  
 ###Doesn't support dynamic require statments
 Such As:
