@@ -71,7 +71,7 @@ Using these two techniques you can change your application code so mdoules are n
 
 ### __dirname
 
-Once the module is budnled it is part of the executable. __dirname is therefore the CWD (current working dir) of the executable when run. Thus if you put resources on a realtive path from the cwd of the executable (in most cases the path to the executable) your app will be able to access them.
+Once the module is budnled it is part of the executable. __dirname is therefore the executable dir (process.execPath). Thus if you put resources on a realtive path from the the executable your app will be able to access them.
 
 If you had a data file at /dev/myNodeApp/stateManager/handler/data/some.csv
 and a file at /dev/myNodeApp/stateManager/handler/loader.js
@@ -80,7 +80,7 @@ and a file at /dev/myNodeApp/stateManager/handler/loader.js
 ```
 you would need to deploy some.csv in a sub dir data/ along side your executable
 
-There are potential use cases for __dirname where the CWD is not the correct substitution, and could result in a silent error (possibly even in a dependciey that you are unaware of).
+There are potential use cases for __dirname where the executable path is not the correct substitution, and could result in a silent error (possibly even in a dependciey that you are unaware of).
 
 Note: __filename will be 'undefined'
 
@@ -131,8 +131,3 @@ nexe.compile({
 });
 	
 ````
-
-
-
-
-
