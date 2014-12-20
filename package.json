@@ -10,7 +10,7 @@
   "main": "./lib/index.js",
   "dependencies": {
     "async": "~0.2.10",
-    "builtins": "0.0.5",
+    "builtins": "0.0.7",
     "colors": "~0.6.2",
     "glob": "~3.2.9",
     "mkdirp": "~0.3.5",
