@@ -84,6 +84,10 @@ There are potential use cases for __dirname where the executable path is not the
 
 Note: __filename will be 'undefined'
 
+### child_process.fork
+
+child_process.spawn works is unmodified, but child_process.fork will make an attempt to lunch a new instance of your executable and run the bundled module.
+
 ## Installation
 
 Via NPM:
