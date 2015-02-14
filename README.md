@@ -108,14 +108,16 @@ Or git:
 
 ```text
 
-Usage: nexe -i [sources] -o [binary]
+Usage: nexe -i [sources] -o [binary] [options]
 
 Options:
   -i, --input    The entry javascript files         [default: cwd]
   -o, --output   The output binary                  [default: cwd/release/app.nex]
-  -r, --runtime  The node.js runtime to use         [default: "0.8.15"]
-  -t, --temp     The path to store node.js sources  [default: /tmp/nexe]
+  -r, --runtime  The node.js runtime to use         [default: "latest"]
+  -t, --temp     The path to store node.js sources  [default: cwd/tmp/nexe]
   -f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
+	-v, --version  Display version number
+	-p, --python   Set path of python to use.         [default: "python"]
 
 ```
 
@@ -129,8 +131,9 @@ var nexe = require('nexe');
 nexe.compile({
 	input: 'input.js',
 	output: 'path/to/bin',
-	nodeVersion: '0.8.15',
+	nodeVersion: '0.12.0',
 	nodeTempDir: __dirname,
+	python: 'path/to/python',
 	flags: true
 }, function(err) {
 
