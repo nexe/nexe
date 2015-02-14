@@ -101,7 +101,7 @@ Via NPM:
 Or git:
 
 ```bash
-	git clone
+	git clone https://github.com/crcn/nexe.git
 ```
 
 ### CLI Usage
@@ -111,11 +111,11 @@ Or git:
 Usage: nexe -i [sources] -o [binary] [options]
 
 Options:
-  -i, --input    The entry javascript files         [default: cwd]
-  -o, --output   The output binary                  [default: cwd/release/app.nex]
-  -r, --runtime  The node.js runtime to use         [default: "latest"]
-  -t, --temp     The path to store node.js sources  [default: cwd/tmp/nexe]
-  -f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
+	-i, --input    The entry javascript files         [default: cwd]
+	-o, --output   The output binary                  [default: cwd/release/app.nex]
+	-r, --runtime  The node.js runtime to use         [default: "latest"]
+	-t, --temp     The path to store node.js sources  [default: cwd/tmp/nexe]
+	-f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
 	-v, --version  Display version number
 	-p, --python   Set path of python to use.         [default: "python"]
 
