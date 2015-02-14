@@ -34,6 +34,11 @@ options('f', {
 options('v', {
 	alias: 'version',
 	description: 'Display version number'
+}).
+options('p', {
+	alias: 'python',
+	description: 'Set path of python to use.',
+	default: 'python'
 });
 
 var argv = cli.argv;
@@ -54,12 +59,12 @@ function toRelative(pt) {
 	return path.join(process.cwd(), pt);
 }
 
-
-require('../lib').compile({ 
+require('../lib').compile({
 	input       : require.resolve(toRelative(argv.i)),
-	output      : toRelative(argv.o), 
+	output      : toRelative(argv.o),
 	flags       : argv.f,
-	nodeVersion : argv.r, 
+	nodeVersion : argv.r,
+	python      : argv.python,
 	nodeTempDir : toRelative(argv.t) }, function(error) {
 
 	if(error) console.log(error.message);
