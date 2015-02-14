@@ -1,5 +1,3 @@
-## This repository is not actively maintained. 
-
 ### Nexe
 
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
@@ -9,7 +7,7 @@ Nexe is a command-line utility that compiles your Node.js application into a sin
 
 ### Motivation
 
-- Ability to run multiple applications with *different* node.js runtimes. 
+- Ability to run multiple applications with *different* node.js runtimes.
 - Distributable binaries without needing node / npm.
 - Starts faster.
 - Lockdown specific application versions, and easily rollback.
@@ -20,69 +18,73 @@ Nexe is a command-line utility that compiles your Node.js application into a sin
 - Linux / Mac / BSD / Windows
 - Windows: Python 2.6 or 2.7 (in PATH), Visual Studio 2010 or 2012
 
-##Caveats
+## Caveats
 
 ### Doesn't support native modules
 
-- Use the techniques below for working around dynamic require statments to exclude the module from the bundling, and deploy along side the executable in a node_module folder so your app can find it. Note: On windows you may need to have your app be named node.exe if .node file depends on node.
- 
-###Doesn't support dynamic require statments
+- Use the techniques below for working around dynamic require statements to exclude the module from the bundling, and deploy along side the executable in a node_module folder so your app can find it. Note: On windows you may need to have your app be named node.exe if .node file depends on node.
+
+### Doesn't support dynamic require statements
+
 Such As:
-```
+
+```javascript
 var x = require(someVar);
 ```
 
 In this case nexe won't bundle the file
 
-```
+```javascript
 	var x;
 	if (someCheck) {
 		x = require("./ver1.js");
-	}
-	else {
+	} else {
 		x = require("./var2.js");
 	}
 ```
 
 In this case nexe will bundle both files.
-	
+
 Workarounds:
-1) for dyanmic requires that you want bundled add the following into your project
-```
+1) for dynamic requires that you want bundled add the following into your project
+
+```javascript
 	var dummyToForceIncludeForBundle = false;
 	if (dummyToForceIncludeForBundle) {
 		require("./loadedDynamicallyLater.js");
-		...
+		// ...
 	}
 ```
 this will trick the bundler into including them.
-	
+
 2) for dynamic files getting included that you don't want to be
-```
+
+```javascript
 	var moduleName = "./ver2.js";
 	if (someCheck) {
 		moduleName = "./ver1.js";
 	}
-	var x = require(moduleName)
+	var x = require(moduleName);
 ```
 Note: neither file will be bundled.
-	
-Using these two techniques you can change your application code so mdoules are not bundles, and generate a includes.js file as part of your build process so that the right files get bundled for your build configuration.
 
-### __dirname
+Using these two techniques you can change your application code so modules are not bundles, and generate a includes.js file as part of your build process so that the right files get bundled for your build configuration.
 
-Once the module is budnled it is part of the executable. __dirname is therefore the executable dir (process.execPath). Thus if you put resources on a realtive path from the the executable your app will be able to access them.
+### &#95;&#95;dirname
 
-If you had a data file at /dev/myNodeApp/stateManager/handler/data/some.csv
-and a file at /dev/myNodeApp/stateManager/handler/loader.js
-```
+Once the module is bundled it is part of the executable. &#95;&#95;dirname is therefore the executable dir (process.execPath). Thus if you put resources on a relative path from the the executable your app will be able to access them.
+
+If you had a data file at `/dev/myNodeApp/stateManager/handler/data/some.csv`
+and a file at `/dev/myNodeApp/stateManager/handler/loader.js`
+
+```javascript
 	module.exports = fw.readFileSync(path.join(__dirname, "./data/some.csv"));
 ```
-you would need to deploy some.csv in a sub dir data/ along side your executable
+You would need to deploy some.csv in a sub dir `data/` along side your executable
 
-There are potential use cases for __dirname where the executable path is not the correct substitution, and could result in a silent error (possibly even in a dependciey that you are unaware of).
+There are potential use cases for &#95;&#95;dirname where the executable path is not the correct substitution, and could result in a silent error (possibly even in a dependency that you are unaware of).
 
-Note: __filename will be 'undefined'
+Note: &#95;&#95;filename will be 'undefined'
 
 ### child_process.fork
 
@@ -99,13 +101,13 @@ Via NPM:
 Or git:
 
 ```bash
-	git clone 
+	git clone
 ```
 
 ### CLI Usage
 
-````text
-	
+```text
+
 Usage: nexe -i [sources] -o [binary]
 
 Options:
@@ -115,12 +117,12 @@ Options:
   -t, --temp     The path to store node.js sources  [default: /tmp/nexe]
   -f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
 
-```` 
+```
 
 
 ### Code Usage
 
-````javascript
+```javascript
 
 var nexe = require('nexe');
 
@@ -131,7 +133,12 @@ nexe.compile({
 	nodeTempDir: __dirname,
 	flags: true
 }, function(err) {
-	
+
 });
-	
-````
+
+```
+
+## Maintainers
+
+* __Jared Allard__ ([@rainbowdashdc](https://github.com/RainbowDashDC)) &lt;[rainbowdashdc@mezgrman.de](mailto:rainbowdashdc@mezgrman.de)&gt; (Active)
+* __Craig Jefferds__ ([@crcn](https://github.com/crcn)) &lt;[craig.j.condon@gmail.com](mailto:craig.j.condon@gmail.com)&gt; (Not Active)
