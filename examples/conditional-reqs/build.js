@@ -3,9 +3,10 @@ var nexe = require('nexe');
 nexe.compile(
   {
     input: "./index.js",
-    output: "",
-    nodeVersion: "0.10.33",
+    output: "./out.exe",
+    nodeVersion: "latest",
     nodeTempDir: "",
+    python: "C:\\Python27\\python.exe",
     flags: true
   },
   function (err) {
