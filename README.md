@@ -134,9 +134,10 @@ nexe.compile({
 	nodeVersion: '0.12.0',
 	nodeTempDir: __dirname,
 	python: 'path/to/python',
+	resourceFiles: [ 'path/to/a/file' ],
 	flags: true
 }, function(err) {
-
+	console.log(err);
 });
 
 ```
