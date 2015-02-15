@@ -3,10 +3,11 @@ var nexe = require('nexe');
 nexe.compile(
   {
     input: "./index.js",
-    output: "",
+    output: "./hellowWorld.exe",
     nodeVersion: "0.10.33",
     nodeTempDir: "",
-    flags: true
+    flags: true,
+    resourceFiles: ["./message.txt"]
   },
   function (err) {
     if (err) {

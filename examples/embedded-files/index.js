@@ -16,8 +16,8 @@ console.log("started HTTP server on port %d", port = Number(process.argv.concat(
 
 http.createServer(function(req, res) {
   //return the embeded file in response to any request
-
-res.write("Hello, world!");
+  
+res.write(nexeres.get("message.txt"));
 
   res.end();
 }).listen(port);
