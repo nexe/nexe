@@ -1,5 +1,7 @@
 ### Nexe
 
+[![Join the chat at https://gitter.im/crcn/nexe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/crcn/nexe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
 ![screen shot 2014-02-28 at 10 32 54 am](https://f.cloud.github.com/assets/757408/2296993/c276f7b6-a0a6-11e3-86d3-e6c5feba2a85.png)
