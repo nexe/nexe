@@ -1,5 +1,39 @@
 # Nexe ChangeLog
 
+## 2015-02-20, Version v0.3.7, @rainbowdashdc
+
+### Noteable Changes
+
+   * Fixed #103.
+   * Made not-available require not a fatal error.
+   * Stub and system to ignore certain requires.
+   * Added 'sys' to ignore list.
+   * We have a gitter!
+   * Gave win32 a 100 length progress bar.
+
+### Commits
+  
+   * [**2cacd83**] Update README.md (@crcn)
+   * [**0e90ac9**] Update README.md (@crcn)
+   * [**54967d1**] Added Gitter badge (@rainbowdashdc)
+   * [**bb489a3**] Fixes #98 by giving win32 a 100 length progress bar. (@rainbowdashdc)
+   * [**39665a8**] Lighter weight way to accomplish the exclusion of the sys module (@CKarper)
+   * [**5aca22d**] This handles embedding 'bin' scripts with shebang interpreter... (@CKarper)
+   * [**e79b0fb**] Stub to ignore require('sys') (@CKarper)
+
+## 2015-02-15, Version v0.3.6, @rainbowdashdc
+
+### Noteable Changes
+
+   * Now support .json in require.
+   * Fixed a major --python flag bug.
+
+### Commits
+
+   * [**cac6986**] V bump to solve critical error. (@rainbowdashdc)
+   * [**b040337**] Fixes #99, resolves #97 by warning on missing file. New examples... (@rainbowdashdc)
+   * [**ad4da1d**] Support .json extensions in require() resolution (@CKarper)
+
 ## 2015-02-14, Version v0.3.5, @rainbowdashdc
 
 
