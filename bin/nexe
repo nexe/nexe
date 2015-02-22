@@ -60,11 +60,11 @@ function toAbsolute(pt) {
 
 require('../lib').compile({
 	input       : require.resolve(toAbsolute(argv.i)),
-	output      : toRelative(argv.o),
+	output      : toAbsolute(argv.o),
 	flags       : argv.f,
 	nodeVersion : argv.r,
 	python      : argv.python,
-	nodeTempDir : toRelative(argv.t) }, function(error) {
+	nodeTempDir : toAbsolute(argv.t) }, function(error) {
 
 	if(error) console.log(error.message);
 });
