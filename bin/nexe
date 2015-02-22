@@ -43,7 +43,6 @@ options('p', {
 
 var argv = cli.argv;
 
-
 if(argv.h || argv.help) {
 	cli.showHelp();
 	process.exit();
@@ -54,13 +53,13 @@ if(argv.h || argv.help) {
 }
 
 
-function toRelative(pt) {
+function toAbsolute(pt) {
 	if(pt.substr(0, 1) == "/") return pt;
 	return path.join(process.cwd(), pt);
 }
 
 require('../lib').compile({
-	input       : require.resolve(toRelative(argv.i)),
+	input       : require.resolve(toAbsolute(argv.i)),
 	output      : toRelative(argv.o),
 	flags       : argv.f,
 	nodeVersion : argv.r,
