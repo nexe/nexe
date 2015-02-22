@@ -147,4 +147,5 @@ nexe.compile({
 ## Maintainers
 
 * __Jared Allard__ ([@rainbowdashdc](https://github.com/RainbowDashDC)) &lt;[rainbowdashdc@mezgrman.de](mailto:rainbowdashdc@mezgrman.de)&gt; (Active)
+* __Christopher Karper__ ([@ckarper](https://github.com/CKarper)) &lt;[Christopher.Karper@gmail.com](mailto:Christopher.Karper@gmail.com)&gt; (Active)
 * __Craig Jefferds__ ([@crcn](https://github.com/crcn)) &lt;[craig.j.condon@gmail.com](mailto:craig.j.condon@gmail.com)&gt; (Not Active)
