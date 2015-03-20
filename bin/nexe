@@ -14,7 +14,7 @@ options('o', {
 	demand: true,
 	alias: 'output',
 	desc: 'The output binary',
-	default: process.cwd() + '/release/' + path.basename(process.cwd()) + '.nex'
+	default: "..."+(process.cwd() + '/release/' + path.basename(process.cwd()) + '.nex').substr(-47) // cleaner for long directories
 }).
 options('r', {
 	alias: 'runtime',
@@ -39,6 +39,11 @@ options('p', {
 	alias: 'python',
 	description: 'Set path of python to use.',
 	default: 'python'
+}).
+options('F', {
+	alias: 'framework',
+	description: 'Set the framework to use',
+	default: 'nodejs'
 });
 
 var argv = cli.argv;
@@ -64,7 +69,7 @@ require('../lib').compile({
 	flags       : argv.f,
 	nodeVersion : argv.r,
 	python      : argv.python,
-	nodeTempDir : toAbsolute(argv.t) }, function(error) {
-
-	if(error) console.log(error.message);
+	nodeTempDir : toAbsolute(argv.t),
+	framework   : argv.F }, function(error) {
+  	if(error) console.log(error.message);
 });
