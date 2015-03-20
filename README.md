@@ -121,7 +121,7 @@ Options:
 	-f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
 	-v, --version  Display version number
 	-p, --python   Set path of python to use.         [default: "python"]
-	-F, --framewrk Set the framework to use.          [default: "nodejs"]
+	-F, --framework Set the framework to use.          [default: "nodejs"]
 
 ```
 
