@@ -19,7 +19,7 @@ Nexe is a command-line utility that compiles your Node.js application into a sin
 ## Requirements
 
 - Linux / Mac / BSD / Windows
-- Windows: Python 2.6 or 2.7 (in PATH), Visual Studio 2010 or 2012
+- Windows: Python 2.6 or 2.7 (use --python if not in PATH), Visual Studio 2010 or 2012
 
 ## Caveats
 
@@ -121,6 +121,7 @@ Options:
 	-f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
 	-v, --version  Display version number
 	-p, --python   Set path of python to use.         [default: "python"]
+	-F, --framewrk Set the framework to use.          [default: "nodejs"]
 
 ```
 
@@ -138,7 +139,8 @@ nexe.compile({
 	nodeTempDir: __dirname,
 	python: 'path/to/python',
 	resourceFiles: [ 'path/to/a/file' ],
-	flags: true
+	flags: true,
+	framework: "nodejs"
 }, function(err) {
 	console.log(err);
 });
