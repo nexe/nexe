@@ -91,7 +91,7 @@ Note: &#95;&#95;filename will be 'undefined'
 
 ### child_process.fork
 
-child_process.spawn works is unmodified, but child_process.fork will make an attempt to lunch a new instance of your executable and run the bundled module.
+child_process.spawn works is unmodified, but child_process.fork will make an attempt to launch a new instance of your executable and run the bundled module.
 
 ## Installation
 
