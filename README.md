@@ -16,10 +16,10 @@ Nexe is a command-line utility that compiles your Node.js application into a sin
 - Lockdown specific application versions, and easily rollback.
 - Faster deployments.
 
-## Requirements
+## Building Requirements
 
 - Linux / Mac / BSD / Windows
-- Windows: Python 2.6 or 2.7 (use --python if not in PATH), Visual Studio 2010 or 2012
+- Windows: Python 2.6 or 2.7 (use --python if not in PATH), Visual Studio 2010+
 
 ## Caveats
 
