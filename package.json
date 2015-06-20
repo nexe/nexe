@@ -9,7 +9,7 @@
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "async": "^0.9.0",
+    "async": "1.2.1",
     "builtins": "1.0.1",
     "colors": "^1.0.3",
     "glob": "^5.0.5",
