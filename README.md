@@ -166,6 +166,10 @@ is still in works, so it is likely to change.
 }
 ```
 
+Notes:
+
+* output: can use ^$ for platform specific file extension
+
 ## Maintainers
 
 * __Jared Allard__ ([@jaredallard](https://github.com/jaredallard)) &lt;[jaredallard@outlook.com](mailto:jaredallard@outlook.com)&gt; (Active)
