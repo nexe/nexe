@@ -3,7 +3,7 @@
   "name": "nexe",
   "description": "Roll node.js applications into a single executable",
   "license": "MIT",
-  "version": "0.3.9",
+  "version": "0.4.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/crcn/nexe.git"
@@ -25,6 +25,16 @@
     "tar.gz": "0.1.1",
     "through": "^2.3.6",
     "yargs": "^3.2.1"
+  },
+  "nexe": {
+    "input": "./bin/nexe",
+    "output": "nexe^$",
+    "temp": "src",
+    "runtime": {
+      "framework": "iojs",
+      "version": "1.0.1",
+      "ignoreFlags": true
+    }
   },
   "preferGlobal": "true",
   "bin": {
