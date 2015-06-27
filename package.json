@@ -32,7 +32,7 @@
     "temp": "src",
     "runtime": {
       "framework": "iojs",
-      "version": "1.0.1",
+      "version": "2.3.1",
       "ignoreFlags": true
     }
   },
