@@ -1,7 +1,7 @@
 ### Nexe
 
 [![Join the chat at https://gitter.im/crcn/nexe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/crcn/nexe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Dependency Status](https://david-dm.org/crcn/nexe.svg)](https://david-dm.org/crcn/nexe)
-[![Stories in Ready](https://badge.waffle.io/crcn/nexe.svg?label=ready&title=Ready)](http://waffle.io/crcn/nexe) 
+[![Stories in Ready](https://badge.waffle.io/crcn/nexe.svg?label=ready&title=Ready)](http://waffle.io/crcn/nexe)
 
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
@@ -116,9 +116,9 @@ Usage: nexe -i [sources] -o [binary] [options]
 
 Options:
 	-i, --input    The entry javascript files         [default: cwd]
-	-o, --output   The output binary                  [default: cwd/release/app.nex]
+	-o, --output   The output binary                  [default: out.nex]
 	-r, --runtime  The node.js runtime to use         [default: "latest"]
-	-t, --temp     The path to store node.js sources  [default: cwd/tmp/nexe]
+	-t, --temp     The path to store node.js sources  [default: ./tmp/nexe]
 	-f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
 	-v, --version  Display version number
 	-p, --python   Set path of python to use.         [default: "python"]
@@ -136,8 +136,8 @@ var nexe = require('nexe');
 nexe.compile({
 	input: 'input.js',
 	output: 'path/to/bin',
-	nodeVersion: '0.12.0',
-	nodeTempDir: __dirname,
+	nodeVersion: '0.12.5',
+	nodeTempDir: 'src',
 	python: 'path/to/python',
 	resourceFiles: [ 'path/to/a/file' ],
 	flags: true,
@@ -146,6 +146,24 @@ nexe.compile({
 	console.log(err);
 });
 
+```
+
+### package.json inclusion
+
+As of 0.4.0 you can now embed nexe options into package.json. Note that this Format
+is still in works, so it is likely to change.
+
+```
+"nexe": {
+	"input": "./bin/nexe",
+	"output": "nexe^$",
+	"temp": "src",
+	"runtime": {
+		"framework": "iojs",
+		"version": "2.3.1",
+		"ignoreFlags": true
+	}
+}
 ```
 
 ## Maintainers
