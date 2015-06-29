@@ -4,6 +4,13 @@
   "description": "Roll node.js applications into a single executable",
   "license": "MIT",
   "version": "0.4.0",
+  "contributors": [
+    {
+      "name": "Jared Allard",
+      "email": "jaredallard@outlook.com",
+      "url": "jaredallard.com"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/crcn/nexe.git"
