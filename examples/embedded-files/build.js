@@ -1,11 +1,13 @@
-var nexe = require('nexe');
+var nexe = require('../..');
 
 nexe.compile(
   {
     input: "./index.js",
-    output: "./hellowWorld.exe",
-    nodeVersion: "0.10.33",
-    nodeTempDir: "",
+    output: "./out.nex",
+    nodeVersion: "3.0.0",
+    framework: "iojs",
+    nodeTempDir: "src",
+    python: "python",
     flags: true,
     resourceFiles: ["./message.txt"]
   },

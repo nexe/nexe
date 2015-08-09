@@ -58,13 +58,16 @@ if(argv.h || argv.help) {
 	process.exit();
 }
 
+/**
+ * TODO: Support network shares?
+ **/
 function toAbsolute(pt) {
 	if(pt.substr(0, 1) == "/") return pt;
+	if(pt.substr(1, 3) == ":/") return pt; // for windows "c:/" 
 	return path.join(process.cwd(), pt);
 }
 
 if(fs.lstatSync(argv.i).isDirectory()) {
-	_log("log", "checking package.json");
 	opts = nexe.package(path.join(argv.i, "package.json"), argv);
 	nexe.compile(opts, function(error) {
 		if(error) {

@@ -1,19 +1,19 @@
 {
-  "author": "Craig Condon <craig.j.condon@gmail.com>",
+  "author": "Jared Allard <jaredallard@outlook.com>",
   "name": "nexe",
-  "description": "Roll node.js applications into a single executable",
+  "description": "create single executables out of your [node/io].js applications",
   "license": "MIT",
   "version": "0.4.0",
   "contributors": [
     {
-      "name": "Jared Allard",
-      "email": "jaredallard@outlook.com",
-      "url": "jaredallard.com"
+      "name": "Criag Condon",
+      "email": "craig.j.condon@gmail.com",
+      "url": "http://crcn.io/"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/crcn/nexe.git"
+    "url": "git://github.com/jaredallard/nexe.git"
   },
   "main": "./lib/index.js",
   "dependencies": {
