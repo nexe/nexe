@@ -22,6 +22,7 @@
     "builtins": "1.0.2",
     "colors": "^1.1.2",
     "glob": "^5.0.14",
+    "insert-module-globals": "^6.5.2",
     "mkdirp": "^0.5.1",
     "module-deps": "^3.9.0",
     "ncp": "^2.0.0",
