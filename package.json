@@ -17,21 +17,22 @@
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "async": "1.2.1",
-    "builtins": "1.0.1",
-    "colors": "^1.0.3",
-    "glob": "^5.0.5",
-    "mkdirp": "^0.5.0",
-    "module-deps": "^3.6.4",
+    "async": "1.4.2",
+    "browserify": "^11.0.1",
+    "builtins": "1.0.2",
+    "colors": "^1.1.2",
+    "glob": "^5.0.14",
+    "mkdirp": "^0.5.1",
+    "module-deps": "^3.9.0",
     "ncp": "^2.0.0",
     "outcome": "0.0.18",
     "progress": "^1.1.8",
-    "request": "^2.53.0",
+    "request": "^2.61.0",
     "sprintf": "~0.1.5",
     "step": "0.0.x",
-    "tar.gz": "0.1.1",
-    "through": "^2.3.6",
-    "yargs": "^3.2.1"
+    "tar.gz": "1.0.0",
+    "through": "^2.3.8",
+    "yargs": "^3.19.0"
   },
   "nexe": {
     "input": "./bin/nexe",
@@ -39,12 +40,15 @@
     "temp": "src",
     "runtime": {
       "framework": "iojs",
-      "version": "2.3.1",
+      "version": "3.0.0",
       "ignoreFlags": true
     }
   },
   "preferGlobal": "true",
   "bin": {
     "nexe": "./bin/nexe"
+  },
+  "devDependencies": {
+    "nodeunit": "^0.9.1"
   }
 }
