@@ -18,6 +18,7 @@
   "main": "./lib/index.js",
   "dependencies": {
     "async": "1.2.1",
+    "browser-resolve": "^1.10.0",
     "builtins": "1.0.1",
     "colors": "^1.0.3",
     "glob": "^5.0.5",
@@ -43,7 +44,7 @@
       "ignoreFlags": true
     }
   },
-  "preferGlobal": "true",
+  "preferGlobal": true,
   "bin": {
     "nexe": "./bin/nexe"
   }
