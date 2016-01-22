@@ -3,7 +3,7 @@
   "name": "nexe",
   "description": "create single executables out of your [node/io].js applications",
   "license": "MIT",
-  "version": "0.4.2",
+  "version": "1.0.0",
   "contributors": [
     {
       "name": "Criag Condon",
@@ -17,31 +17,31 @@
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "async": "1.4.2",
-    "browserify": "^11.0.1",
-    "builtins": "1.0.2",
+    "async": "1.5.2",
+    "browserify": "^13.0.0",
+    "builtins": "1.0.3",
     "colors": "^1.1.2",
-    "glob": "^5.0.14",
-    "insert-module-globals": "^6.5.2",
+    "glob": "^6.0.4",
+    "insert-module-globals": "^7.0.1",
     "mkdirp": "^0.5.1",
-    "module-deps": "^3.9.0",
+    "module-deps": "^4.0.5",
     "ncp": "^2.0.0",
     "outcome": "0.0.18",
     "progress": "^1.1.8",
-    "request": "^2.61.0",
+    "request": "^2.67.0",
     "sprintf": "~0.1.5",
     "step": "0.0.x",
-    "tar.gz": "1.0.0",
+    "tar.gz": "1.0.2",
     "through": "^2.3.8",
-    "yargs": "^3.19.0"
+    "yargs": "^3.32.0"
   },
   "nexe": {
     "input": "./bin/nexe",
     "output": "nexe^$",
     "temp": "src",
     "runtime": {
-      "framework": "iojs",
-      "version": "3.0.0",
+      "framework": "nodejs",
+      "version": "5.5.0",
       "ignoreFlags": true
     }
   },

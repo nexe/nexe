@@ -1,7 +1,7 @@
 ### Nexe
 
-[![Join the chat at https://gitter.im/crcn/nexe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/crcn/nexe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Dependency Status](https://david-dm.org/crcn/nexe.svg)](https://david-dm.org/crcn/nexe)
-[![Stories in Ready](https://badge.waffle.io/crcn/nexe.svg?label=ready&title=Ready)](http://waffle.io/crcn/nexe)
+[![Join the chat at https://gitter.im/crcn/nexe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jaredallard/nexe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Dependency Status](https://david-dm.org/jaredallard/nexe.svg)](https://david-dm.org/crcn/nexe)
+[![Stories in Ready](https://badge.waffle.io/jaredallard/nexe.svg?label=ready&title=Ready)](http://waffle.io/jaredallard/nexe)
 
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
@@ -136,12 +136,12 @@ var nexe = require('nexe');
 nexe.compile({
 	input: 'input.js',
 	output: 'path/to/bin',
-	nodeVersion: '0.12.5',
+	nodeVersion: '5.5.0',
 	nodeTempDir: 'src',
 	python: 'path/to/python',
 	resourceFiles: [ 'path/to/a/file' ],
 	flags: true,
-	framework: "nodejs"
+	framework: "node" // node, nodejs, or iojs
 }, function(err) {
 	console.log(err);
 });
@@ -159,8 +159,8 @@ is still in works, so it is likely to change.
 	"output": "nexe^$",
 	"temp": "src",
 	"runtime": {
-		"framework": "iojs",
-		"version": "2.3.1",
+		"framework": "node",
+		"version": "5.5.0",
 		"ignoreFlags": true
 	}
 }
@@ -174,4 +174,4 @@ Notes:
 
 * __Jared Allard__ ([@jaredallard](https://github.com/jaredallard)) &lt;[jaredallard@outlook.com](mailto:jaredallard@outlook.com)&gt; (Active)
 * __Christopher Karper__ ([@ckarper](https://github.com/CKarper)) &lt;[Christopher.Karper@gmail.com](mailto:Christopher.Karper@gmail.com)&gt; (Active)
-* __Craig Jefferds__ ([@crcn](https://github.com/crcn)) &lt;[craig.j.condon@gmail.com](mailto:craig.j.condon@gmail.com)&gt; (Not Active)
+* __Craig Condon__ ([@crcn](https://github.com/crcn)) &lt;[craig.j.condon@gmail.com](mailto:craig.j.condon@gmail.com)&gt; (Old Project Owner)
