@@ -1,0 +1,24 @@
+{
+  "name": "express-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "nexe": {
+    "input": "./index.js",
+    "output": "express-test^$",
+    "temp": "src",
+    "runtime": {
+      "framework": "nodejs",
+      "version": "5.5.0",
+      "ignoreFlags": true
+    }
+  },
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
