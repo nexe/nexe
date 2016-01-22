@@ -45,7 +45,7 @@
       "ignoreFlags": true
     }
   },
-  "preferGlobal": "true",
+  "preferGlobal": true,
   "bin": {
     "nexe": "./bin/nexe"
   },
