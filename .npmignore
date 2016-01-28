@@ -1,4 +1,4 @@
 node_modules
 test/**/src
-test/**/*.exe
-test/**/*.nexe
+test/**/*-test
+test/**/*.nex

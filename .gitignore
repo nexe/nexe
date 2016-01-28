@@ -5,5 +5,6 @@ src
 nexe.exe
 nexe
 npm-debug.log
-# test/**/src
+test/**/src
 test/**/out.nex
+test/**/test.nex
