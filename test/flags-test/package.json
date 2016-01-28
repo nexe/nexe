@@ -2,7 +2,7 @@
 	"name": "flags-test",
 	"nexe": {
 		"input": "./index.js",
-		"output": "test.nex^$",
+		"output": "test.nex",
 		"temp": "src",
 		"runtime": {
 			"framework": "node",
