@@ -134,16 +134,23 @@ Options:
 var nexe = require('nexe');
 
 nexe.compile({
-	input: 'input.js',
-	output: 'path/to/bin',
-	nodeVersion: '5.5.0',
-	nodeTempDir: 'src',
-	python: 'path/to/python',
-	resourceFiles: [ 'path/to/a/file' ],
-	flags: true,
+	input: 'input.js', // where the input file is
+	output: 'path/to/bin', // where to output the compiled binary
+	nodeVersion: '5.5.0', // node version
+	nodeTempDir: 'src', // where to store node source.
+	nodeConfigureArgs: ['opt', 'val'], // for all your configure arg needs.
+	nodeMakeArgs: ["-j", "4"], // when you want to control the make process.
+	python: 'path/to/python', // for non-standard python setups. Or python 3.x forced ones.
+	resourceFiles: [ 'path/to/a/file' ], // array of files to embed.
+	flags: true, // use this for applications that need command line flags.
+	jsFlags: "--use_strict", // v8 flags
 	framework: "node" // node, nodejs, or iojs
 }, function(err) {
-	console.log(err);
+	if(err) {
+		return console.log(err);
+	}
+
+	 // do whatever
 });
 
 ```
@@ -153,7 +160,7 @@ nexe.compile({
 As of 0.4.0 you can now embed nexe options into package.json. Note that this Format
 is still in works, so it is likely to change.
 
-```
+```json
 "nexe": {
 	"input": "./bin/nexe",
 	"output": "nexe^$",
@@ -161,6 +168,7 @@ is still in works, so it is likely to change.
 	"runtime": {
 		"framework": "node",
 		"version": "5.5.0",
+		"js-flags": "--use_strict",
 		"ignoreFlags": true
 	}
 }
@@ -169,6 +177,7 @@ is still in works, so it is likely to change.
 Notes:
 
 * output: can use ^$ for platform specific file extension
+* js-flags: this is also known as v8 flags, and supports *all* v8 flags.
 
 ## Maintainers
 
