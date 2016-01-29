@@ -46,9 +46,6 @@
   },
   "preferGlobal": true,
   "bin": {
-    "nexe": "./bin/nexe"
-  },
-  "devDependencies": {
-    "nodeunit": "^0.9.1"
+    "nexe": "bin/nexe"
   }
 }

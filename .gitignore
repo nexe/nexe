@@ -1,9 +1,4 @@
 node_modules
-.DS_Store
-*.nex
-src
-nexe.exe
-nexe
 npm-debug.log
 test/**/src
 test/**/out.nex
