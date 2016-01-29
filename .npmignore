@@ -1,0 +1,6 @@
+node_modules
+test/**/src
+test/**/out.nex
+test/**/test.nex
+test/**/tmp
+test/**/node_modules
