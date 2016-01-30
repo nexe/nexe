@@ -5,3 +5,5 @@ test/**/out.nex
 test/**/test.nex
 test/**/tmp
 test/**/node_modules
+src
+
