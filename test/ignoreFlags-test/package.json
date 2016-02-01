@@ -1,0 +1,15 @@
+{
+  "name": "flags-test",
+  "nexe": {
+    "input": "./index.js",
+    "output": "test.nex",
+    "temp": "src",
+    "runtime": {
+      "framework": "node",
+      "version": "5.5.0",
+      "ignoreFlags": true,
+      "node-args": ""
+    }
+  },
+  "dependencies": {}
+}
