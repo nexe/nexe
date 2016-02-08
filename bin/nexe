@@ -42,7 +42,7 @@ options('j', {
   alias: 'jsFlags',
   default: false,
   description: 'v8 flags for runtime'
-})
+}).
 options('v', {
   alias: 'version',
   description: 'Display version number'
