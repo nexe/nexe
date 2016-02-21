@@ -7,4 +7,5 @@ test/**/tmp
 test/**/node_modules
 test/**/*.map
 src
+.idea
 
