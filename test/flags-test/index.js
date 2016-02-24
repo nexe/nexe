@@ -10,4 +10,4 @@
 
  let isStrict = (function() { return !this; })();
 
- console.log('test:strict-mode:status =', isStrict);
+ console.log(isStrict);

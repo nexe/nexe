@@ -17,11 +17,11 @@
   "nexe": {
     "input": "bin/www",
     "output": "test.nex",
-    "temp": "src",
-    "debug": true,
+    "temp": "../src",
+    "debug": false,
     "runtime": {
       "framework": "node",
-      "version": "5.5.0",
+      "version": "5.7.0",
       "ignoreFlags": true
     }
   }

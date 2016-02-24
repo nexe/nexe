@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-require('source-map-support').install();
 
 /**
  * Module dependencies.
@@ -90,4 +89,4 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-console.log(true);
+process.stdout.write(true);

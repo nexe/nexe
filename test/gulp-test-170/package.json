@@ -11,5 +11,16 @@
   "dependencies": {
     "gulp": "^3.9.0",
     "nexe": "^1.0.5"
+  },
+  "nexe": {
+    "input": "./index.js",
+    "output": "test.nex",
+    "temp": "../src",
+    "runtime": {
+      "framework": "node",
+      "version": "5.7.0",
+      "ignoreFlags": true,
+      "node-args": ""
+    }
   }
 }

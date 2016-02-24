@@ -6,7 +6,7 @@
 		"temp": "../src",
 		"runtime": {
 			"framework": "node",
-			"version": "0.10.0",
+			"version": "5.7.0",
 			"ignoreFlags": false,
 			"js-flags": "--use_strict",
 			"node-args": ""
