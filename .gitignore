@@ -8,5 +8,6 @@ test/**/node_modules
 test/**/*.map
 test/src
 test/test.log
+test-results.xml
 src
 .idea
