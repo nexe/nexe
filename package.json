@@ -41,6 +41,9 @@
     "input": "./bin/nexe",
     "output": "nexe^$",
     "temp": "src",
+    "browserifyRequires": [
+      "lib/nexeres.js"
+    ],
     "runtime": {
       "framework": "nodejs",
       "version": "5.5.0",
