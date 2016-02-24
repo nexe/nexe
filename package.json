@@ -12,7 +12,7 @@
     }
   ],
   "scripts": {
-    "test": "mocha"
+    "test": "node_modules/.bin/mocha --reporter mocha-circleci-reporter test/test.js"
   },
   "repository": {
     "type": "git",
