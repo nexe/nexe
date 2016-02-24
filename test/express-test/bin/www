@@ -89,4 +89,5 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-process.stdout.write(true);
+process.stdout.write('true');
+process.exit(0);
