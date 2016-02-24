@@ -165,9 +165,14 @@ is still in works, so it is likely to change.
 	"input": "./bin/nexe",
 	"output": "nexe^$",
 	"temp": "src",
+	"browserify": {
+		"requires": [],
+		"excludes": [],
+		"paths": []
+	},
 	"runtime": {
 		"framework": "node",
-		"version": "5.5.0",
+		"version": "5.6.0",
 		"js-flags": "--use_strict",
 		"ignoreFlags": true
 	}
@@ -178,6 +183,47 @@ Notes:
 
 * output: can use ^$ for platform specific file extension
 * js-flags: this is also known as v8 flags, and supports *all* v8 flags.
+
+### Browserify Require Issues
+
+If you have requires that aren't resolving well, you can do two things.
+
+Try adding it to `nexe.browserify.requires` in your `package.json`
+
+```json
+"nexe": {
+	.......
+	"browserify": {
+		"requires": [
+			{
+				"file": "myfile.js",
+				"expose": "mymodule"
+			},
+			"mymodule.js"
+		],
+		"excludes": [],
+		"paths": []
+	},
+	.......
+}
+```
+
+Or, if that doesn't work (it tends to not work sometimes), you can try altering
+browserify.paths like so:
+
+```json
+"nexe": {
+	.......
+	"browserify": {
+		"requires": []
+		"excludes": [],
+		"paths": ["/path/to/my/loc"]
+	},
+	.......
+}
+```
+
+If it *still* doesn't work, file a bug with what you tried! (also try using `nexe@0.4.2`)
 
 ## Maintainers
 

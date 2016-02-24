@@ -14,15 +14,8 @@
       "hw.txt"
     ],
     "browserify": {
-      "excludes": [
-        "./process"
-      ],
-      "requires": [
-        {
-          "file": "nexeres",
-          "expose": "nexeres"
-        }
-      ]
+      "excludes": [],
+      "requires": []
     },
     "temp": "src",
     "debug": false,
