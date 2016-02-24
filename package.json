@@ -3,7 +3,7 @@
   "name": "nexe",
   "description": "create single executables out of your [node/io].js applications",
   "license": "MIT",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "contributors": [
     {
       "name": "Criag Condon",
