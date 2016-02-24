@@ -7,6 +7,6 @@ test/**/tmp
 test/**/node_modules
 test/**/*.map
 test/src
+test/test.log
 src
 .idea
-

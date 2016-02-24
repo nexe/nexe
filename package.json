@@ -11,6 +11,9 @@
       "url": "http://crcn.io/"
     }
   ],
+  "scripts": {
+    "test": "mocha"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/jaredallard/nexe.git"
@@ -44,5 +47,9 @@
   "preferGlobal": true,
   "bin": {
     "nexe": "bin/nexe"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "mocha-circleci-reporter": "0.0.1"
   }
 }

@@ -7,14 +7,23 @@
 
 'use strict';
 
-const NEXE_VERSION = require('../package.json').version;
-
 const assert = require('assert');
 const fs     = require('fs');
 const path   = require('path');
 const spawn  = require('child_process').spawn;
 
-let testBase = __dirname;
+// our vars
+const NEXE_VERSION = require('../package.json').version;
+const testBase = __dirname;
+const LOG_FILE = path.join(testBase, 'test.log');
+
+if(fs.existsSync(LOG_FILE)) {
+  fs.unlinkSync(LOG_FILE);
+}
+
+let logfile = fs.createWriteStream(LOG_FILE, {
+  autoClose: false
+});
 
 const compileTest = function(test, cb) {
   let testDir = path.join(testBase, test);
@@ -22,6 +31,8 @@ const compileTest = function(test, cb) {
     throw new Error('Test not found');
     return cb(false);
   }
+
+  logfile.write('---- TEST START ['+test+'] ----\n\n\n\n')
 
   let testinst = spawn('../../bin/nexe', [], {
     cwd: testDir
@@ -39,13 +50,31 @@ const compileTest = function(test, cb) {
       err = false;
     }
 
+    logfile = fs.createWriteStream(LOG_FILE);
+
     return cb(err);
   });
+
+  testinst.stdout.pipe(logfile);
 };
 
-const runTest = function(test, cb) {
+/**
+ * Run a test-generated binary
+ *
+ * @param {string} test - test name (dir)
+ * @param {array} optional args - array of args to pass to the binary
+ * @param {function} cb - callback
+ **/
+const runTest = function(test, args, cb) {
   let testDir = path.join(testBase, test);
   let testBin = path.join(testDir, 'test.nex')
+
+  // check params
+  if(!Array.isArray(args)) {
+    cb = args;
+    args = [];
+  }
+
   if(!fs.existsSync(testDir)) {
     throw new Error('Test not found');
     return cb(false);
@@ -57,7 +86,7 @@ const runTest = function(test, cb) {
   }
 
   let returned = false;
-  let testinst = spawn(testBin, [], {
+  let testinst = spawn(testBin, args, {
     cwd: testDir
   })
 
@@ -84,6 +113,13 @@ const runTest = function(test, cb) {
 }
 
 console.log('NOTICE: The first test may take awhile as it may compile Node.js');
+console.log('        Monitor the log file (test.log) for progress.');
+
+
+after(function() {
+  console.log('notice: closing test.log file descriptor.')
+  logfile.end();
+});
 
 /**
  * Tests express compatability.
@@ -160,7 +196,7 @@ describe('nexe can be utilized in gulp test', function() {
   });
 });
 
-describe('can ignore node.js flags test', function() {
+describe('nexe can ignore node.js flags test', function() {
   let testname = 'ignoreFlags-test';
 
   describe('build', function () {
@@ -171,7 +207,7 @@ describe('can ignore node.js flags test', function() {
     });
 
     it('runs successfully', function(next) {
-      runTest(testname, function(err) {
+      runTest(testname, ['--help'], function(err) {
         return next(err);
       });
     });
