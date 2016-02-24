@@ -8,7 +8,7 @@
 
  // test.nex --help
 
- var status = false;
+ let status = false;
 
  // console.log(process.argv);
 
@@ -16,4 +16,4 @@
    status = true;
  }
 
- console.log('test:ignoreFlags:status =', status);
+ console.log(status);

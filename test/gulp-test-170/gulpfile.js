@@ -1,7 +1,7 @@
 "use strict";
 
-var gulp = require('gulp');
-var nexe = require('nexe');
+let gulp = require('gulp');
+let nexe = require('nexe');
 
 gulp.task( "compile", ( callback ) => {
     let options = {

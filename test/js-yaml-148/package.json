@@ -14,6 +14,7 @@
   "nexe": {
     "input": "index.js",
     "output": "test.nex",
+    "temp": "../src",
     "runtime": {
       "version": "5.5.0",
       "framework": "node"

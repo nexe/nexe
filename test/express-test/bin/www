@@ -90,5 +90,4 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-throw new Error('test');
-//# sourceMappingURL=./test.nex.map
+console.log(true);

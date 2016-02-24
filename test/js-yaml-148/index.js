@@ -1,3 +1,3 @@
 require('js-yaml');
 
-console.log('hello world!');
+console.log(true);

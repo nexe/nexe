@@ -8,4 +8,4 @@
 
 const nexeres = require('nexeres');
 
-console.log(nexeres.get('hw.txt').toString('ascii'))
+process.stdout.write(nexeres.get('hw.txt').toString('ascii'));

@@ -17,7 +17,7 @@
       "excludes": [],
       "requires": []
     },
-    "temp": "src",
+    "temp": "../src",
     "debug": false,
     "runtime": {
       "framework": "node",

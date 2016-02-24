@@ -8,6 +8,6 @@
 
  // "use strict"; w/o --use_strict
 
- var isStrict = (function() { return !this; })();
+ let isStrict = (function() { return !this; })();
 
  console.log('test:strict-mode:status =', isStrict);

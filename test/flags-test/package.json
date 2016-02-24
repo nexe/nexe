@@ -3,7 +3,7 @@
 	"nexe": {
 		"input": "./index.js",
 		"output": "test.nex",
-		"temp": "src",
+		"temp": "../src",
 		"runtime": {
 			"framework": "node",
 			"version": "0.10.0",
