@@ -20,6 +20,7 @@
     "temp": "../src",
     "debug": false,
     "runtime": {
+      "nodeConfigureOpts": ["--fully-static"],
       "framework": "node",
       "version": "5.7.0"
     }
