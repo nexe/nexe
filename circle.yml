@@ -1,0 +1,12 @@
+machine:
+  node:
+    version: 5.7.0
+  
+dependencies:
+  override:
+    - npm install
+    
+test:
+  override:
+    - npm test:
+      timeout: 5400
