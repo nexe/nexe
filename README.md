@@ -107,7 +107,7 @@ Via NPM:
 Or git:
 
 ```bash
-	git clone https://github.com/crcn/nexe.git
+	git clone https://github.com/jaredallard/nexe.git
 ```
 
 ### CLI Usage
