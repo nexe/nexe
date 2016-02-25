@@ -67,6 +67,10 @@ const compileTest = function(test, cb) {
 
       return cb(err);
     });
+    
+    testinst.stdout.on('data', function(d) {
+      process.stdout.write(d.toString('ascii'));
+    });
   });
 };
 
@@ -122,10 +126,6 @@ const runTest = function(test, args, cb) {
       return cb(false);
     }
   });
-  
-  testinst.stdout.on('data', function(d) {
-    process.stdout.write(d.toString('ascii'));
-  })
 }
 
 console.log('NOTICE: The first test may take awhile as it may compile Node.js');
