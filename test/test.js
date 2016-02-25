@@ -32,30 +32,42 @@ const compileTest = function(test, cb) {
     return cb(false);
   }
 
-  logfile.write('---- TEST START ['+test+'] ----\n\n\n\n')
-
-  let testinst = spawn('../../bin/nexe', [], {
+  let npminst = spawn('npm', ['install'], {
     cwd: testDir
   });
 
-  testinst.on('error', function() {
-    throw new Error('Test failed to compile');
+  npminst.on('error', function() {
+    throw new Error('Failed to execute NPM');
     return cb(false);
   });
 
-  testinst.on('close', function(code) {
-    let err = null;
+  npminst.on('close', function(code) {
     if(code !== 0) {
-      throw new Error('Test gave non-zero code');
-      err = false;
+      throw new Error('NPM exited with non-zero status');
+      return cb(false);
     }
 
-    logfile = fs.createWriteStream(LOG_FILE);
+    let testinst = spawn('../../bin/nexe', [], {
+      cwd: testDir
+    });
 
-    return cb(err);
+    testinst.on('error', function() {
+      throw new Error('Test failed to compile');
+      return cb(false);
+    });
+
+    testinst.on('close', function(code) {
+      let err = null;
+      if(code !== 0) {
+        throw new Error('Test gave non-zero code');
+        err = false;
+      }
+
+      logfile = fs.createWriteStream(LOG_FILE);
+
+      return cb(err);
+    });
   });
-
-  testinst.stdout.pipe(logfile);
 };
 
 /**
