@@ -121,6 +121,10 @@ const runTest = function(test, args, cb) {
       throw new Error('Test failed (stdout never contained true)');
       return cb(false);
     }
+  });
+  
+  testinst.stdout.on('data', function(d) {
+    process.stdout.write(d.toString('ascii'));
   })
 }
 
