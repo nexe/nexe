@@ -14,10 +14,16 @@ const path = require('path'),
 
 const LIB_DIR = path.join(__dirname, 'lib');
 
+/**
+ * Nexe
+ * @class
+ **/
 class Nexe {
 
   /**
    * Nexe constructor
+   *
+   * @param {Object} config - nexe configuration object.
    *
    * @constructor
    **/
@@ -35,8 +41,8 @@ class Nexe {
       // Require and the instance the lib.
       let LIB_CLASS    = require(LIB_PATH);
 
-      // link it unto the nexe class.
-      that.libs[LIB_NAME] = new LIB_CLASS(this, config);
+      // link it unto the nexe class. use that.config for any changes in it.
+      that.libs[LIB_NAME] = new LIB_CLASS(that.libs, that.config);
     });
 
 
@@ -49,7 +55,7 @@ class Nexe {
    *
    * @returns {boolean} success status
    **/
-  compile() {
+  compile(config) {
 
   }
 }
@@ -57,5 +63,18 @@ class Nexe {
 
 let nexe = new Nexe({
   input: './something.js',
-  output: 'out.nexe'
+  output: 'out.nexe',
+  temp: './temp'
+});
+
+nexe.libs.download.downloadNode('latest', (err, location) => {
+  if(err) {
+    return console.error(err);
+  }
+
+  console.log('Node.JS Download to:', location);
+
+  nexe.libs.download.extractNode('latest', err => {
+    console.log('Node.JS Extracted.');
+  })
 });
