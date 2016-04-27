@@ -1,0 +1,43 @@
+{
+  "env": {
+    "mocha": true,
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    /* Possible Errors */
+    "no-extra-parens": 2,
+    "valid-jsdoc": 2,
+    /* Best Practices */
+    "block-scoped-var": 2,
+    "complexity": [1, 3],
+    "default-case": 2,
+    "dot-notation": [2],
+    "guard-for-in": 2,
+    "no-div-regex": 2,
+    /* DISABLE IN PRODUCTION */
+    "no-unused-vars": 1,
+    "no-console": 0,
+    /* END */
+    "no-const-assign": 2,
+    "no-else-return": 2,
+    "no-eq-null": 2,
+    "no-floating-decimal": 2,
+    "no-process-env": 2,
+    "no-self-compare": 2,
+    "no-void": 2,
+    "no-warning-comments": 2,
+    "radix": 2,
+    "vars-on-top": 2,
+    "wrap-iife": 2,
+    /* Variables */
+    "no-catch-shadow": 2,
+    /* Node.JS */
+    "no-sync": 1,
+    /* Stylistic Issues */
+    "no-mixed-spaces-and-tabs": 2,
+    "no-underscore-dangle": 0,
+    "quotes": [1, "single", "avoid-escape"],
+  },
+  "extends": "eslint:recommended"
+}

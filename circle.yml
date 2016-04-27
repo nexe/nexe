@@ -1,8 +1,0 @@
-machine:
-  node:
-    version: 5.7.0
-    
-test:
-  override:
-    - npm test:
-        timeout: 5400
