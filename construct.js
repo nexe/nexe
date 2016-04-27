@@ -41,8 +41,15 @@ class Nexe {
       // Require and the instance the lib.
       let LIB_CLASS    = require(LIB_PATH);
 
+      let DOWNLOAD_DIR = config.temp;
+
+      // If not absolute, use from CWD.
+      if(!path.isAbsolute(config.temp)) {
+        DOWNLOAD_DIR = path.join(process.cwd(), config.temp);
+      }
+
       // link it unto the nexe class. use that.config for any changes in it.
-      that.libs[LIB_NAME] = new LIB_CLASS(that.libs, that.config);
+      that.libs[LIB_NAME] = new LIB_CLASS(that.libs, that.config, DOWNLOAD_DIR);
     });
 
 
@@ -76,5 +83,9 @@ nexe.libs.download.downloadNode('latest', (err, location) => {
 
   nexe.libs.download.extractNode('latest', err => {
     console.log('Node.JS Extracted.');
+
+    nexe.libs.compile.node('6.0.0', err => {
+      console.log('Node.JS Compiled.');
+    })
   })
 });
