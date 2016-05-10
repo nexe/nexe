@@ -74,6 +74,7 @@ let nexe = new Nexe({
   temp: './temp'
 });
 
+
 nexe.libs.download.downloadNode('latest', (err, location) => {
   if(err) {
     return console.error(err);
@@ -81,11 +82,37 @@ nexe.libs.download.downloadNode('latest', (err, location) => {
 
   console.log('Node.JS Download to:', location);
 
-  nexe.libs.download.extractNode('latest', err => {
+  nexe.libs.download.extractNode('latest', (err, location) => {
     console.log('Node.JS Extracted.');
 
-    nexe.libs.compile.node('6.0.0', err => {
-      console.log('Node.JS Compiled.');
-    })
+    let compfile = path.join(location, 'lib', 'nexe.js');
+    nexe.libs.package.bundle('./test.js', compfile, null, err => {
+      if(err) {
+        return console.error(err);
+      }
+
+      console.log('successfully bundled the file.');
+
+      // patch node.js to use nexe.
+      nexe.libs.patch.node('6.0.0', err => {
+        if(err) {
+          return console.error(err);
+        }
+
+        nexe.libs.embed.files('6.0.0', [], '', {}, err => {
+          if(err) {
+            return console.error(err);
+          }
+
+          nexe.libs.compile.node('6.0.0', err => {
+            if(err) {
+              return console.error(err);
+            }
+
+            console.log('Node.JS Compiled.');
+          })
+        })
+      });
+    });
   })
 });
