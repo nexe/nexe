@@ -28,7 +28,8 @@ class Nexe {
    * @constructor
    **/
   constructor(config) {
-    let that = this;
+    let self = this;
+
     this.libs = {};
     this.config = config;
 
@@ -48,8 +49,8 @@ class Nexe {
         DOWNLOAD_DIR = path.join(process.cwd(), config.temp);
       }
 
-      // link it unto the nexe class. use that.config for any changes in it.
-      that.libs[LIB_NAME] = new LIB_CLASS(that.libs, that.config, DOWNLOAD_DIR);
+      // link it unto the nexe class.
+      self.libs[LIB_NAME] = new LIB_CLASS(self.libs, self.config, DOWNLOAD_DIR);
     });
 
 
@@ -60,10 +61,13 @@ class Nexe {
   /**
    * Create a executable.
    *
+   * @param {Object} badOpts - Detect if instanced incorrectly.
    * @returns {boolean} success status
    **/
-  compile(config) {
-
+  compile(badOpts) {
+    if(typeof badOpts === 'object') {
+      throw 'Detected nexe v1 style of usage. Please use v2.'
+    }
   }
 }
 
@@ -86,7 +90,7 @@ nexe.libs.download.downloadNode('latest', (err, location) => {
     console.log('Node.JS Extracted.');
 
     let compfile = path.join(location, 'lib', 'nexe.js');
-    nexe.libs.package.bundle('./test.js', compfile, null, err => {
+    nexe.libs.package.bundle('./test.js', compfile, 'browserify', err => {
       if(err) {
         return console.error(err);
       }
