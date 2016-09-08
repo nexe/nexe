@@ -234,7 +234,7 @@ If it *still* doesn't work, file a bug with what you tried! (also try using `nex
 
 ## Express Issues
 
-After compiling your Express application you find problems with your template engine (jade|pug|ejs|...) not being found:
+If after compiling your Express application you find problems with your template engine (jade, pug, ejs...) not being found:
 
 ```
 Error: No such native module jade
