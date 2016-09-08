@@ -19,9 +19,12 @@
     "output": "test.nex",
     "temp": "../src",
     "debug": false,
+    "browserify": {
+        "requires": [ "jade" ]
+    },
     "runtime": {
       "framework": "node",
-      "version": "5.10.0",
+      "version": "4.5.0",
       "ignoreFlags": true
     }
   }
