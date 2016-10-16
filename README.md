@@ -151,6 +151,11 @@ nexe.compile({
 	resourceRoot: [ 'path/' ], // where to embed the resourceFiles.
 	flags: true, // use this for applications that need command line flags.
 	jsFlags: "--use_strict", // v8 flags
+	startupSnapshot: 'path/to/snapshot.js', // when you want to specify a script to be
+											// added to V8's startup snapshot. This V8
+											// feature deserializes a heap to save startup time.
+											// More information in this blog post:
+											// http://v8project.blogspot.de/2015/09/custom-startup-snapshots.html
 	framework: "node" // node, nodejs, or iojs
 }, function(err) {
 	if(err) {
