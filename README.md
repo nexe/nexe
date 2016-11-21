@@ -45,7 +45,7 @@ In this case nexe won't bundle the file
 	if (someCheck) {
 		x = require("./ver1.js");
 	} else {
-		x = require("./var2.js");
+		x = require("./ver2.js");
 	}
 ```
 
