@@ -72,11 +72,17 @@ if (argv.h || argv.help) {
  * TODO: Support network shares?
  **/
 function toAbsolute(pt) {
+  //already resolved?
+  try{
+    fs.accessSync(pt,fs.F_OK);
+    return pt;
+  }catch(e){}
+
   if (pt.substr(0, 1) == "/") return pt; // for *nix "/"
   if (pt.substr(0, 2) == "\\\\") return pt; // for windows "\\"
   if (pt.substr(1, 3) == ":/") return pt; // for windows "c:/"
 
-  // otheerwise...
+  // otherwise...
   return path.join(process.cwd(), pt);
 }
 
