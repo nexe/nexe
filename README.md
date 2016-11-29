@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/jaredallard/nexe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jaredallard/nexe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Dependency Status](https://david-dm.org/jaredallard/nexe.svg)](https://david-dm.org/jaredallard/nexe)
 [![Stories in Ready](https://badge.waffle.io/jaredallard/nexe.svg?label=ready&title=Ready)](http://waffle.io/jaredallard/nexe)
-[![Circle CI](https://circleci.com/gh/jaredallard/nexe/tree/master.svg?style=svg)](https://circleci.com/gh/jaredallard/nexe/tree/master)
+[![Circle CI](https://circleci.com/gh/jaredallard/nexe/tree/master.svg?style=shield)](https://circleci.com/gh/jaredallard/nexe/tree/master)
 
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
