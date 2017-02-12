@@ -97,5 +97,5 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-process.stdout.write('true');
+process.stdout.write(''+cluster.isWorker);
 process.exit(0);
