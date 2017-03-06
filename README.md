@@ -1,6 +1,7 @@
 <p align="center"><img src="https://cloud.githubusercontent.com/assets/2391349/23598327/a17bb68a-01ee-11e7-8f55-88a5fc96e997.png" /></p>
 
 <p align="center">
+  <a href="https://circleci.com/gh/jaredallard/nexe"><img src="https://img.shields.io/circleci/project/jaredallard/nexe.svg" alt="Build Status"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/dt/nexe.svg" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/v/nexe.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
@@ -9,6 +10,10 @@
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
 ![screenshot](https://cloud.githubusercontent.com/assets/2391349/23597575/e333884c-01e8-11e7-9fbf-3a83088bc748.png)
+
+## Supporting nexe
+
+nexe is a MIT license project. Please consider joining our [backers](https://github.com/nexe/nexe/BACKERS.md) by contributing to [nexe's Patreon](https://patreon.com/user?u=5264722).
 
 ### Motivation
 
