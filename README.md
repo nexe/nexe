@@ -1,14 +1,14 @@
-### Nexe
+<p align="center"><img src="https://cloud.githubusercontent.com/assets/2391349/23598327/a17bb68a-01ee-11e7-8f55-88a5fc96e997.png" /></p>
 
-[![Join the chat at https://gitter.im/jaredallard/nexe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jaredallard/nexe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Dependency Status](https://david-dm.org/jaredallard/nexe.svg)](https://david-dm.org/jaredallard/nexe)
-[![Stories in Ready](https://badge.waffle.io/jaredallard/nexe.svg?label=ready&title=Ready)](http://waffle.io/jaredallard/nexe)
-[![Circle CI](https://circleci.com/gh/jaredallard/nexe/tree/master.svg?style=shield)](https://circleci.com/gh/jaredallard/nexe/tree/master)
+<p align="center">
+  <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/dt/nexe.svg" alt="Downloads"></a>
+  <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/v/nexe.svg" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
+</p>
 
 Nexe is a command-line utility that compiles your Node.js application into a single executable file.
 
-![screen shot 2014-02-28 at 10 32 54 am](https://f.cloud.github.com/assets/757408/2296993/c276f7b6-a0a6-11e3-86d3-e6c5feba2a85.png)
-
+![screenshot](https://cloud.githubusercontent.com/assets/2391349/23597575/e333884c-01e8-11e7-9fbf-3a83088bc748.png)
 
 ### Motivation
 
