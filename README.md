@@ -7,7 +7,7 @@
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
 </p>
 
-Nexe is a command-line utility that compiles your Node.js application into a single executable file.
+<p align="center">Nexe is a command-line utility that compiles your Node.js application into a single executable file.</p>
 
 ![screenshot](https://cloud.githubusercontent.com/assets/2391349/23597575/e333884c-01e8-11e7-9fbf-3a83088bc748.png)
 
