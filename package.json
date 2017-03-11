@@ -51,5 +51,8 @@
   "devDependencies": {
     "mocha": "^2.4.5",
     "mocha-circleci-reporter": "0.0.1"
+  },
+  "optionalDependencies": {
+    "node-musl": "^0.0.1"
   }
 }
