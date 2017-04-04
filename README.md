@@ -161,6 +161,11 @@ nexe.compile({
 											// feature deserializes a heap to save startup time.
 											// More information in this blog post:
 											// http://v8project.blogspot.de/2015/09/custom-startup-snapshots.html
+    patchFns: function(compiler, options, callback) {
+      // custom monkeyPatching hook, can be a function or an array of functions
+      ...
+      callback();
+    }
 	framework: "node" // node, nodejs, or iojs
 }, function(err) {
 	if(err) {
