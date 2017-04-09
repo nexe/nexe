@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const nexe = require('.'),
+const nexe = require('./src/nexe'),
   logger = require('./src/logger').logger
 
 module.exports = nexe
