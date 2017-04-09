@@ -12,7 +12,7 @@
    * Gave win32 a 100 length progress bar.
 
 ### Commits
-  
+
    * [**2cacd83**] Update README.md (@crcn)
    * [**0e90ac9**] Update README.md (@crcn)
    * [**54967d1**] Added Gitter badge (@jaredallard)
@@ -35,7 +35,6 @@
    * [**ad4da1d**] Support .json extensions in require() resolution (@CKarper)
 
 ## 2015-02-14, Version v0.3.5, @jaredallard
-
 
 ### Noteable Changes
 
