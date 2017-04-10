@@ -4,7 +4,8 @@ const
   { normalizeOptions } = require('./options'),
   { readFile, writeFile, createReadStream } = require('fs'),
   { spawn } = require('child_process'),
-  { logger } = require('./logger')
+  { logger } = require('./logger'),
+  { dequote } = require('./util')
 
 const
   isWindows = process.platform === 'win32',
@@ -52,7 +53,7 @@ module.exports.NexeCompiler = class NexeCompiler {
       return
     }
     if (isWindows) {
-      this.env.PATH = this.env.PATH + ';' + normalize(dirname(pythonPath))
+      this.env.PATH = this.env.PATH + ';"' + dequote(normalize(pythonPath)) + '"'
     } else {
       this.env.PYTHON = pythonPath
     }
