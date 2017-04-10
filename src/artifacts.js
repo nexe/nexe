@@ -1,28 +1,31 @@
-const
-  { join, dirname } = require('path'),
-  { readdir, stat, readFile, unlink, writeFile } = require('fs'),
-  { promisify, map, coroutine } = require('bluebird'),
-  mkdirpAsync = promisify(require('mkdirp')),
-  statAsync = promisify(stat),
-  unlinkAsync = promisify(unlink),
-  readdirAsync = promisify(readdir),
-  writeAnyFileAsync = promisify(writeFile),
-  readFileAsync = promisify(readFile),
-  readDirAsync = (dir) => {
-    return readdirAsync(dir).map((file) => {
-      const path = join(dir, file)
-      return statAsync(path).then(s => s.isDirectory() ? readDirAsync(path) : path)
-    }).reduce((a, b) => a.concat(b), [])
-  },
-  maybeReadFileContents = (file) => {
-    return readFileAsync(file, 'utf-8')
-      .catch(e => {
-        if (e.code === 'ENOENT') {
-          return ''
-        }
-        throw e
-      })
-  }
+import { join, dirname } from 'path'
+import { readdir, stat, readFile, unlink, writeFile } from 'fs'
+import { promisify, map } from 'bluebird'
+import mkdirp from 'mkdirp'
+
+const mkdirpAsync = promisify(mkdirp)
+const statAsync = promisify(stat)
+const unlinkAsync = promisify(unlink)
+const readdirAsync = promisify(readdir)
+const writeAnyFileAsync = promisify(writeFile)
+const readFileAsync = promisify(readFile)
+
+function readDirAsync (dir) {
+  return readdirAsync(dir).map((file) => {
+    const path = join(dir, file)
+    return statAsync(path).then(s => s.isDirectory() ? readDirAsync(path) : path)
+  }).reduce((a, b) => a.concat(b), [])
+}
+
+function maybeReadFileContents (file) {
+  return readFileAsync(file, 'utf-8')
+    .catch(e => {
+      if (e.code === 'ENOENT') {
+        return ''
+      }
+      throw e
+    })
+}
 
 /**
  * The artifacts step is where source patches are committed, or written as "artifacts"
@@ -34,25 +37,25 @@ const
  *  - Finally, The patched files are written into source.
  *
  */
-module.exports.artifacts = function* artifacts ({ files, writeFileAsync, src }, next) {
+export async function artifacts ({ files, writeFileAsync, src }, next) {
   const temp = join(src, 'nexe')
-  yield mkdirpAsync(temp)
-  const tmpFiles = yield readDirAsync(temp)
+  await mkdirpAsync(temp)
+  const tmpFiles = await readDirAsync(temp)
 
-  yield map(tmpFiles, coroutine(function* (path) {
-    return writeFileAsync(path.replace(temp, ''), yield readFileAsync(path))
-  }))
+  await map(tmpFiles, async (path) => {
+    return writeFileAsync(path.replace(temp, ''), await readFileAsync(path))
+  })
 
-  yield next()
+  await next()
 
-  yield map(tmpFiles, x => unlinkAsync(x))
-  return map(files, coroutine(function* (file) {
-    const sourceFile = join(src, file.filename),
-      tempFile = join(temp, file.filename),
-      fileContents = yield maybeReadFileContents(sourceFile)
+  await map(tmpFiles, x => unlinkAsync(x))
+  return map(files, async (file) => {
+    const sourceFile = join(src, file.filename)
+    const tempFile = join(temp, file.filename)
+    const fileContents = await maybeReadFileContents(sourceFile)
 
-    yield mkdirpAsync(dirname(tempFile))
-    yield writeAnyFileAsync(tempFile, fileContents)
-    yield writeFileAsync(file.filename, file.contents)
-  }))
+    await mkdirpAsync(dirname(tempFile))
+    await writeAnyFileAsync(tempFile, fileContents)
+    await writeFileAsync(file.filename, file.contents)
+  })
 }

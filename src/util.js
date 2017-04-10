@@ -1,10 +1,10 @@
-function dequote (input) {
+export function dequote (input) {
   input = input.trim()
-  if (input.startsWith('\'') && input.endsWith('\'') ||
-    input.startsWith('"') && input.endsWith('"')) {
+
+  const singleQuote = input.startsWith('\'') && input.endsWith('\'')
+  const doubleQuote = input.startsWith('"') && input.endsWith('"')
+  if (singleQuote || doubleQuote) {
     return input.slice(1).slice(0, -1)
   }
   return input
 }
-
-module.exports.dequote = dequote

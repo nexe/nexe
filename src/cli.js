@@ -1,11 +1,10 @@
-const
-  { normalize } = require('path'),
-  { Promise, promisify } = require('bluebird'),
-  { createWriteStream, readFile } = require('fs'),
-  { dequote } = require('./util')
+import { normalize } from 'path'
+import { Promise, promisify } from 'bluebird'
+import { createWriteStream, readFile } from 'fs'
+import { dequote } from './util'
 
-const readFileAsync = promisify(readFile),
-  isWindows = process.platform === 'win32'
+const readFileAsync = promisify(readFile)
+const isWindows = process.platform === 'win32'
 
 function getStdIn () {
   return new Promise((resolve) => {
@@ -13,8 +12,8 @@ function getStdIn () {
     process.stdin.setEncoding('utf-8')
     process.stdin.on('data', x => bundle.push(x))
     process.stdin.once('end', () =>
-      resolve(dequote(Buffer.concat(bundle).toString()))
-    )
+    resolve(dequote(Buffer.concat(bundle).toString()))
+  )
     process.stdin.resume()
   })
 }
@@ -33,28 +32,28 @@ function getStdIn () {
  * @param {*} compiler
  * @param {*} next
  */
-module.exports.cli = function* cli (compiler, next) {
-  const input = compiler.options.input,
-    bundled = Boolean(compiler.input)
+export async function cli (compiler, next) {
+  const input = compiler.options.input
+  const bundled = Boolean(compiler.input)
 
   if (bundled) {
-    yield next()
+    await next()
   } else if (!input && !process.stdin.isTTY) {
     compiler.log.verbose('Buffering stdin as main module...')
-    compiler.input = yield getStdIn()
+    compiler.input = await getStdIn()
   } else if (input) {
     compiler.log.verbose('Reading input as main module: ' + input)
-    compiler.input = yield readFileAsync(normalize(input))
+    compiler.input = await readFileAsync(normalize(input))
   } else if (!compiler.options.empty) {
     compiler.log.verbose('Resolving cwd as main module...')
-    compiler.input = yield readFileAsync(require.resolve(process.cwd()))
+    compiler.input = await readFileAsync(require.resolve(process.cwd()))
   }
 
   if (!bundled) {
-    yield next()
+    await next()
   }
 
-  const deliverable = yield compiler.getDeliverableAsync()
+  const deliverable = await compiler.getDeliverableAsync()
 
   return new Promise((resolve, reject) => {
     deliverable.once('error', reject)
@@ -67,14 +66,14 @@ module.exports.cli = function* cli (compiler, next) {
       compiler.log.verbose('Writing result to file...')
       const output = compiler.options.output || `${compiler.options.name}${isWindows ? '.exe' : ''}`
       deliverable.pipe(createWriteStream(normalize(output)))
-      .once('error', reject)
-      .once('close', e => {
-        if (e) {
-          reject(e)
-        } else {
-          resolve(compiler.log.info('Executable written: ' + output))
-        }
-      })
+    .once('error', reject)
+    .once('close', e => {
+      if (e) {
+        reject(e)
+      } else {
+        resolve(compiler.log.info('Executable written: ' + output))
+      }
+    })
     }
   })
 }

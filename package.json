@@ -9,14 +9,18 @@
     "Caleb Boyd <caleb.boyd@hotmail.com>"
   ],
   "scripts": {
-    "lint": "eslint index.js ./src/**/*",
+    "build": "babel src -d lib",
+    "lint": "standard index.js ./src/**/* --fix",
     "test": "npm run lint"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/nexe/nexe.git"
   },
-  "main": "src/nexe.js",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/nexe.js",
   "bin": {
     "nexe": "index.js"
   },
@@ -33,6 +37,10 @@
     "webpack": "^2.3.3"
   },
   "devDependencies": {
-    "eslint": "^3.19.0"
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-preset-env": "^1.3.3",
+    "mocha": "^3.2.0",
+    "standard": "^10.0.1"
   }
 }

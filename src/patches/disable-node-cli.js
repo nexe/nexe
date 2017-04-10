@@ -1,10 +1,10 @@
-function * disableNodeCli (compiler, next) {
+export async function disableNodeCli (compiler, next) {
   if (compiler.options.enableNodeCli) {
     return next()
   }
 
-  const nodecc = yield compiler.readFileAsync('src/node.cc'),
-    nodeccMarker = "argv[index][0] == '-'"
+  const nodecc = await compiler.readFileAsync('src/node.cc')
+  const nodeccMarker = "argv[index][0] == '-'"
 
   nodecc.contents = nodecc.contents.replace(
     nodeccMarker,
@@ -13,5 +13,3 @@ function * disableNodeCli (compiler, next) {
 
   return next()
 }
-
-module.exports.disableNodeCli = disableNodeCli

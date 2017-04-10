@@ -1,16 +1,15 @@
-const
-  { readFile } = require('fs'),
-  { normalize } = require('path'),
-  { promisify } = require('bluebird')
+import { readFile } from 'fs'
+import { normalize } from 'path'
+import { promisify } from 'bluebird'
 
 const readFileAsync = promisify(readFile)
 
-module.exports.ico = function * ico (compiler, next) {
+export async function ico (compiler, next) {
   const iconFile = compiler.options.ico
   if (!iconFile) {
     return next()
   }
-  const file = yield compiler.readFileAsync('src/res/node.ico')
-  file.contents = yield readFileAsync(normalize(iconFile))
+  const file = await compiler.readFileAsync('src/res/node.ico')
+  file.contents = await readFileAsync(normalize(iconFile))
   return next()
 }

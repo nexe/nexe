@@ -1,15 +1,17 @@
-const
-  unZip = require('zlib').createGunzip,
-  unTar = require('tar').Extract,
-  request = require('request'),
-  { Promise, promisify } = require('bluebird'),
-  statAsync = promisify(require('fs').stat),
-  rimrafAsync = promisify(require('rimraf'))
+import { createGunzip as unZip } from 'zlib'
+import { Extract as unTar } from 'tar'
+import request from 'request'
+import { Promise, promisify } from 'bluebird'
+import { stat } from 'fs'
+import rimraf from 'rimraf'
+
+const statAsync = promisify(stat)
+const rimrafAsync = promisify(rimraf)
 
 function progress (req, log, precision = 10) {
   const logged = {}
-  let length = 0,
-    total = 1
+  let length = 0
+  let total = 1
 
   return req.on('response', (res) => {
     total = res.headers['content-length']
@@ -54,12 +56,10 @@ function cleanSrc (clean, src, log) {
  * @param {*} compiler
  * @param {*} next
  */
-function download (compiler, next) {
-  const
-    { src, log } = compiler,
-    { version, sourceUrl, clean } = compiler.options,
-    url = sourceUrl ||
-      `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`
+export function download (compiler, next) {
+  const { src, log } = compiler
+  const { version, sourceUrl, clean } = compiler.options
+  const url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`
 
   return cleanSrc(clean, src, log).then(() => statAsync(src).then(
     x => !x.isDirectory() && fetchNodeSource(src, url, log),
@@ -71,5 +71,3 @@ function download (compiler, next) {
     }
   )).then(next)
 }
-
-module.exports.download = download

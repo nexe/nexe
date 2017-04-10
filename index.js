@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-const nexe = require('./src/nexe'),
-  logger = require('./src/logger').logger
+const nexe = require('./lib/nexe')
+const { error } = require('./lib/logger')
 
 module.exports = nexe
 
 if (require.main === module) {
-  nexe.compile(nexe.options).catch((e) => {
-    logger.error(e.stack, () => process.exit(1))
+  nexe.compile(nexe.argv).catch((e) => {
+    error(e.stack, () => process.exit(1))
   })
 }

@@ -1,13 +1,13 @@
-const Buffer = require('buffer').Buffer
+import { Buffer } from 'buffer'
 
-function* content (compiler, next) {
-  yield next()
+export async function content (compiler, next) {
+  await next()
 
-  const filename = 'lib/' + compiler.options.name + '.js',
-    file = yield compiler.readFileAsync(filename),
-    header = '/' + '*'.repeat(19) + 'nexe_',
-    end = '_' + '*'.repeat(19) + '/',
-    padding = Array(compiler.options.padding * 1000000).fill('*').join('')
+  const filename = 'lib/' + compiler.options.name + '.js'
+  const file = await compiler.readFileAsync(filename)
+  const header = '/' + '*'.repeat(19) + 'nexe_'
+  const end = '_' + '*'.repeat(19) + '/'
+  const padding = Array(compiler.options.padding * 1000000).fill('*').join('')
 
   if (!padding) {
     file.contents = compiler.input
@@ -23,5 +23,3 @@ function* content (compiler, next) {
 
   file.contents = header + Buffer.byteLength(file.contents) + end + file.contents
 }
-
-module.exports.content = content
