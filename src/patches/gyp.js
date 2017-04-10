@@ -1,8 +1,8 @@
-module.exports.nodeGyp = function * nodeGyp ({ files, readFileAsync, download }, next) {
-  yield next()
+export async function nodeGyp ({ files, readFileAsync, download }, next) {
+  await next()
 
-  const nodegyp = yield readFileAsync('node.gyp'),
-    nodeGypMarker = "'lib/fs.js',"
+  const nodegyp = await readFileAsync('node.gyp')
+  const nodeGypMarker = "'lib/fs.js',"
 
   nodegyp.contents = nodegyp.contents
     .replace(nodeGypMarker, `

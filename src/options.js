@@ -1,48 +1,48 @@
-const
-  parseArgv = require('minimist'),
-  { basename, extname, join } = require('path'),
-  EOL = require('os').EOL,
-  padRight = (str, l) => {
-    while (str.length < l) {
-      str += ' '
-    }
-    return str.substr(0, l)
-  },
-  defaults = {
-    temp: process.env.NEXE_TEMP || join(process.cwd(), '.nexe'),
-    version: process.version.slice(1),
-    flags: [],
-    configure: [],
-    make: [],
-    vcBuild: ['nosign', 'release'],
-    quick: false,
-    bundle: true,
-    enableNodeCli: false,
-    verbose: false,
-    silent: false,
-    padding: 2,
-    patches: []
-  },
-  alias = {
-    i: 'input',
-    o: 'output',
-    t: 'temp',
-    n: 'name',
-    v: 'version',
-    p: 'python',
-    f: 'flag',
-    c: 'configure',
-    m: 'make',
-    vc: 'vcBuild',
-    q: 'quick',
-    s: 'snapshot',
-    b: 'bundle',
-    cli: 'enableNodeCli',
-    h: 'help',
-    l: 'loglevel'
-  },
-  argv = parseArgv(process.argv, { alias, default: defaults }),
-  help = `
+import parseArgv from 'minimist'
+import { basename, extname, join } from 'path'
+import { EOL } from 'os'
+
+function padRight (str, l) {
+  while (str.length < l) {
+    str += ' '
+  }
+  return str.substr(0, l)
+}
+const defaults = {
+  temp: process.env.NEXE_TEMP || join(process.cwd(), '.nexe'),
+  version: process.version.slice(1),
+  flags: [],
+  configure: [],
+  make: [],
+  vcBuild: ['nosign', 'release'],
+  quick: false,
+  bundle: true,
+  enableNodeCli: false,
+  verbose: false,
+  silent: false,
+  padding: 2,
+  patches: []
+}
+const alias = {
+  i: 'input',
+  o: 'output',
+  t: 'temp',
+  n: 'name',
+  v: 'version',
+  p: 'python',
+  f: 'flag',
+  c: 'configure',
+  m: 'make',
+  vc: 'vcBuild',
+  q: 'quick',
+  s: 'snapshot',
+  b: 'bundle',
+  cli: 'enableNodeCli',
+  h: 'help',
+  l: 'loglevel'
+}
+const argv = parseArgv(process.argv, { alias, default: defaults })
+const help = `
 nexe --help              CLI OPTIONS
 
   -i   --input      =./index.js             -- application entry point
@@ -95,18 +95,14 @@ function extractCliMap (match, options) {
 
 function extractName (options) {
   if (typeof options.input === 'string') {
-    return options.name
-      || basename(options.input).replace(extname(options.input), '')
+    return options.name ||
+      basename(options.input).replace(extname(options.input), '')
   }
   const mainName = basename(require.resolve(process.cwd()))
   return options.name || mainName.replace(extname(mainName), '')
 }
 
-function normalizeOptions (input) {
-  if (input.__normalized) {
-    return input
-  }
-
+export function normalizeOptions (input) {
   if (argv.help || Boolean(argv._.find(x => x === 'version'))) {
     process.stderr.write(
       argv.help ? help : 'next' + EOL,
@@ -117,9 +113,10 @@ function normalizeOptions (input) {
   const options = Object.assign({}, defaults, input)
   delete options._
   delete alias.rc
-  options.loglevel = options.loglevel
-    || options.silent && 'silent'
-    || options.verbose && 'verbose' || 'info'
+  options.loglevel = options.loglevel ? options.loglevel
+    : options.silent ? 'silent'
+    : options.verbose ? 'verbose'
+    : 'info'
   options.name = extractName(options)
   options.flags = flattenFilter(options.flag, options.flags)
   options.make = flattenFilter(options.make)
@@ -128,9 +125,9 @@ function normalizeOptions (input) {
   options.resources = options.resources || extractCliMap(/^resource-.*/, options)
   Object.keys(alias).forEach(x => delete options[x])
 
-  options.__normalized = true
   return options
 }
 
-module.exports.normalizeOptions = normalizeOptions
-module.exports.options = normalizeOptions(argv)
+export {
+  argv
+}

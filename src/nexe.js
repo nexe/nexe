@@ -1,31 +1,25 @@
-const
-  { compose } = require('app-builder'),
-  { bundle } = require('./bundle'),
-  { NexeCompiler } = require('./compiler'),
-  { options } = require('./options'),
-  { cli } = require('./cli'),
-  { download } = require('./download'),
-  { artifacts } = require('./artifacts'),
-  { patches } = require('./patches'),
-  { EOL } = require('os'),
-  { coroutine, Promise } = require('bluebird'),
-  { logger } = require('./logger')
+import { compose } from 'app-builder'
+import { bundle } from './bundle'
+import { NexeCompiler } from './compiler'
+import { argv } from './options'
+import { cli } from './cli'
+import { download } from './download'
+import { artifacts } from './artifacts'
+import { patches } from './patches'
+import { EOL } from 'os'
+import { longStackTraces, Promise } from 'bluebird'
+import { error } from './logger'
 
-function wrap (fns) {
-  return [].concat(...fns).map(fn => {
-    return fn.constructor.name === 'GeneratorFunction'
-      ? coroutine(fn) : fn
-  })
-}
+longStackTraces()
 
-function compile (compilerOptions, callback) {
+export function compile (compilerOptions, callback) {
   const compiler = new NexeCompiler(compilerOptions)
 
   compiler.log.verbose('Compiler options:' +
     EOL + JSON.stringify(compiler.options, null, 4)
   )
 
-  const nexe = compose(wrap([
+  const nexe = compose(
     bundle,
     cli,
     download,
@@ -37,20 +31,20 @@ function compile (compilerOptions, callback) {
     artifacts,
     patches,
     compiler.options.patches
-  ]))
+  )
   return Promise.resolve(nexe(compiler)).asCallback(callback)
 }
 
-module.exports.options = options
-module.exports.compile = compile
-module.exports.isNexe = function isNexe (callback) {
+export function isNexe (callback) {
   return Promise.resolve(Boolean(process.__nexe)).asCallback(callback)
 }
-module.exports.resources
 
+export {
+  argv
+}
 
 if (require.main === module || process.__nexe) {
-  compile(options).catch((e) => {
-    logger.error(e.stack, () => process.exit(1))
+  compile(argv).catch((e) => {
+    error(e.stack, () => process.exit(1))
   })
 }

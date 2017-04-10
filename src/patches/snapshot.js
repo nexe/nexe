@@ -1,11 +1,11 @@
-module.exports.snapshot = function* snapshot (compiler, next) {
+export async function snapshot (compiler, next) {
   const snapshotFile = compiler.options.snapshot
 
   if (!snapshotFile) {
     return next()
   }
 
-  const file = yield compiler.readFileAsync('configure')
+  const file = await compiler.readFileAsync('configure')
   file.contents = file.contents
     .replace(
       'def configure_v8(o):',

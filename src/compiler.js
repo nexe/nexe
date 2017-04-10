@@ -1,23 +1,19 @@
-const
-  { dirname, normalize, join } = require('path'),
-  { promisify, Promise, coroutine } = require('bluebird'),
-  { normalizeOptions } = require('./options'),
-  { readFile, writeFile, createReadStream } = require('fs'),
-  { spawn } = require('child_process'),
-  { logger } = require('./logger'),
-  { dequote } = require('./util')
+import { normalize, join } from 'path'
+import { promisify, Promise } from 'bluebird'
+import { normalizeOptions } from './options'
+import { readFile, writeFile, createReadStream } from 'fs'
+import { spawn } from 'child_process'
+import * as logger from './logger'
+import { dequote } from './util'
 
-const
-  isWindows = process.platform === 'win32',
-  isBsd = Boolean(~process.platform.indexOf('bsd')),
-  make = isWindows && 'vcbuild.bat' ||
-    isBsd && 'gmake' ||
-    'make',
-  configure = isWindows ? 'configure' : './configure',
-  readFileAsync = promisify(readFile),
-  writeFileAsync = promisify(writeFile)
+const isWindows = process.platform === 'win32'
+const isBsd = Boolean(~process.platform.indexOf('bsd'))
+const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
+const configure = isWindows ? 'configure' : './configure'
+const readFileAsync = promisify(readFile)
+const writeFileAsync = promisify(writeFile)
 
-module.exports.NexeCompiler = class NexeCompiler {
+export class NexeCompiler {
   constructor (options) {
     options = this.options = normalizeOptions(options)
     logger.setLevel(options.loglevel)
@@ -29,14 +25,14 @@ module.exports.NexeCompiler = class NexeCompiler {
     this.env = Object.assign({}, process.env)
     this.files = []
 
-    this.readFileAsync = coroutine(function * (file) {
+    this.readFileAsync = async (file) => {
       const cachedFile = this.files.find(x => normalize(x.filename) === normalize(file))
       if (cachedFile) {
         return Promise.resolve(cachedFile)
       }
       this.files.push({
         filename: file,
-        contents: yield readFileAsync(join(this.src, file), 'utf-8').catch(e => {
+        contents: await readFileAsync(join(this.src, file), 'utf-8').catch(e => {
           if (e.code !== 'ENOENT') {
             throw e
           }
@@ -44,7 +40,7 @@ module.exports.NexeCompiler = class NexeCompiler {
         })
       })
       return this.readFileAsync(file)
-    }.bind(this))
+    }
     this.writeFileAsync = (file, contents) => writeFileAsync(join(this.src, file), contents)
   }
 

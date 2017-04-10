@@ -1,11 +1,13 @@
-const Mfs = require('memory-fs'),
-  webpack = require('webpack'),
-  { fromCallback } = require('bluebird'),
-  { resolve, join, relative } = require('path'),
+import Mfs from 'memory-fs'
+import webpack from 'webpack'
+import { fromCallback } from 'bluebird'
+import { resolve, join, relative } from 'path'
+
+const
   isObject = (x) => typeof x === 'object',
   isString = (x) => typeof x === 'string'
 
-function* bundle (compiler, next) {
+export async function bundle (compiler, next) {
   let bundleConfig = compiler.options.bundle
   if (!bundleConfig) {
     return next()
@@ -29,7 +31,7 @@ function* bundle (compiler, next) {
 
   const bundler = webpack(bundleConfig)
   bundler.outputFileSystem = fs
-  const stats = yield fromCallback(cb => bundler.run(cb))
+  const stats = await fromCallback(cb => bundler.run(cb))
 
   if (stats.hasErrors()) {
     compiler.log.error(stats.toString())
@@ -42,5 +44,3 @@ function* bundle (compiler, next) {
 
   return next()
 }
-
-module.exports.bundle = bundle
