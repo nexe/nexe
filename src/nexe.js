@@ -43,6 +43,11 @@ function compile (compilerOptions, callback) {
 
 module.exports.options = options
 module.exports.compile = compile
+module.exports.isNexe = function isNexe (callback) {
+  return Promise.resolve(Boolean(process.__nexe)).asCallback(callback)
+}
+module.exports.resources
+
 
 if (require.main === module || process.__nexe) {
   compile(options).catch((e) => {
