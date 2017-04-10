@@ -1,19 +1,11 @@
 const
   { normalize } = require('path'),
   { Promise, promisify } = require('bluebird'),
-  { createWriteStream, readFile } = require('fs')
+  { createWriteStream, readFile } = require('fs'),
+  { dequote } = require('./util')
 
 const readFileAsync = promisify(readFile),
   isWindows = process.platform === 'win32'
-
-function dequoteStdIn (input) {
-  input = input.trim()
-  if (input.startsWith('\'') && input.endsWith('\'') ||
-    input.startsWith('"') && input.endsWith('"')) {
-    return input.slice(1).slice(0, -1)
-  }
-  return input
-}
 
 function getStdIn () {
   return new Promise((resolve) => {
@@ -21,7 +13,7 @@ function getStdIn () {
     process.stdin.setEncoding('utf-8')
     process.stdin.on('data', x => bundle.push(x))
     process.stdin.once('end', () =>
-      resolve(dequoteStdIn(Buffer.concat(bundle).toString()))
+      resolve(dequote(Buffer.concat(bundle).toString()))
     )
     process.stdin.resume()
   })
