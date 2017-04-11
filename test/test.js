@@ -247,3 +247,35 @@ describe('nexe supports js-yaml test', function() {
     });
   });
 });
+
+let musl;
+try {
+  musl = require('node-musl');
+} catch(e) {
+  if(e.code !== 'MODULE_NOT_FOUND') throw e;
+  console.error('Skipping musl test because node-musl is not installed.');
+} // unsupported platform or node-musl not installed
+
+(musl ? describe : describe.skip)('nexe can build in a static manner using Musl', function() {
+  let testname = 'static-test';
+
+  describe('build', function () {
+    let env;
+    it('compiles without errors', function (next) {
+      env = Object.assign({}, process.env);
+      musl.setExports();
+      compileTest(testname, function(err) {
+        return next(err);
+      });
+    });
+
+    it('runs successfully', function(next) {
+      runTest(testname, function(err) {
+        Object.keys(process.env)
+          .concat(Object.keys(env))
+          .forEach( (k) => env.hasOwnProperty(k) ? process.env[k] = env[k] : delete process.env[k]);
+        return next(err);
+      });
+    });
+  });
+});
