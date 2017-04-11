@@ -87,7 +87,7 @@ function toAbsolute(pt) {
 }
 
 if (fs.lstatSync(argv.i).isDirectory()) {
-  opts = nexe.package(path.join(argv.i, "package.json"), argv);
+  opts = nexe.package(path.resolve(argv.i, "package.json"), argv);
   nexe.compile(opts, function(error) {
     if (error) {
       return console.log(error.message);
