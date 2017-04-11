@@ -126,6 +126,8 @@ const runTest = function(test, args, cb) {
       return cb(false);
     }
   });
+
+  setTimeout( function() { testinst && testinst.kill() }, 5e3).unref();
 }
 
 console.log('NOTICE: The first test may take awhile as it may compile Node.js');
@@ -142,6 +144,24 @@ after(function() {
  **/
 describe('nexe can bundle express', function() {
   let testname = 'express-test';
+
+  describe('build', function () {
+    it('compiles without errors', function (next) {
+      compileTest(testname, function(err) {
+        return next(err);
+      });
+    });
+
+    it('runs successfully', function(next) {
+      runTest(testname, function(err) {
+        return next(err);
+      });
+    });
+  });
+});
+
+describe('nexe can cluster', function() {
+  let testname = 'cluster-test';
 
   describe('build', function () {
     it('compiles without errors', function (next) {
