@@ -242,6 +242,39 @@ browserify.paths like so:
 
 If it *still* doesn't work, file a bug with what you tried! (also try using `nexe@0.4.2`)
 
+## Express Issues
+
+If after compiling your Express application you find problems with your template engine (jade, pug, ejs...) not being found:
+
+```
+Error: No such native module jade
+   at NativeModule.require (bootstrap_node.js:435:13)
+   at s (nexe.js:1:176)
+   at nexe.js:1:367
+   at new View (nexe.js:8220:30)
+   at EventEmitter.render (nexe.js:4985:12)
+   at ServerResponse.render (nexe.js:6709:7)
+   at nexe.js:52:9
+   at Layer.handle_error (nexe.js:7521:5)
+   at trim_prefix (nexe.js:7113:13)
+   at nexe.js:7083:7
+```
+
+You can workaround it by adding your template engine to your `nexe.browserify.requires` in your `package.json`:
+
+```json
+"nexe": {
+    .......
+    "browserify": {
+        "requires": [ "jade" ]
+    },
+    .......
+}
+```
+
+See the [express demo project](https://github.com/jaredallard/nexe/tree/master/test/express-test) for more information.
+
+
 ## Maintainers
 
 * __Jared Allard__ ([@jaredallard](https://github.com/jaredallard)) &lt;[jaredallard@outlook.com](mailto:jaredallard@outlook.com)&gt; (Active)
