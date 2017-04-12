@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer'
 
-export async function content (compiler, next) {
+export default async function content (compiler, next) {
   await next()
 
   const filename = 'lib/' + compiler.options.name + '.js'

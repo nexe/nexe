@@ -1,9 +1,19 @@
-module.exports.patches = [
-  require('./gyp').nodeGyp, // upstream, sets manifest
-  require('./content').content, // upstream, sets main module content
-  require('./third-party-main').main, // loads main module
-  require('./disable-node-cli').disableNodeCli,
-  require('./flags').flags,
-  require('./ico').ico,
-  require('./node-rc').nodeRc
+import gyp from './gyp'
+import content from './content'
+import main from './third-party-main'
+import cli from './disable-node-cli'
+import flags from './flags'
+import ico from './ico'
+import rc from './node-rc'
+
+const patches = [
+  gyp,
+  content,
+  main,
+  cli,
+  flags,
+  ico,
+  rc
 ]
+
+export default patches

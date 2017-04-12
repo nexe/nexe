@@ -1,4 +1,4 @@
-export async function disableNodeCli (compiler, next) {
+export default async function disableNodeCli (compiler, next) {
   if (compiler.options.enableNodeCli) {
     return next()
   }

@@ -1,4 +1,4 @@
-export async function nodeGyp ({ files, readFileAsync, download }, next) {
+export default async function nodeGyp ({ files, readFileAsync }, next) {
   await next()
 
   const nodegyp = await readFileAsync('node.gyp')

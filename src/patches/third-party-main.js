@@ -1,4 +1,4 @@
-export async function main (compiler, next) {
+export default async function main (compiler, next) {
   const mainFile = await compiler.readFileAsync('lib/_third_party_main.js')
   mainFile.contents = `
     Object.defineProperty(process, '__nexe', {

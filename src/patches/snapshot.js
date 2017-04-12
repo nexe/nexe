@@ -1,4 +1,4 @@
-export async function snapshot (compiler, next) {
+export default async function snapshot (compiler, next) {
   const snapshotFile = compiler.options.snapshot
 
   if (!snapshotFile) {

@@ -1,5 +1,6 @@
 import { join, dirname } from 'path'
-import { readdir, stat, readFile, unlink, writeFile } from 'fs'
+import { readdir, stat, unlink } from 'fs'
+import { readFileAsync, writeFileAsync } from './util'
 import { promisify, map } from 'bluebird'
 import mkdirp from 'mkdirp'
 
@@ -7,8 +8,6 @@ const mkdirpAsync = promisify(mkdirp)
 const statAsync = promisify(stat)
 const unlinkAsync = promisify(unlink)
 const readdirAsync = promisify(readdir)
-const writeAnyFileAsync = promisify(writeFile)
-const readFileAsync = promisify(readFile)
 
 function readDirAsync (dir) {
   return readdirAsync(dir).map((file) => {
@@ -37,25 +36,26 @@ function maybeReadFileContents (file) {
  *  - Finally, The patched files are written into source.
  *
  */
-export async function artifacts ({ files, writeFileAsync, src }, next) {
+export default async function artifacts (compiler, next) {
+  const { src } = compiler
   const temp = join(src, 'nexe')
   await mkdirpAsync(temp)
   const tmpFiles = await readDirAsync(temp)
 
   await map(tmpFiles, async (path) => {
-    return writeFileAsync(path.replace(temp, ''), await readFileAsync(path))
+    return compiler.writeFileAsync(path.replace(temp, ''), await readFileAsync(path))
   })
 
   await next()
 
   await map(tmpFiles, x => unlinkAsync(x))
-  return map(files, async (file) => {
+  return map(compiler.files, async (file) => {
     const sourceFile = join(src, file.filename)
     const tempFile = join(temp, file.filename)
     const fileContents = await maybeReadFileContents(sourceFile)
 
     await mkdirpAsync(dirname(tempFile))
-    await writeAnyFileAsync(tempFile, fileContents)
-    await writeFileAsync(file.filename, file.contents)
+    await writeFileAsync(tempFile, fileContents)
+    await compiler.writeFileAsync(file.filename, file.contents)
   })
 }

@@ -1,4 +1,4 @@
-export async function nodeRc (compiler, next) {
+export default async function nodeRc (compiler, next) {
   const options = compiler.options.rc
   if (!options) {
     return next()
