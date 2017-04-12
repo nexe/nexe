@@ -1,21 +1,18 @@
 import { normalize, join } from 'path'
-import { promisify, Promise } from 'bluebird'
-import { normalizeOptions } from './options'
-import { readFile, writeFile, createReadStream } from 'fs'
+import { Promise } from 'bluebird'
+import { createReadStream } from 'fs'
 import { spawn } from 'child_process'
 import * as logger from './logger'
-import { dequote } from './util'
+import { readFileAsync, writeFileAsync, dequote } from './util'
 
 const isWindows = process.platform === 'win32'
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
 const configure = isWindows ? 'configure' : './configure'
-const readFileAsync = promisify(readFile)
-const writeFileAsync = promisify(writeFile)
 
 export class NexeCompiler {
   constructor (options) {
-    options = this.options = normalizeOptions(options)
+    this.options = options
     logger.setLevel(options.loglevel)
     this.log = logger
     this.python = options.python
@@ -26,20 +23,16 @@ export class NexeCompiler {
     this.files = []
 
     this.readFileAsync = async (file) => {
-      const cachedFile = this.files.find(x => normalize(x.filename) === normalize(file))
-      if (cachedFile) {
-        return Promise.resolve(cachedFile)
+      let cachedFile = this.files.find(x => normalize(x.filename) === normalize(file))
+      if (!cachedFile) {
+        cachedFile = {
+          filename: file,
+          contents: await readFileAsync(join(this.src, file), 'utf-8')
+            .catch({ code: 'ENOENT' }, () => '')
+        }
+        this.files.push(cachedFile)
       }
-      this.files.push({
-        filename: file,
-        contents: await readFileAsync(join(this.src, file), 'utf-8').catch(e => {
-          if (e.code !== 'ENOENT') {
-            throw e
-          }
-          return ''
-        })
-      })
-      return this.readFileAsync(file)
+      return cachedFile
     }
     this.writeFileAsync = (file, contents) => writeFileAsync(join(this.src, file), contents)
   }
@@ -80,9 +73,9 @@ export class NexeCompiler {
     )
   }
 
-  buildAsync () {
-    return this._configureAsync()
-      .then(() => this._runBuildCommandAsync(make, this.make))
+  async buildAsync () {
+    await this._configureAsync()
+    return this._runBuildCommandAsync(make, this.make)
   }
 
   getDeliverableAsync () {

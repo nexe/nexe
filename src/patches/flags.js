@@ -1,4 +1,4 @@
-export async function flags (compiler, next) {
+export default async function flags (compiler, next) {
   const nodeflags = compiler.options.flags
   if (!nodeflags.length) {
     return next()

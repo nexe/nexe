@@ -1,12 +1,10 @@
 import parseArgv from 'minimist'
 import { basename, extname, join } from 'path'
+import { fromCallback, Promise } from 'bluebird'
 import { EOL } from 'os'
 
 function padRight (str, l) {
-  while (str.length < l) {
-    str += ' '
-  }
-  return str.substr(0, l)
+  return (str + ' '.repeat(l)).substr(0, l)
 }
 const defaults = {
   temp: process.env.NEXE_TEMP || join(process.cwd(), '.nexe'),
@@ -93,41 +91,57 @@ function extractCliMap (match, options) {
     }, null)
 }
 
+function tryResolveMainFileName () {
+  let filename = 'nexe'
+  try {
+    const file = require.resolve(process.cwd())
+    filename = basename(file).replace(extname(file), '')
+  } catch (_) {}
+
+  return filename === 'index' ? ('nexe_' + Date.now()) : filename
+}
+
+function extractLogLevel (options) {
+  if (options.loglevel) return options.loglevel
+  if (options.silent) return 'silent'
+  if (options.verbose) return 'verbose'
+  if (options.info) return 'info'
+}
+
 function extractName (options) {
   if (typeof options.input === 'string') {
     return options.name ||
       basename(options.input).replace(extname(options.input), '')
   }
-  const mainName = basename(require.resolve(process.cwd()))
-  return options.name || mainName.replace(extname(mainName), '')
+  const mainName = tryResolveMainFileName()
+  return options.name || mainName
 }
 
-export function normalizeOptions (input) {
+function normalizeOptionsAsync (input) {
   if (argv.help || Boolean(argv._.find(x => x === 'version'))) {
-    process.stderr.write(
-      argv.help ? help : 'next' + EOL,
-      () => process.exit(0)
-    )
+    return fromCallback(cb => process.stderr.write(
+      argv.help ? help : '2.0.0-beta.1' + EOL,
+      () => cb(null, process.exit(1))
+    ))
   }
 
   const options = Object.assign({}, defaults, input)
   delete options._
-  delete alias.rc
-  options.loglevel = options.loglevel ? options.loglevel
-    : options.silent ? 'silent'
-    : options.verbose ? 'verbose'
-    : 'info'
+  options.loglevel = extractLogLevel(options)
   options.name = extractName(options)
   options.flags = flattenFilter(options.flag, options.flags)
   options.make = flattenFilter(options.make)
   options.vcBuild = flattenFilter(options.vcBuild)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
   options.resources = options.resources || extractCliMap(/^resource-.*/, options)
-  Object.keys(alias).forEach(x => delete options[x])
+  Object.keys(alias)
+    .filter(k => k !== 'rc')
+    .forEach(x => delete options[x])
 
-  return options
+  return Promise.resolve(options)
 }
 
 export {
-  argv
+  argv,
+  normalizeOptionsAsync
 }

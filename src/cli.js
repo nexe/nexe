@@ -1,9 +1,8 @@
 import { normalize } from 'path'
-import { Promise, promisify } from 'bluebird'
-import { createWriteStream, readFile } from 'fs'
-import { dequote } from './util'
+import { Promise } from 'bluebird'
+import { createWriteStream } from 'fs'
+import { dequote, readFileAsync } from './util'
 
-const readFileAsync = promisify(readFile)
 const isWindows = process.platform === 'win32'
 
 function getStdIn () {
@@ -32,7 +31,7 @@ function getStdIn () {
  * @param {*} compiler
  * @param {*} next
  */
-export async function cli (compiler, next) {
+export default async function cli (compiler, next) {
   const input = compiler.options.input
   const bundled = Boolean(compiler.input)
 

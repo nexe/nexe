@@ -56,7 +56,7 @@ function cleanSrc (clean, src, log) {
  * @param {*} compiler
  * @param {*} next
  */
-export function download (compiler, next) {
+export default function download (compiler, next) {
   const { src, log } = compiler
   const { version, sourceUrl, clean } = compiler.options
   const url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`

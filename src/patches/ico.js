@@ -1,10 +1,7 @@
-import { readFile } from 'fs'
 import { normalize } from 'path'
-import { promisify } from 'bluebird'
+import { readFileAsync } from '../util'
 
-const readFileAsync = promisify(readFile)
-
-export async function ico (compiler, next) {
+export default async function ico (compiler, next) {
   const iconFile = compiler.options.ico
   if (!iconFile) {
     return next()
