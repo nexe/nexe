@@ -70,7 +70,7 @@ export default async function cli (compiler, next) {
       if (e) {
         reject(e)
       } else {
-        resolve(compiler.log.info('Executable written: ' + output))
+        compiler.log.info('Executable written: ' + output, resolve)
       }
     })
     }

@@ -16,7 +16,7 @@ function readDirAsync (dir) {
   }).reduce((a, b) => a.concat(b), [])
 }
 
-function maybeReadFileContents (file) {
+function maybeReadFileContentsAsync (file) {
   return readFileAsync(file, 'utf-8')
     .catch(e => {
       if (e.code === 'ENOENT') {
@@ -52,7 +52,7 @@ export default async function artifacts (compiler, next) {
   return map(compiler.files, async (file) => {
     const sourceFile = join(src, file.filename)
     const tempFile = join(temp, file.filename)
-    const fileContents = await maybeReadFileContents(sourceFile)
+    const fileContents = await maybeReadFileContentsAsync(sourceFile)
 
     await mkdirpAsync(dirname(tempFile))
     await writeFileAsync(tempFile, fileContents)
