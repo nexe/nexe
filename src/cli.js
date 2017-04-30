@@ -1,12 +1,12 @@
 import { normalize } from 'path'
-import { Promise } from 'bluebird'
+import Bluebird from 'bluebird'
 import { createWriteStream } from 'fs'
-import { dequote, readFileAsync } from './util'
+import { dequote, readFileAsync, resolveModule } from './util'
 
 const isWindows = process.platform === 'win32'
 
 function getStdIn () {
-  return new Promise((resolve) => {
+  return new Bluebird((resolve) => {
     const bundle = []
     process.stdin.setEncoding('utf-8')
     process.stdin.on('data', x => bundle.push(x))
@@ -45,16 +45,16 @@ export default async function cli (compiler, next) {
     compiler.input = await readFileAsync(normalize(input))
   } else if (!compiler.options.empty) {
     compiler.log.verbose('Resolving cwd as main module...')
-    compiler.input = await readFileAsync(require.resolve(process.cwd()))
+    compiler.input = await readFileAsync(resolveModule(process.cwd()))
   }
 
   if (!bundled) {
     await next()
   }
 
-  const deliverable = await compiler.getDeliverableAsync()
+  const deliverable = await compiler.compileAsync()
 
-  return new Promise((resolve, reject) => {
+  return new Bluebird((resolve, reject) => {
     deliverable.once('error', reject)
 
     if (!compiler.options.output && !process.stdout.isTTY) {

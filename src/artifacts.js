@@ -1,9 +1,10 @@
 import { join, dirname } from 'path'
 import { readdir, stat, unlink } from 'fs'
 import { readFileAsync, writeFileAsync } from './util'
-import { promisify, map } from 'bluebird'
+import Bluebird from 'bluebird'
 import mkdirp from 'mkdirp'
 
+const { promisify, map } = Bluebird
 const mkdirpAsync = promisify(mkdirp)
 const statAsync = promisify(stat)
 const unlinkAsync = promisify(unlink)

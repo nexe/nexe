@@ -1,12 +1,12 @@
 import { createGunzip as unZip } from 'zlib'
-import { Extract as unTar } from 'tar'
+import { extract as unTar } from 'tar-fs'
 import request from 'request'
-import { Promise, promisify } from 'bluebird'
+import Bluebird from 'bluebird'
 import { stat } from 'fs'
 import rimraf from 'rimraf'
 
-const statAsync = promisify(stat)
-const rimrafAsync = promisify(rimraf)
+const statAsync = Bluebird.promisify(stat)
+const rimrafAsync = Bluebird.promisify(rimraf)
 
 function progress (req, log, precision = 10) {
   const logged = {}
@@ -26,16 +26,22 @@ function progress (req, log, precision = 10) {
 }
 
 function fetchNodeSource (path, url, log) {
+  const prefix = url.split('/').pop().replace('.tar.gz', '/')
   log.info('Downloading Node: ' + url)
-  return new Promise((resolve, reject) => {
+  return new Bluebird((resolve, reject) => {
     progress(request.get(url), (pc) => {
-      log.verbose(`Downloading Node: ${pc}%...`)
+      log.verbose(`Downloading and Extracting Node: ${pc}%...`)
       if (pc === 100) {
-        log.info('Extracting Node...')
+        log.info('Complete...')
       }
     }).on('error', reject)
       .pipe(unZip().on('error', reject))
-      .pipe(unTar({ path, strip: 1 }))
+      .pipe(unTar(path, {
+        map (header) {
+          header.name = header.name.replace(prefix, '')
+          return header
+        }
+      }))
       .on('error', reject)
       .on('end', () => resolve(log.info('Extracted to: ' + path)))
   })
@@ -48,7 +54,7 @@ function cleanSrc (clean, src, log) {
       log.info('Source deleted.' + src)
     })
   }
-  return Promise.resolve()
+  return Bluebird.resolve()
 }
 
 /**
