@@ -1,5 +1,12 @@
 import { readFile, writeFile } from 'fs'
-import { promisify } from 'bluebird'
+import Bluebird from 'bluebird'
+import module from 'module'
+
+function resolveModule (path) {
+  const filename = module._resolveFilename(path, module)
+  console.log('resolving module ', path)
+  return filename
+}
 
 function dequote (input) {
   input = input.trim()
@@ -12,11 +19,12 @@ function dequote (input) {
   return input
 }
 
-const readFileAsync = promisify(readFile)
-const writeFileAsync = promisify(writeFile)
+const readFileAsync = Bluebird.promisify(readFile)
+const writeFileAsync = Bluebird.promisify(writeFile)
 
 export {
   readFileAsync,
   writeFileAsync,
-  dequote
+  dequote,
+  resolveModule
 }

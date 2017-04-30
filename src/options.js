@@ -1,6 +1,7 @@
 import parseArgv from 'minimist'
 import { basename, extname, join } from 'path'
-import { fromCallback, Promise } from 'bluebird'
+import Bluebird from 'bluebird'
+import { resolveModule } from './util'
 import { EOL } from 'os'
 
 function padRight (str, l) {
@@ -81,20 +82,20 @@ function flattenFilter (...args) {
  * @param {*} options
  */
 function extractCliMap (match, options) {
-  Object.keys(options).filter(x => match.test(x))
+  return Object.keys(options).filter(x => match.test(x))
     .reduce((map, option) => {
       const key = option.split('-')[1]
       map = map || {}
       map[key] = options[option]
       delete options[option]
       return map
-    }, null)
+    }, null) || {}
 }
 
 function tryResolveMainFileName () {
   let filename = 'nexe'
   try {
-    const file = require.resolve(process.cwd())
+    const file = resolveModule(process.cwd())
     filename = basename(file).replace(extname(file), '')
   } catch (_) {}
 
@@ -119,7 +120,7 @@ function extractName (options) {
 
 function normalizeOptionsAsync (input) {
   if (argv.help || Boolean(argv._.find(x => x === 'version'))) {
-    return fromCallback(cb => process.stderr.write(
+    return Bluebird.fromCallback(cb => process.stderr.write(
       argv.help ? help : '2.0.0-beta.1' + EOL,
       () => cb(null, process.exit(1))
     ))

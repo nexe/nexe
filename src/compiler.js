@@ -1,5 +1,5 @@
 import { normalize, join } from 'path'
-import { Promise } from 'bluebird'
+import Bluebird from 'bluebird'
 import { createReadStream } from 'fs'
 import { spawn } from 'child_process'
 import * as logger from './logger'
@@ -55,7 +55,7 @@ export class NexeCompiler {
   }
 
   _runBuildCommandAsync (command, args) {
-    return new Promise((resolve, reject) => {
+    return new Bluebird((resolve, reject) => {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
@@ -73,12 +73,14 @@ export class NexeCompiler {
     )
   }
 
-  async buildAsync () {
+  async _buildAsync () {
     await this._configureAsync()
     return this._runBuildCommandAsync(make, this.make)
   }
 
-  getDeliverableAsync () {
-    return Promise.resolve(createReadStream(this._deliverableLocation))
+  compileAsync () {
+    return this._buildAsync().then(() => {
+      return createReadStream(this._deliverableLocation)
+    })
   }
 }
