@@ -25,6 +25,8 @@ const alias = {
   t: 'target',
   n: 'name',
   v: 'version',
+  r: 'resource',
+  a: 'resource',
   p: 'python',
   f: 'flag',
   c: 'configure',

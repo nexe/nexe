@@ -5,7 +5,7 @@ import globs from 'globby'
 import { stat } from 'fs'
 
 async function isDirectoryAsync (path) {
-  const stats = fromCallback(cb => stat(path, cb))
+  const stats = await fromCallback(cb => stat(path, cb))
   return stats.isDirectory()
 }
 
@@ -31,4 +31,5 @@ export default async function resource (compiler, next) {
     ]
     resources.bundle = resources.bundle + encodedContents
   })
+  return next()
 }
