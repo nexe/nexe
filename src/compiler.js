@@ -132,7 +132,7 @@ export class NexeCompiler {
   }
 
   _generateHeader (paddingOverride) {
-    const zeros = padLeft(0, 20)
+    const zeros = padLeft(0, 9)
     const header = {
       configure: this.options.configure.slice().sort(),
       make: this.options.make.slice().sort(),
@@ -145,9 +145,9 @@ export class NexeCompiler {
       binaryOffset: zeros
     }
     const serializedHeader = this._serializeHeader(header)
-    header.contentSize = padLeft(Buffer.byteLength(this._getPayload(header)), 20)
-    header.paddingSize = padLeft(this._findPaddingSize(+header.contentSize, paddingOverride), 20)
-    header.resourceOffset = padLeft(Buffer.byteLength(serializedHeader + this.input + '/**'), 20)
+    header.contentSize = padLeft(Buffer.byteLength(this._getPayload(header)), 9)
+    header.paddingSize = padLeft(this._findPaddingSize(+header.contentSize, paddingOverride), 9)
+    header.resourceOffset = padLeft(Buffer.byteLength(serializedHeader + this.input + '/**'), 9)
     return header
   }
 
@@ -216,7 +216,6 @@ export class NexeCompiler {
     const header = this._generateHeader(this.options.padding)
     target = target && `${target}-${header.paddingSize}`
     const existingBinaryHeader = await this._getExistingBinaryHeaderAsync(target)
-
     if (existingBinaryHeader && this._headersAreEqual(header, existingBinaryHeader)) {
       prebuiltSource = createReadStream(this._getArtifactLocation(target))
     }
@@ -252,7 +251,7 @@ export class NexeCompiler {
         artifact.push(x)
       }
       if (needles === 1 && !+header.binaryOffset) {
-        header.binaryOffset = padLeft(currentStackSize, 20)
+        header.binaryOffset = padLeft(currentStackSize, 9)
         artifact.push(
           Buffer.from(
             inflate(this._getPayload(header), +header.paddingSize) +

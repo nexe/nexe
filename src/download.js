@@ -1,5 +1,4 @@
-import { createGunzip as unZip } from 'zlib'
-import { extract as unTar } from 'tar-fs'
+import { extract as unTar } from 'tar'
 import request from 'request'
 import Bluebird from 'bluebird'
 import { stat } from 'fs'
@@ -25,8 +24,7 @@ function progress (req, log, precision = 10) {
   })
 }
 
-function fetchNodeSource (path, url, log) {
-  const prefix = url.split('/').pop().replace('.tar.gz', '/')
+function fetchNodeSource (cwd, url, log) {
   log.info('Downloading Node: ' + url)
   return new Bluebird((resolve, reject) => {
     progress(request.get(url), (pc) => {
@@ -35,15 +33,9 @@ function fetchNodeSource (path, url, log) {
         log.info('Complete...')
       }
     }).on('error', reject)
-      .pipe(unZip().on('error', reject))
-      .pipe(unTar(path, {
-        map (header) {
-          header.name = header.name.replace(prefix, '')
-          return header
-        }
-      }))
+      .pipe(unTar({ x: 1, strip: 1, cwd }))
       .on('error', reject)
-      .on('end', () => resolve(log.info('Extracted to: ' + path)))
+      .on('close', () => resolve(log.info('Extracted to: ' + cwd)))
   })
 }
 
@@ -58,7 +50,7 @@ function cleanSrc (clean, src, log) {
 }
 
 /**
- * Deletes (maybe) and downloads the node source to the configured temporary directory
+ * Downloads the node source to the configured temporary directory
  * @param {*} compiler
  * @param {*} next
  */

@@ -36,7 +36,7 @@ fs.readFile = function readFile (file, options, callback) {
 
   fs.open(process.execPath, 'r', function (err, fd) {
     if (err) return callback(err, null)
-    fs.read(fd, Buffer.alloc(length), 0, length, binaryOffset, function (error, bytesRead, buffer) {
+    fs.read(fd, Buffer.alloc(length), 0, length, resourceOffset, function (error, bytesRead, buffer) {
       if (error) {
         return fs.close(fd, function () {
           callback(error, null)
