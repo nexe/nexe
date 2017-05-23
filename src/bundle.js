@@ -1,19 +1,10 @@
 import Mfs from 'memory-fs'
 import webpack from 'webpack'
 import { fromCallback } from 'bluebird'
-import { resolveModule } from './util'
-import { resolve, join } from 'path'
-import module from 'module'
-import 'json-loader'
-import 'html-loader'
+import { resolve, join, relative } from 'path'
 
 const isObject = (x) => typeof x === 'object'
-const isString = (x) => typeof x === 'string'
-
-function loadModule (path) {
-  console.log('loading module!!!!', path)
-  return module._load(path, module, false)
-}
+const isString = (x) => typeof x === 'string' || x instanceof String
 
 export default async function bundle (compiler, next) {
   let bundleConfig = compiler.options.bundle
@@ -21,21 +12,23 @@ export default async function bundle (compiler, next) {
     return next()
   }
 
-  const input = compiler.options.input || resolveModule(process.cwd())
+  const inputFilePath = compiler.options.input || require.resolve(process.cwd())
   const mfs = new Mfs()
   const path = resolve('nexe')
   const filename = 'virtual-bundle.js'
 
   if (isString(bundleConfig)) {
-    bundleConfig = loadModule(relative(process.cwd(), bundleConfig))
+    bundleConfig = require(relative(process.cwd(), bundleConfig))
   } else if (!isObject(bundleConfig)) {
     bundleConfig = {
-      entry: resolve(input),
+      entry: resolve(inputFilePath),
       target: 'node',
       module: {
         rules: [
           { test: /\.html$/, use: 'html-loader' },
-          { test: /\.json$/, use: 'json-loader' }
+          { test: /\.json$/, use: 'json-loader' },
+          { test: /\.node$/, use: 'xbin-loader' },
+          { test: /license$|\.md$/, use: 'raw-loader' }
         ]
       }
     }

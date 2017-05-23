@@ -1,7 +1,6 @@
 import parseArgv from 'minimist'
 import { basename, extname, join } from 'path'
 import Bluebird from 'bluebird'
-import { resolveModule } from './util'
 import { EOL } from 'os'
 
 function padRight (str, l) {
@@ -13,19 +12,17 @@ const defaults = {
   flags: [],
   configure: [],
   make: [],
+  targets: [],
   vcBuild: ['nosign', 'release'],
-  quick: false,
-  bundle: true,
+  bundle: false,
+  build: false,
   enableNodeCli: false,
-  verbose: false,
-  silent: false,
-  padding: 2,
   patches: []
 }
 const alias = {
   i: 'input',
   o: 'output',
-  t: 'temp',
+  t: 'target',
   n: 'name',
   v: 'version',
   p: 'python',
@@ -33,7 +30,6 @@ const alias = {
   c: 'configure',
   m: 'make',
   vc: 'vcBuild',
-  q: 'quick',
   s: 'snapshot',
   b: 'bundle',
   cli: 'enableNodeCli',
@@ -44,9 +40,9 @@ const argv = parseArgv(process.argv, { alias, default: defaults })
 const help = `
 nexe --help              CLI OPTIONS
 
-  -i   --input      =./index.js             -- application entry point
-  -o   --output     =./nexe.exe             -- path to output file
-  -t   --temp       =./.nexe                -- nexe temp directory (3Gb+) ~ NEXE_TEMP
+  -i   --input      =index.js               -- application entry point
+  -o   --output     =nexe.exe               -- path to output file
+  -t   --target     =win32-x64-6.10.3       -- *target a prebuilt binary
   -n   --name       =nexe.js                -- file name for error reporting at run time
   -v   --version    =${padRight(process.version.slice(1), 23)}-- node version
   -p   --python     =/path/to/python2       -- python executable
@@ -55,7 +51,9 @@ nexe --help              CLI OPTIONS
   -m   --make       ="--loglevel"           -- *pass arguments to the make command
   -vc  --vcBuild    =x64                    -- *pass arguments to vcbuild.bat
   -s   --snapshot   =/path/to/snapshot      -- build with warmup snapshot
-  -b   --bundle                             -- attempt bundling application
+  -r   --resource   =./paths/**/*           -- *embed file bytes within the binary
+  -b   --bundle     =webpack-config.js      -- use default configuration or provide custom webpack config
+       --temp       =./path/to/temp         -- nexe temp files (for downloads and source builds)
        --ico                                -- file name for alternate icon file (windows)
        --rc-*                               -- populate rc file options (windows)
        --clean                              -- force download of sources
@@ -64,11 +62,10 @@ nexe --help              CLI OPTIONS
        --silent                             -- disable logging
        --verbose                            -- set logging to verbose
 
-
        -* variable key name                 * option can be used more than once
 
-  TODO -q   --quick   =win32-x64-X.X.X        -- use prebuilt binary (url, key or path)
-  TODO     --resource-* =/path/to/resource      -- *embed file bytes within the binary
+
+
 `.trim()
 
 function flattenFilter (...args) {
@@ -95,7 +92,7 @@ function extractCliMap (match, options) {
 function tryResolveMainFileName () {
   let filename = 'nexe'
   try {
-    const file = resolveModule(process.cwd())
+    const file = require.resolve(process.cwd())
     filename = basename(file).replace(extname(file), '')
   } catch (_) {}
 
@@ -106,23 +103,23 @@ function extractLogLevel (options) {
   if (options.loglevel) return options.loglevel
   if (options.silent) return 'silent'
   if (options.verbose) return 'verbose'
-  if (options.info) return 'info'
+  return 'info'
 }
 
 function extractName (options) {
-  if (typeof options.input === 'string') {
-    return options.name ||
-      basename(options.input).replace(extname(options.input), '')
+  let name = options.name
+  if (typeof options.input === 'string' && !name) {
+    name = basename(options.input).replace(extname(options.input), '')
   }
-  const mainName = tryResolveMainFileName()
-  return options.name || mainName
+  name = name || tryResolveMainFileName()
+  return name.replace(/\.exe$/, '')
 }
 
 function normalizeOptionsAsync (input) {
-  if (argv.help || Boolean(argv._.find(x => x === 'version'))) {
+  if (argv.help || Boolean(argv._.filter(x => x === 'version')[0])) {
     return Bluebird.fromCallback(cb => process.stderr.write(
-      argv.help ? help : '2.0.0-beta.1' + EOL,
-      () => cb(null, process.exit(1))
+      argv.help ? help : '2.0.0-rc.1' + EOL,
+      () => cb(null, process.exit(0))
     ))
   }
 
@@ -131,10 +128,22 @@ function normalizeOptionsAsync (input) {
   options.loglevel = extractLogLevel(options)
   options.name = extractName(options)
   options.flags = flattenFilter(options.flag, options.flags)
+  options.targets = flattenFilter(options.target, options.targets)
   options.make = flattenFilter(options.make)
   options.vcBuild = flattenFilter(options.vcBuild)
+  options.resources = flattenFilter(options.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
-  options.resources = options.resources || extractCliMap(/^resource-.*/, options)
+
+  if (options.build || options.padding === 0) {
+    options.targets = []
+    options.build = true
+  } else if (!options.targets.length) {
+    const defaultTarget = [process.platform, process.arch, options.version].join('-')
+    options.targets = [defaultTarget]
+  }
+
+  // TODO validate target(s)
+
   Object.keys(alias)
     .filter(k => k !== 'rc')
     .forEach(x => delete options[x])

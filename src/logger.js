@@ -43,11 +43,4 @@ const logger = logLevels.reduce((logMethods, info) => {
   }
 })
 
-const { info, error, verbose, setLevel } = logger
-
-export {
-  setLevel,
-  info,
-  error,
-  verbose
-}
+export default logger
