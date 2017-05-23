@@ -1,21 +1,7 @@
 import { normalize } from 'path'
 import Bluebird from 'bluebird'
 import { createWriteStream } from 'fs'
-import { dequote, readFileAsync, resolveModule } from './util'
-
-const isWindows = process.platform === 'win32'
-
-function getStdIn () {
-  return new Bluebird((resolve) => {
-    const bundle = []
-    process.stdin.setEncoding('utf-8')
-    process.stdin.on('data', x => bundle.push(x))
-    process.stdin.once('end', () =>
-    resolve(dequote(Buffer.concat(bundle).toString()))
-  )
-    process.stdin.resume()
-  })
-}
+import { readFileAsync, readStreamAsync, isWindows } from './util'
 
 /**
  * The "cli" step detects whether the process is in a tty. If it is then the input is read into memory.
@@ -38,41 +24,46 @@ export default async function cli (compiler, next) {
   if (bundled) {
     await next()
   } else if (!input && !process.stdin.isTTY) {
-    compiler.log.verbose('Buffering stdin as main module...')
-    compiler.input = await getStdIn()
+    compiler.log.verbose('Buffering stdin as bundle...')
+    compiler.input = await readStreamAsync(process.stdin)
   } else if (input) {
-    compiler.log.verbose('Reading input as main module: ' + input)
+    compiler.log.verbose('Reading input as bundle: ' + input)
     compiler.input = await readFileAsync(normalize(input))
   } else if (!compiler.options.empty) {
-    compiler.log.verbose('Resolving cwd as main module...')
-    compiler.input = await readFileAsync(resolveModule(process.cwd()))
+    const bundle = require.resolve(process.cwd())
+    compiler.log.verbose('Resolving cwd as main bundle: ' + bundle)
+    compiler.input = await readFileAsync(bundle)
   }
 
   if (!bundled) {
     await next()
   }
 
+  const shouldPipeOutput = Boolean(!compiler.options.output && !process.stdout.isTTY)
+  const outputName = compiler.options.output ||
+    `${compiler.options.name}${isWindows ? '.exe' : ''}`
+
+  compiler.output = shouldPipeOutput ? null : outputName
   const deliverable = await compiler.compileAsync()
 
   return new Bluebird((resolve, reject) => {
     deliverable.once('error', reject)
 
-    if (!compiler.options.output && !process.stdout.isTTY) {
+    if (!compiler.output) {
       compiler.log.verbose('Writing result to stdout...')
       deliverable.pipe(process.stdout).once('error', reject)
       resolve()
     } else {
       compiler.log.verbose('Writing result to file...')
-      const output = compiler.options.output || `${compiler.options.name}${isWindows ? '.exe' : ''}`
-      deliverable.pipe(createWriteStream(normalize(output)))
-    .once('error', reject)
-    .once('close', e => {
-      if (e) {
-        reject(e)
-      } else {
-        compiler.log.info('Executable written: ' + output, resolve)
-      }
-    })
+      deliverable.pipe(createWriteStream(normalize(compiler.output)))
+        .once('error', reject)
+        .once('close', e => {
+          if (e) {
+            reject(e)
+          } else {
+            compiler.log.info('Executable written: ' + compiler.output, resolve)
+          }
+        })
     }
   })
 }

@@ -1,6 +1,5 @@
 import gyp from './gyp'
-import content from './content'
-import main from './third-party-main'
+import nexePatches from './third-party-main'
 import cli from './disable-node-cli'
 import flags from './flags'
 import ico from './ico'
@@ -8,8 +7,8 @@ import rc from './node-rc'
 
 const patches = [
   gyp,
-  content,
-  main,
+  (compiler, next) => compiler.setMainModule(compiler, next),
+  nexePatches,
   cli,
   flags,
   ico,
