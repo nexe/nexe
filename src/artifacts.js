@@ -1,19 +1,18 @@
 import { join, dirname } from 'path'
-import { readdir, stat, unlink } from 'fs'
-import { readFileAsync, writeFileAsync } from './util'
+import { readdir, unlink } from 'fs'
+import { readFileAsync, writeFileAsync, isDirectoryAsync } from './util'
 import Bluebird from 'bluebird'
 import mkdirp from 'mkdirp'
 
 const { promisify, map } = Bluebird
 const mkdirpAsync = promisify(mkdirp)
-const statAsync = promisify(stat)
 const unlinkAsync = promisify(unlink)
 const readdirAsync = promisify(readdir)
 
 function readDirAsync (dir) {
   return readdirAsync(dir).map((file) => {
     const path = join(dir, file)
-    return statAsync(path).then(s => s.isDirectory() ? readDirAsync(path) : path)
+    return isDirectoryAsync(path).then(x => x ? readDirAsync(path) : path)
   }).reduce((a, b) => a.concat(b), [])
 }
 

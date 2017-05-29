@@ -7,243 +7,187 @@
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
 </p>
 
+<p align="center"><code>npm i nexe -g</code></p>
 <p align="center">Nexe is a command-line utility that compiles your Node.js application into a single executable file.</p>
 
-![screenshot](https://cloud.githubusercontent.com/assets/2391349/23597575/e333884c-01e8-11e7-9fbf-3a83088bc748.png)
+<p align="center">
+  <img src="https://cloud.githubusercontent.com/assets/5818726/26533446/ce19ee5a-43de-11e7-9540-caf7ebd93370.gif"/>
+</p>
 
-## Supporting nexe
+## Motivation and Features
 
-nexe is a MIT license project. Please consider joining our [backers](https://github.com/nexe/nexe/BACKERS.md) by contributing to [nexe's Patreon](https://patreon.com/user?u=5264722).
-
-### Motivation
-
+- Supports production ready ([secure](#security)) builds
 - Ability to run multiple applications with *different* node.js runtimes.
-- Distributable binaries without needing node / npm.
-- Starts faster.
+- Distribute binaries without needing node / npm.
+- Idempotent builds
+- Start and deploy faster.
 - Lockdown specific application versions, and easily rollback.
-- Faster deployments.
+- Flexible build pipeline
+- Cross platform builds
 
-## Building Requirements
+## Usage
 
-- Linux / Mac / BSD / Windows
-- Python 2.6 or 2.7 (use --python if not in PATH)
-- Windows: Visual Studio 2010+
+*Note: V2 API is still subject to change. * For v1 see [V1-EOL](https://github.com/nexe/nexe/tree/V1-EOL)
 
-## Caveats
+- Existing application bundle:
 
-### Doesn't support native modules
+    `nexe -i ./my-app-bundle.js -o ./my-app.exe`
 
-- Use the techniques below for working around dynamic require statements to exclude the module from the bundling, and deploy along side the executable in a node_module folder so your app can find it. Note: On windows you may need to have your app be named node.exe if .node file depends on node.
+- Integrated webpack bundling:
 
-### Doesn't support dynamic require statements
+  `nexe -i ./my-app.js -o ./my-app.exe --bundle`
 
-Such As:
+  Alternatively a path to a webpack configuration file can be passed in the `--bundle` option
+
+- stdin & stdout interfaces
+
+  `rollup -c | nexe --resource ./public/**/* > my-app.exe`
+
+For more CLI options see: `nexe --help`
+
+## Including Additional Resources
+
+Additional resources can be added to the binary by passing `-r glob/pattern/**/*`. These included files can be read in the application by using `fs.readFile` or `fs.readFileSync`
+
+## Compiling Node
+
+By default `nexe` will attempt to download a pre-built executable. However, some users may want to customize the way node is built, either by changing the flags, providing a different icon, or different executable details. These options are supported out of the box, and subsequent builds with compatible options will result in instant build times.
+
+Nexe also exposes its patching pipeline to the user. This allows limitless and simple patching of node sources prior to compilation.
+
+## Node.js API
+
+Using Nexe Programatically
+
+#### Example
+
 
 ```javascript
-var x = require(someVar);
-```
-
-In this case nexe won't bundle the file
-
-```javascript
-	var x;
-	if (someCheck) {
-		x = require("./ver1.js");
-	} else {
-		x = require("./ver2.js");
-	}
-```
-
-In this case nexe will bundle both files.
-
-Workarounds:
-1) for dynamic requires that you want bundled add the following into your project
-
-```javascript
-	var dummyToForceIncludeForBundle = false;
-	if (dummyToForceIncludeForBundle) {
-		require("./loadedDynamicallyLater.js");
-		// ...
-	}
-```
-this will trick the bundler into including them.
-
-2) for dynamic files getting included that you don't want to be
-
-```javascript
-	var moduleName = "./ver2.js";
-	if (someCheck) {
-		moduleName = "./ver1.js";
-	}
-	var x = require(moduleName);
-```
-Note: neither file will be bundled.
-
-Using these two techniques you can change your application code so modules are not bundles, and generate a includes.js file as part of your build process so that the right files get bundled for your build configuration.
-
-### &#95;&#95;dirname
-
-Once the module is bundled it is part of the executable. &#95;&#95;dirname is therefore the executable dir (process.execPath). Thus if you put resources on a relative path from the the executable your app will be able to access them.
-
-If you had a data file at `/dev/myNodeApp/stateManager/handler/data/some.csv`
-and a file at `/dev/myNodeApp/stateManager/handler/loader.js`
-
-```javascript
-	module.exports = fw.readFileSync(path.join(__dirname, "./data/some.csv"));
-```
-You would need to deploy some.csv in a sub dir `data/` along side your executable
-
-There are potential use cases for &#95;&#95;dirname where the executable path is not the correct substitution, and could result in a silent error (possibly even in a dependency that you are unaware of).
-
-Note: &#95;&#95;filename will be 'undefined'
-
-### child_process.fork
-
-child_process.spawn works is unmodified, but child_process.fork will make an attempt to launch a new instance of your executable and run the bundled module.
-
-## Installation
-
-Via NPM:
-
-```bash
-	npm install nexe [-g]
-```
-
-Or git:
-
-```bash
-	git clone https://github.com/jaredallard/nexe.git
-```
-
-### CLI Usage
-
-```text
-
-Usage: nexe -i [sources] -o [binary] [options]
-
-Options:
-	-i, --input    The entry javascript files         [default: cwd]
-	-o, --output   The output binary                  [default: out.nex]
-	-r, --runtime  The node.js runtime to use         [default: "latest"]
-	-t, --temp     The path to store node.js sources  [default: ./tmp/nexe]
-	-f, --flags    Don't parse node and v8 flags, pass through app flags  [default: false]
-	-v, --version  Display version number
-	-p, --python   Set path of python to use.         [default: "python"]
-	-F, --framework Set the framework to use.          [default: "nodejs"]
-
-```
-
-
-### Code Usage
-
-```javascript
-
-var nexe = require('nexe');
+const nexe = require('nexe')
 
 nexe.compile({
-	input: 'input.js', // where the input file is
-	output: 'path/to/bin', // where to output the compiled binary
-	nodeVersion: '5.5.0', // node version
-	nodeTempDir: 'src', // where to store node source.
-	nodeConfigureArgs: ['opt', 'val'], // for all your configure arg needs.
-	nodeMakeArgs: ["-j", "4"], // when you want to control the make process.
-	nodeVCBuildArgs: ["nosign", "x64"], // when you want to control the make process for windows.
-										// By default "nosign" option will be specified
-										// You can check all available options and its default values here:
-										// https://github.com/nodejs/node/blob/master/vcbuild.bat
-	python: 'path/to/python', // for non-standard python setups. Or python 3.x forced ones.
-	resourceFiles: [ 'path/to/a/file' ], // array of files to embed.
-	resourceRoot: [ 'path/' ], // where to embed the resourceFiles.
-	flags: true, // use this for applications that need command line flags.
-	jsFlags: "--use_strict", // v8 flags
-	startupSnapshot: 'path/to/snapshot.js', // when you want to specify a script to be
-											// added to V8's startup snapshot. This V8
-											// feature deserializes a heap to save startup time.
-											// More information in this blog post:
-											// http://v8project.blogspot.de/2015/09/custom-startup-snapshots.html
-	framework: "node" // node, nodejs, or iojs
-}, function(err) {
-	if(err) {
-		return console.log(err);
-	}
-
-	 // do whatever
-});
-
+  input: './my-app-bundle.js'
+  output: './my-app.exe'
+  patches: [
+    async (compiler, next) => {
+      await compiler.setFileContentsAsync(
+        'lib/new-native-module.js',
+        'module.exports = 42'
+      )
+      return next()
+    }
+  ]
+}).then(() => {
+  console.log('success')
+})
 ```
 
-### package.json inclusion
+### `options`
 
-As of 0.4.0 you can now embed nexe options into package.json. Note that this Format
-is still in works, so it is likely to change.
+ - `input: string`
+    - Input bundle file path
+    - default: stdin or the current directory's main file (package.json)
+ - `output: string`
+    - Output executable file path
+    - default: same as `name` with an OS specific extension.
+ - `target: string`
+    - Dash seperated platform-architecture-version. eg. `'win32-ia32-6.10.3'`
+    - default: `[process.platform, process.arch, process.version.slice(1)].join('-')`
+ - `name: string`
+    - Module friendly name of the application
+    - default: basename of the input file, or `nexe_${Date.now()}`
+ - `version: string`
+    - The Node version you're building for
+    - default: `process.version.slice(1)`
+ - `python: string`
+    - On Linux this is the path pointing to your python2 executable
+    - On Windows this is the directory where `python` can be accessed
+    - default: `null`
+ - `flags: Array<string>`
+    - Array of node runtime flags to build node with.
+    - Example: `['--expose-gc']`
+    - default: `[]`
+ - `configure: Array<string>`
+    - Array of arguments for the node build configure step
+    - Example: `['--with-dtrace', '--dest-cpu=x64']`
+    - default: `[]`
+ - `make: Array<string>`
+    - Array of arguments for the node build make step
+    - default: `[]`
+ - `vcBuild: Array<string>`
+    - Array of arguments for the node build step on windows
+    - default: `['nosign', 'release']`
+ - `snapshot: string`
+    - path to a file to be used as the warmup snapshot for the build
+    - default: `null`
+ - `resources: Array<string>`
+    - Array of globs with files to include in the build
+    - Example: `['./public/**/*']`
+    - default: `[]`
+ - `bundle: boolean | string | object`
+    - `boolean`: indicating whether integrated bundling should be tried
+    - `string`: filepath to user-written webpack configuration
+    - `object`: user provided webpack configuration
+    - Example: `'./webpack.config.js'`
+    - default: `false`
+ - `temp: string`
+    - Path to use for storing nexe's build files
+    - Override in the env with `NEXE_TEMP`
+    - default: `./.nexe` in the cwd
+ - `ico: string`
+    - Path to a user provided icon to be used (Windows only).
+ - `rc: object`
+    - Settings for patching the noderc configuration file (Windows only).
+    - Example: `{ CompanyName: "ACME Corp" }`
+    - default: `{}`
+ - `clean: boolean`
+    - If included, nexe will remove temporary files for accompanying configuration and exit
+ - `enableNodeCli: boolean`
+    - Enable the original Node CLI (will prevent application cli from working)
+    - default: `false`
+ - `sourceUrl: string`
+    - Provide an alternate url for the node source. Should be a `.tar.gz`
+ - `loglevel: string`
+    - Set the loglevel, info, silent, or verbose
+    - default: `'info'`
+ - `padding`
+    - Advanced option for controlling the size available in the executable.
+    - It must be larger than the bundle + resources in bytes
+    - default: 3, 6, 9, 16, 25, or 40 MB sizes are selected automatically.
+ - `patches: Array<NexePatch>`
+    - Userland patches for patching or modifying node source
+    - default: `[]`
 
-```json
-"nexe": {
-	"input": "./bin/nexe",
-	"output": "nexe^$",
-	"temp": "src",
-	"browserify": {
-		"requires": [],
-		"excludes": [],
-		"paths": []
-	},
-	"runtime": {
-		"framework": "node",
-		"version": "5.6.0",
-		"js-flags": "--use_strict",
-		"ignoreFlags": true
-	}
-}
-```
+### `NexePatch: (compiler: NexeCompiler, next: () => Promise<void>) => Promise<void>`
 
-Notes:
+A patch is just a middleware function that takes two arguments, the `compiler`, and `next`. The compiler is described below, and `next` ensures that the pipeline continues. Its invocation should always be awaited or returned to ensure correct behavior.
 
-* output: can use ^$ for platform specific file extension
-* js-flags: this is also known as v8 flags, and supports *all* v8 flags.
+### `NexeCompiler`
 
-### Browserify Require Issues
+For examples, see the built in patches: [src/patches](src/patches)
 
-If you have requires that aren't resolving well, you can do two things.
+ - `setFileContentsAsync(filename: string, contents: string): Promise<void>`
+    - Quickly set a file's contents in node source
+ - `replaceInFileAsync(filename: string, ...replaceArgs): Promise<void>`
+    - Quickly preform a replace in a file, the rest arguments are passed along to `String.prototype.replace`
+ - `readFileAsync (pathInSrc: string): Promise<SourceFile>`
+    - Access (or create) a file in the downloaded source.
+ - `files: Array<SourceFile>`
+    - cache of currently read, modified, or created source files
 
-Try adding it to `nexe.browserify.requires` in your `package.json`
+#### `SourceFile`
+  - `contents: string`
+  - `filename: string`
 
-```json
-"nexe": {
-	.......
-	"browserify": {
-		"requires": [
-			{
-				"file": "myfile.js",
-				"expose": "mymodule"
-			},
-			"mymodule.js"
-		],
-		"excludes": [],
-		"paths": []
-	},
-	.......
-}
-```
-
-Or, if that doesn't work (it tends to not work sometimes), you can try altering
-browserify.paths like so:
-
-```json
-"nexe": {
-	.......
-	"browserify": {
-		"requires": []
-		"excludes": [],
-		"paths": ["/path/to/my/loc"]
-	},
-	.......
-}
-```
-
-If it *still* doesn't work, file a bug with what you tried! (also try using `nexe@0.4.2`)
+## Security
+A common use case for Nexe is production deployment. When distributing executables it is important to [sign](https://en.wikipedia.org/wiki/Code_signing) them before distributing. Nexe was designed specifically to not mangle the binary it produces, this allows the checksum and signature of the size and location offsets to be maintained through the code signing process.
 
 ## Maintainers
 
-* __Jared Allard__ ([@jaredallard](https://github.com/jaredallard)) &lt;[jaredallard@outlook.com](mailto:jaredallard@outlook.com)&gt; (Active)
-* __Christopher Karper__ ([@ckarper](https://github.com/CKarper)) &lt;[Christopher.Karper@gmail.com](mailto:Christopher.Karper@gmail.com)&gt; (Active)
-* __Craig Condon__ ([@crcn](https://github.com/crcn)) &lt;[craig.j.condon@gmail.com](mailto:craig.j.condon@gmail.com)&gt; (Old Project Owner)
+[![Jared Allard](https://avatars.githubusercontent.com/u/2391349?s=130)](https://jaredallard.me/) | [![Caleb Boyd](https://avatars.githubusercontent.com/u/5818726?s=130)](https://github.com/calebboyd) | [![Christopher Karper](https://avatars.githubusercontent.com/u/653156?s=130)](https://github.com/ckarper) | [![Dustin Greif](https://avatars.githubusercontent.com/u/3026298?s=130)](https://github.com/dgreif) |
+---|---|---|---
+[Jared Allard](https://github.com/jaredallard) | [Caleb Boyd](http://github.com/calebboyd) | [Christopher Karper](https://github.com/ckarper) | [Dustin Greif](https://github.com/dgreif) |
+
+### Former
+
+- [Craig Condon](http://crcn.codes/)

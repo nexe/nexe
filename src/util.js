@@ -1,5 +1,8 @@
 import { readFile, writeFile, stat } from 'fs'
 import Bluebird from 'bluebird'
+import rimraf from 'rimraf'
+
+const rimrafAsync = Bluebird.promisify(rimraf)
 
 function dequote (input) {
   input = input.trim()
@@ -11,22 +14,12 @@ function dequote (input) {
   return input
 }
 
-function readStreamAsync (stream) {
-  return new Bluebird((resolve) => {
-    let input = ''
-    stream.setEncoding('utf-8')
-    stream.on('data', x => { input += x })
-    stream.once('end', () => resolve(dequote(input)))
-    stream.resume && stream.resume()
-  })
-}
-
 const readFileAsync = Bluebird.promisify(readFile)
 const writeFileAsync = Bluebird.promisify(writeFile)
 const statAsync = Bluebird.promisify(stat)
 const isWindows = process.platform === 'win32'
 
-function fileExistsAsync (path) {
+function pathExistsAsync (path) {
   return statAsync(path).then(x => true, err => {
     if (err.code !== 'ENOENT') {
       throw err
@@ -35,11 +28,18 @@ function fileExistsAsync (path) {
   })
 }
 
+function isDirectoryAsync (path) {
+  return statAsync(path)
+    .then(x => x.isDirectory())
+    .catch({ code: 'ENOENT' }, () => false)
+}
+
 export {
   dequote,
   isWindows,
+  rimrafAsync,
   readFileAsync,
-  fileExistsAsync,
-  readStreamAsync,
+  pathExistsAsync,
+  isDirectoryAsync,
   writeFileAsync
 }

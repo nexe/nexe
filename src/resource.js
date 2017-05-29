@@ -1,13 +1,7 @@
-import { each, fromCallback } from 'bluebird'
-import { readFileAsync } from './util'
+import { each } from 'bluebird'
+import { readFileAsync, isDirectoryAsync } from './util'
 import { Buffer } from 'buffer'
 import globs from 'globby'
-import { stat } from 'fs'
-
-async function isDirectoryAsync (path) {
-  const stats = await fromCallback(cb => stat(path, cb))
-  return stats.isDirectory()
-}
 
 export default async function resource (compiler, next) {
   const resources = compiler.resources = {
@@ -18,18 +12,22 @@ export default async function resource (compiler, next) {
   if (!compiler.options.resources.length) {
     return next()
   }
-
+  const step = compiler.log.step('Bundling Resources...')
+  let count = 0
   await each(globs(compiler.options.resources), async (file) => {
     if (await isDirectoryAsync(file)) {
       return
     }
+    count++
+    step.log(`Including file: ${file}`)
     const contents = await readFileAsync(file)
-    const encodedContents = contents.toString('base64')
+    const commentSafeContents = contents.toString('base64')
     resources.index[file] = [
       Buffer.byteLength(resources.bundle),
-      Buffer.byteLength(encodedContents)
+      Buffer.byteLength(commentSafeContents)
     ]
-    resources.bundle = resources.bundle + encodedContents
+    resources.bundle += commentSafeContents
   })
+  step.log(`Included ${count} file(s). ${(Buffer.byteLength(resources.bundle) / 1e6).toFixed(3)} MB`)
   return next()
 }

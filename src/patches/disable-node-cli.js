@@ -3,13 +3,12 @@ export default async function disableNodeCli (compiler, next) {
     return next()
   }
 
-  const nodecc = await compiler.readFileAsync('src/node.cc')
   const nodeccMarker = "argv[index][0] == '-'"
 
-  nodecc.contents = nodecc.contents.replace(
+  await compiler.replaceInFileAsync(
+    'src/node.cc',
     nodeccMarker,
     nodeccMarker.replace('-', ']')
   )
-
   return next()
 }
