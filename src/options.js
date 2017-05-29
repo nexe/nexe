@@ -43,9 +43,9 @@ const help = `
 nexe --help              CLI OPTIONS
 
   -i   --input      =index.js               -- application entry point
-  -o   --output     =nexe.exe               -- path to output file
+  -o   --output     =my-app.exe             -- path to output file
   -t   --target     =win32-x64-6.10.3       -- *target a prebuilt binary
-  -n   --name       =nexe.js                -- file name for error reporting at run time
+  -n   --name       =my-app                 -- main app module name
   -v   --version    =${padRight(process.version.slice(1), 23)}-- node version
   -p   --python     =/path/to/python2       -- python executable
   -f   --flag       ="--expose-gc"          -- *v8 flags to include during compilation
@@ -64,11 +64,7 @@ nexe --help              CLI OPTIONS
        --silent                             -- disable logging
        --verbose                            -- set logging to verbose
 
-       -* variable key name                 * option can be used more than once
-
-
-
-`.trim()
+       -* variable key name                 * option can be used more than once`.trim()
 
 function flattenFilter (...args) {
   return [].concat(...args).filter(x => x)
@@ -84,21 +80,20 @@ function extractCliMap (match, options) {
   return Object.keys(options).filter(x => match.test(x))
     .reduce((map, option) => {
       const key = option.split('-')[1]
-      map = map || {}
       map[key] = options[option]
       delete options[option]
       return map
-    }, null) || {}
+    }, {})
 }
 
 function tryResolveMainFileName () {
-  let filename = 'nexe'
+  let filename
   try {
     const file = require.resolve(process.cwd())
     filename = basename(file).replace(extname(file), '')
   } catch (_) {}
 
-  return filename === 'index' ? ('nexe_' + Date.now()) : filename
+  return !filename || filename === 'index' ? ('nexe_' + Date.now()) : filename
 }
 
 function extractLogLevel (options) {
@@ -118,9 +113,9 @@ function extractName (options) {
 }
 
 function normalizeOptionsAsync (input) {
-  if (argv.help || Boolean(argv._.filter(x => x === 'version')[0])) {
+  if (argv.help || argv._.some(x => x === 'version')) {
     return Bluebird.fromCallback(cb => process.stderr.write(
-      argv.help ? help : '2.0.0-rc.1' + EOL,
+      argv.help ? help : '2.0.0-beta.1' + EOL,
       () => cb(null, process.exit(0))
     ))
   }
@@ -143,8 +138,6 @@ function normalizeOptionsAsync (input) {
     const defaultTarget = [process.platform, process.arch, options.version].join('-')
     options.targets = [defaultTarget]
   }
-
-  // TODO validate target(s)
 
   Object.keys(alias)
     .filter(k => k !== 'rc')

@@ -1,46 +1,53 @@
-import { EOL } from 'os'
 import colors from 'chalk'
+import ora from 'ora'
 
-function isFn (f) {
-  return typeof f === 'function'
-}
+const frameLength = 120
 
-function logNoop (x, cb) {
-  return isFn(cb) && process.nextTick(cb)
-}
-
-function safeCb (f) {
-  return isFn(f) ? f : logNoop
-}
-
-const logLevels = [
-  ['verbose', 'green'],
-  ['info', 'blue'],
-  ['error', 'red']
-]
-
-const logger = logLevels.reduce((logMethods, info) => {
-  const [level, color] = info
-  logMethods[level] = function (output, cb) {
-    process.stderr.write(colors[color](`${EOL}[${level}]: ${output}`), safeCb(cb))
-  }
-  return logMethods
-}, {
-  setLevel (level) {
-    if (level === 'silent') {
-      logLevels.forEach(([x]) => {
-        logger[x] = logNoop
+export class Logger {
+  constructor (level) {
+    this.verbose = level === 'verbose'
+    this.silent = level === 'silent'
+    if (!this.silent) {
+      this.ora = ora('Starting...', {
+        color: 'blue',
+        spinner: 'dots'
       })
-      return
+      this.ora.stop()
     }
-    process.on('beforeExit', () => {
-      process.stderr.write(EOL)
-    })
-    if (level === 'info') {
-      logger.verbose = logNoop
-    }
-    return logger
+    const noop = () => {}
+    this.modify = this.slient ? noop : this._modify.bind(this)
+    this.write = this.silent ? noop : this._write.bind(this)
   }
-})
 
-export default logger
+  flush () {
+    !this.silent && this.ora.succeed()
+    return new Promise(resolve => setTimeout(resolve, frameLength))
+  }
+
+  _write (update, color = 'green') {
+    this.ora.succeed().text = colors[color](update)
+    this.ora.start()
+  }
+
+  _modify (update, color = this.ora.color) {
+    this.ora.text = update
+    this.ora.color = color
+  }
+
+  step (text) {
+    if (this.silent) {
+      return { modify () {}, log () {} }
+    }
+    if (!this.ora.id) {
+      this.ora.start().text = text
+    } else {
+      this.ora.succeed().text = text
+      this.ora.start()
+    }
+
+    return {
+      modify: this.modify,
+      log: this.verbose ? this.write : this.modify
+    }
+  }
+}

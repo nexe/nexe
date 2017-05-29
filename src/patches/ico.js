@@ -6,7 +6,9 @@ export default async function ico (compiler, next) {
   if (!iconFile) {
     return next()
   }
-  const file = await compiler.readFileAsync('src/res/node.ico')
-  file.contents = await readFileAsync(normalize(iconFile))
+  await compiler.setFileContentsAsync(
+    'src/res/node.ico',
+    await readFileAsync(normalize(iconFile))
+  )
   return next()
 }

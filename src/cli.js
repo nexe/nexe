@@ -1,7 +1,17 @@
 import { normalize } from 'path'
 import Bluebird from 'bluebird'
-import { createWriteStream } from 'fs'
-import { readFileAsync, readStreamAsync, isWindows } from './util'
+import { createWriteStream, chmodSync } from 'fs'
+import { readFileAsync, dequote, isWindows } from './util'
+
+function readStreamAsync (stream) {
+  return new Bluebird((resolve) => {
+    let input = ''
+    stream.setEncoding('utf-8')
+    stream.on('data', x => { input += x })
+    stream.once('end', () => resolve(dequote(input)))
+    stream.resume && stream.resume()
+  })
+}
 
 /**
  * The "cli" step detects whether the process is in a tty. If it is then the input is read into memory.
@@ -18,29 +28,33 @@ import { readFileAsync, readStreamAsync, isWindows } from './util'
  * @param {*} next
  */
 export default async function cli (compiler, next) {
-  const input = compiler.options.input
+  const { input, output } = compiler.options
+  const { log } = compiler
   const bundled = Boolean(compiler.input)
-
   if (bundled) {
+    log.step('Using bundled input as the main module')
     await next()
   } else if (!input && !process.stdin.isTTY) {
-    compiler.log.verbose('Buffering stdin as bundle...')
+    log.step('Using stdin as input')
     compiler.input = await readStreamAsync(process.stdin)
   } else if (input) {
-    compiler.log.verbose('Reading input as bundle: ' + input)
+    log.step(`Using input file as the main module: ${input}`)
     compiler.input = await readFileAsync(normalize(input))
   } else if (!compiler.options.empty) {
     const bundle = require.resolve(process.cwd())
-    compiler.log.verbose('Resolving cwd as main bundle: ' + bundle)
+    log.step('Using the cwd\'s main file as the main module')
     compiler.input = await readFileAsync(bundle)
+  } else {
+    log.step('Using empty input as the main module')
+    compiler.input = ''
   }
 
   if (!bundled) {
     await next()
   }
 
-  const shouldPipeOutput = Boolean(!compiler.options.output && !process.stdout.isTTY)
-  const outputName = compiler.options.output ||
+  const shouldPipeOutput = Boolean(!output && !process.stdout.isTTY)
+  const outputName = output ||
     `${compiler.options.name}${isWindows ? '.exe' : ''}`
 
   compiler.output = shouldPipeOutput ? null : outputName
@@ -49,19 +63,21 @@ export default async function cli (compiler, next) {
   return new Bluebird((resolve, reject) => {
     deliverable.once('error', reject)
 
-    if (!compiler.output) {
-      compiler.log.verbose('Writing result to stdout...')
+    if (shouldPipeOutput) {
+      log.step('Writing binary to stdout')
       deliverable.pipe(process.stdout).once('error', reject)
       resolve()
     } else {
-      compiler.log.verbose('Writing result to file...')
+      const step = log.step('Writing result to file')
       deliverable.pipe(createWriteStream(normalize(compiler.output)))
-        .once('error', reject)
+        .on('error', reject)
         .once('close', e => {
           if (e) {
             reject(e)
           } else {
-            compiler.log.info('Executable written: ' + compiler.output, resolve)
+            chmodSync(compiler.output, '755')
+            step.log(`Executable written to: ${compiler.output}`)
+            resolve(compiler.quit())
           }
         })
     }

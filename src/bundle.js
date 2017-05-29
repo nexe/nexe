@@ -4,7 +4,7 @@ import { fromCallback } from 'bluebird'
 import { resolve, join, relative } from 'path'
 
 const isObject = (x) => typeof x === 'object'
-const isString = (x) => typeof x === 'string' || x instanceof String
+const isString = (x) => x instanceof String || typeof x === 'string'
 
 export default async function bundle (compiler, next) {
   let bundleConfig = compiler.options.bundle
@@ -41,7 +41,7 @@ export default async function bundle (compiler, next) {
   const stats = await fromCallback(cb => bundler.run(cb))
 
   if (stats.hasErrors()) {
-    compiler.log.error(stats.toString())
+    // compiler.log.error(stats.toString())
     return null
   }
 

@@ -4,11 +4,11 @@ export default async function flags (compiler, next) {
     return next()
   }
 
-  const nodegyp = await compiler.readFileAsync('node.gyp')
-
-  nodegyp.contents = nodegyp.contents.replace(
+  await compiler.replaceInFileAsync(
+    'node.gyp',
     "'node_v8_options%': ''",
-    `'node_v8_options%': '${nodeflags.join(' ')}'`)
+    `'node_v8_options%': '${nodeflags.join(' ')}'`
+  )
 
   return next()
 }
