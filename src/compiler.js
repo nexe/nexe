@@ -44,7 +44,7 @@ export class NexeCompiler {
 
     if (python) {
       if (isWindows) {
-        this.env.PATH = this.env.PATH + ';"' + dequote(normalize(python)) + '"'
+        this.env.PATH = '"' + dequote(normalize(python)) + '";' + this.env.PATH
       } else {
         this.env.PYTHON = python
       }
