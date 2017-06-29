@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const nexe = require('./lib/nexe')
+const nexe = require('./src/nexe')
 
 module.exports = nexe
 
