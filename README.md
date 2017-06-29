@@ -91,7 +91,7 @@ nexe.compile({
     - Output executable file path
     - default: same as `name` with an OS specific extension.
  - `target: string`
-    - Dash seperated platform-architecture-version. eg. `'win32-ia32-6.10.3'`
+    - Dash seperated platform-architecture-version. e.g. `'win32-ia32-6.10.3'`
     - default: `[process.platform, process.arch, process.version.slice(1)].join('-')`
  - `name: string`
     - Module friendly name of the application
@@ -137,7 +137,7 @@ nexe.compile({
  - `ico: string`
     - Path to a user provided icon to be used (Windows only).
  - `rc: object`
-    - Settings for patching the noderc configuration file (Windows only).
+    - Settings for patching the [node.rc](https://github.com/nodejs/node/blob/master/src/res/node.rc) configuration file (Windows only).
     - Example: `{ CompanyName: "ACME Corp" }`
     - default: `{}`
  - `clean: boolean`
@@ -167,17 +167,19 @@ A patch is just a middleware function that takes two arguments, the `compiler`, 
 For examples, see the built in patches: [src/patches](src/patches)
 
  - `setFileContentsAsync(filename: string, contents: string): Promise<void>`
-    - Quickly set a file's contents in node source
+    - Quickly set a file's contents within the downloaded Node.js source.
  - `replaceInFileAsync(filename: string, ...replaceArgs): Promise<void>`
-    - Quickly preform a replace in a file, the rest arguments are passed along to `String.prototype.replace`
- - `readFileAsync (pathInSrc: string): Promise<SourceFile>`
-    - Access (or create) a file in the downloaded source.
+    - Quickly perform a replace in a file within the downloaded Node.js source. The rest arguments are passed along to `String.prototype.replace`
+ - `readFileAsync(filename: string): Promise<SourceFile>`
+    - Access (or create) a file within the downloaded Node.js source.
  - `files: Array<SourceFile>`
-    - cache of currently read, modified, or created source files
+    - The cache of currently read, modified, or created files within the downloaded Node.js source.
 
 #### `SourceFile`
   - `contents: string`
   - `filename: string`
+  
+Any modifications made to `SourceFile#contents` will be maintained in the cache _without_ the need to explicitly write them back out, e.g. using `NexeCompiler#setFileContentsAsync`.
 
 ## Security
 A common use case for Nexe is production deployment. When distributing executables it is important to [sign](https://en.wikipedia.org/wiki/Code_signing) them before distributing. Nexe was designed specifically to not mangle the binary it produces, this allows the checksum and signature of the size and location offsets to be maintained through the code signing process.
