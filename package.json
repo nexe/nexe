@@ -20,7 +20,7 @@
     "url": "git://github.com/nexe/nexe.git"
   },
   "files": [
-    "lib"
+    "src"
   ],
   "main": "index.js",
   "bin": {
