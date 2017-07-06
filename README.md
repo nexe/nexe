@@ -16,7 +16,7 @@
 
 ## Motivation and Features
 
-- Supports production ready ([secure](#security)) builds
+- Supports production ready, ([securable](#security)) builds
 - Ability to run multiple applications with *different* node.js runtimes.
 - Distribute binaries without needing node / npm.
 - Idempotent builds
@@ -53,7 +53,7 @@ Additional resources can be added to the binary by passing `-r glob/pattern/**/*
 
 By default `nexe` will attempt to download a pre-built executable. However, some users may want to customize the way node is built, either by changing the flags, providing a different icon, or different executable details. These options are supported out of the box, and subsequent builds with compatible options will result in instant build times.
 
-Nexe also exposes its patching pipeline to the user. This allows limitless and simple patching of node sources prior to compilation.
+Nexe also exposes its patching pipeline to the user. This allows the application of simple patching of node sources prior to compilation.
 
 ## Node.js API
 
@@ -178,7 +178,7 @@ For examples, see the built in patches: [src/patches](src/patches)
 #### `SourceFile`
   - `contents: string`
   - `filename: string`
-  
+
 Any modifications made to `SourceFile#contents` will be maintained in the cache _without_ the need to explicitly write them back out, e.g. using `NexeCompiler#setFileContentsAsync`.
 
 ## Security
