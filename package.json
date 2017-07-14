@@ -26,6 +26,9 @@
   "bin": {
     "nexe": "index.js"
   },
+  "engines": {
+    "node": ">=6"
+  },
   "dependencies": {
     "app-builder": "^5.1.0",
     "bluebird": "^3.5.0",
