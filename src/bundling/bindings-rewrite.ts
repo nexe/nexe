@@ -2,11 +2,13 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as child from 'child_process'
 
-function findNativeModulePath (filePath, bindingsArg) {
+function findNativeModulePath(filePath: string, bindingsArg: string) {
   const dirname = path.dirname(filePath)
   const tempFile = Math.random() * 100 + '.js'
   const tempFilePath = path.join(dirname, tempFile)
-  fs.writeFileSync(tempFilePath, `
+  fs.writeFileSync(
+    tempFilePath,
+    `
     var bindings = require('bindings');
     var Module = require('module');
     var originalRequire = Module.prototype.require;
@@ -16,8 +18,9 @@ function findNativeModulePath (filePath, bindingsArg) {
       return mod
     };
     bindings('${bindingsArg}')
-  `)
-  //using exec because it can be done syncronously
+  `
+  )
+  //using exec because it can be done sync
   const nativeFileName = child.execSync('node ' + tempFile, { cwd: dirname }).toString()
   fs.unlinkSync(tempFilePath)
   const relativePath = './' + path.relative(dirname, nativeFileName).replace(/\\/g, '/')
@@ -25,20 +28,18 @@ function findNativeModulePath (filePath, bindingsArg) {
 }
 /**
  * Traverse all nodes in a file and evaluate usages of the bindings module
+ * handles two common cases
  */
 export class BindingsRewrite {
+  private bindingsIdNodes: any[] = []
+  public nativeModulePaths: string[] = []
+  public rewrite = false
 
-  constructor () {
-    this.bindingsIdNodes = []
-    this.nativeModulePaths = []
-    this.rewrite = false
-  }
-
-  isRequireBindings (node) {
+  isRequireBindings(node: any) {
     return node.callee.name === 'require' && node.arguments[0].value === 'bindings'
   }
 
-  onNode (absolutePath, node, parent) {
+  onNode(absolutePath: string, node: any, parent: any) {
     if (node.type === 'CallExpression') {
       if (this.isRequireBindings(node) && parent.type === 'VariableDeclarator') {
         /**

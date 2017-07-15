@@ -1,5 +1,9 @@
-export default async function main (compiler, next) {
-  await compiler.setFileContentsAsync('lib/_third_party_main.js', `
+import { NexeCompiler } from '../compiler'
+
+export default async function main(compiler: NexeCompiler, next: () => Promise<void>) {
+  await compiler.setFileContentsAsync(
+    'lib/_third_party_main.js',
+    `
 const fs = require('fs')
 const Buffer = require('buffer').Buffer
 const isString = x => typeof x === 'string' || x instanceof String

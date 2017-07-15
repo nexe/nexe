@@ -4,10 +4,11 @@ import cli from './disable-node-cli'
 import flags from './flags'
 import ico from './ico'
 import rc from './node-rc'
+import { NexeCompiler } from '../compiler'
 
 const patches = [
   gyp,
-  (compiler, next) => compiler.setMainModule(compiler, next),
+  (compiler: NexeCompiler, next: () => Promise<void>) => compiler.setMainModule(compiler, next),
   nexePatches,
   cli,
   flags,

@@ -84,6 +84,8 @@ nexe.compile({
 
 ### `options`
 
+ - `build: boolean`
+    - Build node from source (required in beta)
  - `input: string`
     - Input bundle file path
     - default: stdin or the current directory's main file (package.json)
@@ -124,12 +126,6 @@ nexe.compile({
     - Array of globs with files to include in the build
     - Example: `['./public/**/*']`
     - default: `[]`
- - `bundle: boolean | string | object`
-    - `boolean`: indicating whether integrated bundling should be tried
-    - `string`: filepath to user-written webpack configuration
-    - `object`: user provided webpack configuration
-    - Example: `'./webpack.config.js'`
-    - default: `false`
  - `temp: string`
     - Path to use for storing nexe's build files
     - Override in the env with `NEXE_TEMP`
@@ -162,9 +158,9 @@ nexe.compile({
 
 A patch is just a middleware function that takes two arguments, the `compiler`, and `next`. The compiler is described below, and `next` ensures that the pipeline continues. Its invocation should always be awaited or returned to ensure correct behavior.
 
-### `NexeCompiler`
-
 For examples, see the built in patches: [src/patches](src/patches)
+
+### `NexeCompiler`
 
  - `setFileContentsAsync(filename: string, contents: string): Promise<void>`
     - Quickly set a file's contents within the downloaded Node.js source.
@@ -180,6 +176,15 @@ For examples, see the built in patches: [src/patches](src/patches)
   - `filename: string`
 
 Any modifications made to `SourceFile#contents` will be maintained in the cache _without_ the need to explicitly write them back out, e.g. using `NexeCompiler#setFileContentsAsync`.
+
+## Bundling
+
+Bundling in nexe has been decoupled from the compiler pipeline. While in beta it is completely seperate. Any bundler will always work with nexe as long a node-compatible bundle is created.
+
+### Native Modules
+
+Nexe has a plugin built for use with [fuse-box](http://fuse-box.org). This plugin currently supports modules that require `.node` files and those that use the `bindings` module.
+Future plans are in place to support `node-pre-gyp#find`. Take a look at the [example](examples/native-build/build.js)
 
 ## Security
 A common use case for Nexe is production deployment. When distributing executables it is important to [sign](https://en.wikipedia.org/wiki/Code_signing) them before distributing. Nexe was designed specifically to not mangle the binary it produces, this allows the checksum and signature of the size and location offsets to be maintained through the code signing process.

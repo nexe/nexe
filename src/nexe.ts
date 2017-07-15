@@ -1,18 +1,17 @@
-import { compose, PromiseConfig } from 'app-builder'
-import bundle from './bundle'
+import { compose, PromiseConfig, Middleware } from 'app-builder'
 import resource from './resource'
 import { NexeCompiler } from './compiler'
-import { argv, normalizeOptionsAsync } from './options'
+import { argv, normalizeOptionsAsync, NexeOptions } from './options'
 import cli from './cli'
 import download from './download'
 import artifacts from './artifacts'
 import patches from './patches'
 import { rimrafAsync } from './util'
-import Bluebird from 'bluebird'
+import * as Bluebird from 'bluebird'
 
 PromiseConfig.constructor = Bluebird
 
-async function compile (compilerOptions, callback) {
+async function compile(compilerOptions: NexeOptions, callback?: (err: Error | null) => void) {
   const options = await normalizeOptionsAsync(compilerOptions)
   const compiler = new NexeCompiler(options)
   const build = compiler.options.build
@@ -25,19 +24,9 @@ async function compile (compilerOptions, callback) {
     return compiler.quit()
   }
 
-  const nexe = compose(...[
-    resource,
-    bundle,
-    cli,
-    build && download,
-    build && artifacts,
-    build && patches,
-    build && options.patches
-  ].filter(x => x))
+  const buildSteps = build ? [download, artifacts, ...patches, ...options.patches] : []
+  const nexe = compose(resource, cli, buildSteps)
   return nexe(compiler).asCallback(callback)
 }
 
-export {
-  argv,
-  compile
-}
+export { argv, compile }
