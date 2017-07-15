@@ -2,7 +2,6 @@
 temp/
 coverage
 node_modules
-examples
 *.log
 *.exe
 .idea

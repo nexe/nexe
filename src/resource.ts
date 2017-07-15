@@ -1,20 +1,18 @@
 import { each } from 'bluebird'
 import { readFileAsync, isDirectoryAsync } from './util'
 import { Buffer } from 'buffer'
-import globs from 'globby'
+import * as globs from 'globby'
+import { NexeCompiler } from './compiler'
 
-export default async function resource (compiler, next) {
-  const resources = compiler.resources = {
-    index: {},
-    bundle: ''
-  }
+export default async function resource(compiler: NexeCompiler, next: () => Promise<void>) {
+  const resources = compiler.resources
 
   if (!compiler.options.resources.length) {
     return next()
   }
   const step = compiler.log.step('Bundling Resources...')
   let count = 0
-  await each(globs(compiler.options.resources), async (file) => {
+  await each(globs(compiler.options.resources), async file => {
     if (await isDirectoryAsync(file)) {
       return
     }
@@ -28,6 +26,8 @@ export default async function resource (compiler, next) {
     ]
     resources.bundle += commentSafeContents
   })
-  step.log(`Included ${count} file(s). ${(Buffer.byteLength(resources.bundle) / 1e6).toFixed(3)} MB`)
+  step.log(
+    `Included ${count} file(s). ${(Buffer.byteLength(resources.bundle) / 1e6).toFixed(3)} MB`
+  )
   return next()
 }

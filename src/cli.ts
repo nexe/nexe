@@ -1,13 +1,17 @@
 import { normalize } from 'path'
-import Bluebird from 'bluebird'
+import * as Bluebird from 'bluebird'
+import { Readable } from 'stream'
 import { createWriteStream, chmodSync } from 'fs'
 import { readFileAsync, dequote, isWindows } from './util'
+import { NexeCompiler } from './compiler'
 
-function readStreamAsync (stream) {
-  return new Bluebird((resolve) => {
+function readStreamAsync(stream: NodeJS.ReadStream): PromiseLike<string> {
+  return new Bluebird(resolve => {
     let input = ''
     stream.setEncoding('utf-8')
-    stream.on('data', x => { input += x })
+    stream.on('data', (x: string) => {
+      input += x
+    })
     stream.once('end', () => resolve(dequote(input)))
     stream.resume && stream.resume()
   })
@@ -27,35 +31,28 @@ function readStreamAsync (stream) {
  * @param {*} compiler
  * @param {*} next
  */
-export default async function cli (compiler, next) {
+export default async function cli(compiler: NexeCompiler, next: () => Promise<void>) {
   const { input, output } = compiler.options
   const { log } = compiler
-  const bundled = Boolean(compiler.input)
-  if (bundled) {
-    log.step('Using bundled input as the main module')
-    await next()
-  } else if (!input && !process.stdin.isTTY) {
+  if (!input && !process.stdin.isTTY) {
     log.step('Using stdin as input')
     compiler.input = await readStreamAsync(process.stdin)
   } else if (input) {
     log.step(`Using input file as the main module: ${input}`)
-    compiler.input = await readFileAsync(normalize(input))
+    compiler.input = await readFileAsync(normalize(input), 'utf-8')
   } else if (!compiler.options.empty) {
     const bundle = require.resolve(process.cwd())
-    log.step('Using the cwd\'s main file as the main module')
-    compiler.input = await readFileAsync(bundle)
+    log.step("Using the cwd's main file as the main module")
+    compiler.input = await readFileAsync(bundle, 'utf-8')
   } else {
     log.step('Using empty input as the main module')
     compiler.input = ''
   }
 
-  if (!bundled) {
-    await next()
-  }
+  await next()
 
   const shouldPipeOutput = Boolean(!output && !process.stdout.isTTY)
-  const outputName = output ||
-    `${compiler.options.name}${isWindows ? '.exe' : ''}`
+  const outputName = output || `${compiler.options.name}${isWindows ? '.exe' : ''}`
 
   compiler.output = shouldPipeOutput ? null : outputName
   const deliverable = await compiler.compileAsync()
@@ -67,14 +64,15 @@ export default async function cli (compiler, next) {
       log.step('Writing binary to stdout')
       deliverable.pipe(process.stdout).once('error', reject)
       resolve()
-    } else {
+    } else if (compiler.output) {
       const step = log.step('Writing result to file')
-      deliverable.pipe(createWriteStream(normalize(compiler.output)))
+      deliverable
+        .pipe(createWriteStream(normalize(compiler.output)))
         .on('error', reject)
-        .once('close', e => {
+        .once('close', (e: Error) => {
           if (e) {
             reject(e)
-          } else {
+          } else if (compiler.output) {
             chmodSync(compiler.output, '755')
             step.log(`Executable written to: ${compiler.output}`)
             resolve(compiler.quit())

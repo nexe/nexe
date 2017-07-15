@@ -1,4 +1,6 @@
-export default async function flags (compiler, next) {
+import { NexeCompiler } from '../compiler'
+
+export default async function flags(compiler: NexeCompiler, next: () => Promise<void>) {
   const nodeflags = compiler.options.flags
   if (!nodeflags.length) {
     return next()
