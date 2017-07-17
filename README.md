@@ -33,12 +33,6 @@
 
     `nexe -i ./my-app-bundle.js -o ./my-app.exe`
 
-- Integrated webpack bundling:
-
-  `nexe -i ./my-app.js -o ./my-app.exe --bundle`
-
-  Alternatively a path to a webpack configuration file can be passed in the `--bundle` option
-
 - stdin & stdout interfaces
 
   `rollup -c | nexe --resource ./public/**/* > my-app.exe`
@@ -179,12 +173,14 @@ Any modifications made to `SourceFile#contents` will be maintained in the cache 
 
 ## Bundling
 
-Bundling in nexe has been decoupled from the compiler pipeline. While in beta it is completely seperate. Any bundler will always work with nexe as long a node-compatible bundle is created.
+Bundling in nexe has been decoupled from the compiler pipeline. While in beta it is completely seperate. Any bundle will always work with nexe as it is node compatible.
 
 ### Native Modules
 
-Nexe has a plugin built for use with [fuse-box](http://fuse-box.org). This plugin currently supports modules that require `.node` files and those that use the `bindings` module.
-Future plans are in place to support `node-pre-gyp#find`. Take a look at the [example](examples/native-build/build.js)
+Nexe has a plugin built for use with [fuse-box](http://fuse-box.org) > 2.2.1. This plugin currently supports modules that require `.node` files and those that use the `bindings` module.
+Take a look at the [example](examples/native-build/build.js)
+
+Future: Implement support `node-pre-gyp#find`.
 
 ## Security
 A common use case for Nexe is production deployment. When distributing executables it is important to [sign](https://en.wikipedia.org/wiki/Code_signing) them before distributing. Nexe was designed specifically to not mangle the binary it produces, this allows the checksum and signature of the size and location offsets to be maintained through the code signing process.
