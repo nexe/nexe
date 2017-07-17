@@ -2,7 +2,7 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "prebuild": "npm run clean",
+    "prepublish": "npm run build",
     "clean": "rimraf lib",
     "build": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"src/**/*.ts\" && tsc --declaration"
   },
