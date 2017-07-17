@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "bundle": "node build",
-    "build": "nexe -i app.js -o app.exe"
+    "build-windows": "nexe -i app.js -o app.exe"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fuse-box": "^2.2.0",
     "zmq": "^2.15.3"
+  },
+  "devDependencies": {
+    "fuse-box": "^2.2.1-beta.7"
   }
 }
