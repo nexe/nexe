@@ -2,17 +2,17 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.3",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
     "Caleb Boyd <caleb.boyd@hotmail.com>"
   ],
   "scripts": {
-    "prebuild": "npm run clean",
+    "prebuild": "rimraf lib && npm run lint",
     "prepublish": "npm run build",
-    "clean": "rimraf lib",
-    "build": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"src/**/*.ts\" && tsc --declaration"
+    "lint": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"src/**/*.ts\"",
+    "build": "tsc --declaration"
   },
   "repository": {
     "type": "git",
@@ -45,6 +45,8 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.8",
     "@types/chalk": "^0.4.31",
+    "@types/globby": "^0.6.0",
+    "@types/minimist": "^1.2.0",
     "@types/mkdirp": "^0.3.29",
     "@types/ora": "^0.3.31",
     "@types/rimraf": "0.0.28",

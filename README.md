@@ -78,73 +78,73 @@ nexe.compile({
 
 ### `options`
 
- - `build: boolean`
+ - #### `build: boolean`
     - Build node from source (required in beta)
- - `input: string`
+ - #### `input: string`
     - Input bundle file path
     - default: stdin or the current directory's main file (package.json)
- - `output: string`
+ - #### `output: string`
     - Output executable file path
     - default: same as `name` with an OS specific extension.
- - `target: string`
+ - #### `target: string`
     - Dash seperated platform-architecture-version. e.g. `'win32-ia32-6.10.3'`
     - default: `[process.platform, process.arch, process.version.slice(1)].join('-')`
- - `name: string`
+ - #### `name: string`
     - Module friendly name of the application
     - default: basename of the input file, or `nexe_${Date.now()}`
- - `version: string`
+ - #### `version: string`
     - The Node version you're building for
     - default: `process.version.slice(1)`
- - `python: string`
+ - #### `python: string`
     - On Linux this is the path pointing to your python2 executable
     - On Windows this is the directory where `python` can be accessed
     - default: `null`
- - `flags: Array<string>`
+ - #### `flags: Array<string>`
     - Array of node runtime flags to build node with.
     - Example: `['--expose-gc']`
     - default: `[]`
- - `configure: Array<string>`
+ - #### `configure: Array<string>`
     - Array of arguments for the node build configure step
     - Example: `['--with-dtrace', '--dest-cpu=x64']`
     - default: `[]`
- - `make: Array<string>`
+ - #### `make: Array<string>`
     - Array of arguments for the node build make step
     - default: `[]`
- - `vcBuild: Array<string>`
+ - #### `vcBuild: Array<string>`
     - Array of arguments for the node build step on windows
     - default: `['nosign', 'release']`
- - `snapshot: string`
+ - #### `snapshot: string`
     - path to a file to be used as the warmup snapshot for the build
     - default: `null`
- - `resources: Array<string>`
+ - #### `resources: Array<string>`
     - Array of globs with files to include in the build
     - Example: `['./public/**/*']`
     - default: `[]`
- - `temp: string`
+ - #### `temp: string`
     - Path to use for storing nexe's build files
     - Override in the env with `NEXE_TEMP`
     - default: `./.nexe` in the cwd
- - `ico: string`
+ - #### `ico: string`
     - Path to a user provided icon to be used (Windows only).
- - `rc: object`
+ - #### `rc: object`
     - Settings for patching the [node.rc](https://github.com/nodejs/node/blob/master/src/res/node.rc) configuration file (Windows only).
     - Example: `{ CompanyName: "ACME Corp" }`
     - default: `{}`
- - `clean: boolean`
+ - #### `clean: boolean`
     - If included, nexe will remove temporary files for accompanying configuration and exit
- - `enableNodeCli: boolean`
+ - #### `enableNodeCli: boolean`
     - Enable the original Node CLI (will prevent application cli from working)
     - default: `false`
- - `sourceUrl: string`
+ - #### `sourceUrl: string`
     - Provide an alternate url for the node source. Should be a `.tar.gz`
- - `loglevel: string`
+ - #### `loglevel: string`
     - Set the loglevel, info, silent, or verbose
     - default: `'info'`
- - `padding`
+ - #### `padding`
     - Advanced option for controlling the size available in the executable.
     - It must be larger than the bundle + resources in bytes
     - default: 3, 6, 9, 16, 25, or 40 MB sizes are selected automatically.
- - `patches: Array<NexePatch>`
+ - #### `patches: Array<NexePatch>`
     - Userland patches for patching or modifying node source
     - default: `[]`
 

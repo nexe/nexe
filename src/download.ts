@@ -8,7 +8,7 @@ function fetchNodeSourceAsync(cwd: string, url: string, step: LogStep, options =
   const setText = (p: number) => step.modify(`Downloading Node: ${p.toFixed()}%...`)
   return download(url, cwd, Object.assign(options, { extract: true, strip: 1 }))
     .on('response', (res: IncomingMessage) => {
-      const total = +res.headers['content-length']
+      const total = +res.headers['content-length']!
       let current = 0
       res.on('data', data => {
         current += data.length

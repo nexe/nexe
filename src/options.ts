@@ -175,7 +175,7 @@ function extractName(options: NexeOptions) {
 }
 
 function normalizeOptionsAsync(input: Partial<NexeOptions>) {
-  if (argv.help || argv._.some(x => x === 'version')) {
+  if (argv.help || argv._.some((x: string) => x === 'version')) {
     process.stderr.write(argv.help ? help : '2.0.0-beta.1' + EOL, () => process.exit(0))
   }
 

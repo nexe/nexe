@@ -5,7 +5,7 @@ import { createWriteStream, chmodSync } from 'fs'
 import { readFileAsync, dequote, isWindows } from './util'
 import { NexeCompiler } from './compiler'
 
-function readStreamAsync(stream: NodeJS.ReadStream): PromiseLike<string> {
+function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
   return new Bluebird(resolve => {
     let input = ''
     stream.setEncoding('utf-8')
