@@ -7,7 +7,7 @@
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
 </p>
 
-<p align="center"><code>npm i nexe -g</code></p>
+<p align="center"><code>npm i nexe@beta -g</code></p>
 <p align="center">Nexe is a command-line utility that compiles your Node.js application into a single executable file.</p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 - Flexible build pipeline
 - Cross platform builds
 
-## Usage
+## Usage (Beta)
 
 *Note: V2 API is still subject to change. * For v1 see [V1-EOL](https://github.com/nexe/nexe/tree/V1-EOL)
 
