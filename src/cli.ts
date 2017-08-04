@@ -49,35 +49,25 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
     compiler.input = ''
   }
 
+  compiler.input = compiler.input.trim()
   await next()
 
-  const shouldPipeOutput = Boolean(!output && !process.stdout.isTTY)
-  const outputName = output || `${compiler.options.name}${isWindows ? '.exe' : ''}`
-
-  compiler.output = shouldPipeOutput ? null : outputName
+  compiler.output = output || `${compiler.options.name}${isWindows ? '.exe' : ''}`
   const deliverable = await compiler.compileAsync()
 
   return new Bluebird((resolve, reject) => {
-    deliverable.once('error', reject)
-
-    if (shouldPipeOutput) {
-      log.step('Writing binary to stdout')
-      deliverable.pipe(process.stdout).once('error', reject)
-      resolve()
-    } else if (compiler.output) {
-      const step = log.step('Writing result to file')
-      deliverable
-        .pipe(createWriteStream(normalize(compiler.output)))
-        .on('error', reject)
-        .once('close', (e: Error) => {
-          if (e) {
-            reject(e)
-          } else if (compiler.output) {
-            chmodSync(compiler.output, '755')
-            step.log(`Executable written to: ${compiler.output}`)
-            resolve(compiler.quit())
-          }
-        })
-    }
+    const step = log.step('Writing result to file')
+    deliverable
+      .pipe(createWriteStream(normalize(compiler.output!)))
+      .on('error', reject)
+      .once('close', (e: Error) => {
+        if (e) {
+          reject(e)
+        } else if (compiler.output) {
+          chmodSync(compiler.output, '755')
+          step.log(`Executable written to: ${compiler.output}`)
+          resolve(compiler.quit())
+        }
+      })
   })
 }

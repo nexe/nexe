@@ -33,9 +33,9 @@
 
     `nexe -i ./my-app-bundle.js -o ./my-app.exe`
 
-- stdin & stdout interfaces
+- stdin interface
 
-  `rollup -c | nexe --resource ./public/**/* > my-app.exe`
+  `rollup -c | nexe --resource ./public/**/* -o my-app.exe`
 
 For more CLI options see: `nexe --help`
 
@@ -89,6 +89,10 @@ nexe.compile({
  - #### `target: string`
     - Dash seperated platform-architecture-version. e.g. `'win32-ia32-6.10.3'`
     - default: `[process.platform, process.arch, process.version.slice(1)].join('-')`
+- #### `bundle: string`
+    - Path to a custom bundling function. When executed it should either return a fusebox producer, or a string.
+    - If it is a string it will be required and the export `nexeBundle` will be used
+    - Defaults to the internal fuse-box configuration
  - #### `name: string`
     - Module friendly name of the application
     - default: basename of the input file, or `nexe_${Date.now()}`
@@ -170,10 +174,6 @@ For examples, see the built in patches: [src/patches](src/patches)
   - `filename: string`
 
 Any modifications made to `SourceFile#contents` will be maintained in the cache _without_ the need to explicitly write them back out, e.g. using `NexeCompiler#setFileContentsAsync`.
-
-## Bundling
-
-Bundling in nexe has been decoupled from the compiler pipeline. While in beta it is completely seperate. Any bundle will always work with nexe as it is node compatible.
 
 ### Native Modules
 
