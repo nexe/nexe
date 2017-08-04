@@ -56,6 +56,7 @@ export interface NexeOptions {
   clean: boolean
   enableNodeCli: boolean
   sourceUrl?: string
+  bundle: boolean | string
   loglevel: 'info' | 'silent' | 'verbose'
   silent?: boolean
   verbose?: boolean
@@ -80,6 +81,8 @@ const defaults = {
   targets: [],
   vcBuild: ['nosign', 'release'],
   enableNodeCli: false,
+  bundle: true,
+  build: true,
   patches: []
 }
 const alias = {
@@ -104,6 +107,7 @@ const argv = parseArgv(process.argv, { alias, default: defaults })
 const help = `
 nexe --help              CLI OPTIONS
 
+  -b   --build                              -- build from source
   -i   --input      =index.js               -- application entry point
   -o   --output     =my-app.exe             -- path to output file
   -t   --target     =win32-x64-6.10.3       -- *target a prebuilt binary
@@ -116,7 +120,9 @@ nexe --help              CLI OPTIONS
   -vc  --vcBuild    =x64                    -- *pass arguments to vcbuild.bat
   -s   --snapshot   =/path/to/snapshot      -- build with warmup snapshot
   -r   --resource   =./paths/**/*           -- *embed file bytes within the binary
+       --bundle     =./path/to/config       -- pass a module path that exports nexeBundle
        --temp       =./path/to/temp         -- nexe temp files (for downloads and source builds)
+       --no-bundle                          -- set when input is already bundled
        --ico                                -- file name for alternate icon file (windows)
        --rc-*                               -- populate rc file options (windows)
        --clean                              -- force download of sources
@@ -175,8 +181,8 @@ function extractName(options: NexeOptions) {
 }
 
 function normalizeOptionsAsync(input: Partial<NexeOptions>) {
-  if (argv.help || argv._.some(x => x === 'version')) {
-    process.stderr.write(argv.help ? help : '2.0.0-beta.1' + EOL, () => process.exit(0))
+  if (argv.help || argv._.some((x: string) => x === 'version')) {
+    process.stderr.write(argv.help ? help : '2.0.0-beta.3' + EOL, () => process.exit(0))
   }
 
   const options = Object.assign({}, defaults, input) as NexeOptions
@@ -188,9 +194,10 @@ function normalizeOptionsAsync(input: Partial<NexeOptions>) {
   options.targets = flattenFilter(opts.target, options.targets)
   options.make = flattenFilter(options.make)
   options.vcBuild = flattenFilter(options.vcBuild)
+  options.configure = flattenFilter(options.configure)
   options.resources = flattenFilter(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
-  options.build = true // FIXME
+
   if (options.build || options.padding === 0) {
     options.targets = []
     options.build = true

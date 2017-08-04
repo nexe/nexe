@@ -34,6 +34,10 @@ export interface NativeModulePluginOptions {
     | true
 }
 
+export default function(options: NativeModulePluginOptions) {
+  return new NativeModulePlugin(options)
+}
+
 export class NativeModulePlugin {
   public test: RegExp
   public limit2Project = false
