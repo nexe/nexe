@@ -131,7 +131,7 @@ nexe --help              CLI OPTIONS
        --silent                             -- disable logging
        --verbose                            -- set logging to verbose
 
-       -* variable key name                 * option can be used more than once`.trim()
+       -* variable key name                 * option can be used more than once`.trim() + '\n'
 
 function flattenFilter(...args: any[]): string[] {
   return ([] as string[]).concat(...args).filter(x => x)
