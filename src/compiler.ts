@@ -229,7 +229,8 @@ export class NexeCompiler {
     await next()
     const header = compiler._generateHeader()
     const contents = inflate(this._getPayload(header), +header.paddingSize) + tail
-    return compiler.setFileContentsAsync(`lib/${compiler.options.name}.js`, contents)
+    const file = await compiler.readFileAsync('lib/_third_party_main.js')
+    file.contents += '\n' + contents
   }
 
   async compileAsync() {

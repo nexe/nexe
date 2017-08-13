@@ -74,10 +74,7 @@ fs.readFileSync = function readFileSync (file, options) {
   fs.closeSync(fd)
   const contents = Buffer.from(result.toString(), 'base64')
   return encoding ? contents.toString(encoding) : contents
-}
-
-require("${compiler.options.name}");
-    `.trim()
+}`.trim()
   )
   return next()
 }

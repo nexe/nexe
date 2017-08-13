@@ -182,7 +182,7 @@ function extractName(options: NexeOptions) {
 
 function normalizeOptionsAsync(input: Partial<NexeOptions>) {
   if (argv.help || argv._.some((x: string) => x === 'version')) {
-    process.stderr.write(argv.help ? help : '2.0.0-beta.3' + EOL, () => process.exit(0))
+    process.stderr.write(argv.help ? help : '2.0.0-beta.4' + EOL, () => process.exit(0))
   }
 
   const options = Object.assign({}, defaults, input) as NexeOptions

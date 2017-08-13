@@ -9,6 +9,7 @@ function hashName(name: string | Buffer) {
 
 export interface FuseBoxFile {
   info: { absPath: string }
+  absPath: string
   contents: string
   analysis: {
     dependencies: string[]
@@ -55,12 +56,12 @@ export class NativeModulePlugin {
   transform(file: FuseBoxFile) {
     file.loadContents()
 
-    if (file.info.absPath.endsWith('.node')) {
-      const contents = readFileSync(file.info.absPath)
+    if (file.absPath.endsWith('.node')) {
+      const contents = readFileSync(file.absPath)
       const module = this.modules.find(x =>
-        Boolean(~file.info.absPath.indexOf(join('node_modules', x)))
+        Boolean(~file.absPath.indexOf(join('node_modules', x)))
       )!
-      const bindingName = basename(file.info.absPath)
+      const bindingName = basename(file.absPath)
       const settings = this.options[module]
       const moduleDir = hashName(contents)
       file.contents = `
@@ -97,7 +98,7 @@ export class NativeModulePlugin {
         mkdirp(path.dirname(bindingFile));
         fs.writeFileSync(bindingFile, Buffer.from(binding, 'base64'));
         ${settings.additionalFiles.reduce((code, filename, i) => {
-          const contents = readFileSync(join(dirname(file.info.absPath), filename))
+          const contents = readFileSync(join(dirname(file.absPath), filename))
           return (code += `
             var file${i} = '${contents.toString('base64')}';
             var filePath${i} = path.join(cwd, bindingFileParts[0], '${filename
@@ -117,7 +118,7 @@ export class NativeModulePlugin {
       plugins: [
         {
           onNode(file, node, parent) {
-            bindingsRewrite.onNode(file.info.absPath, node, parent)
+            bindingsRewrite.onNode(file.absPath, node, parent)
           },
           onEnd(file) {
             if (bindingsRewrite.rewrite) {
