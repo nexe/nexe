@@ -231,6 +231,10 @@ export class NexeCompiler {
     const contents = inflate(this._getPayload(header), +header.paddingSize) + tail
     const file = await compiler.readFileAsync('lib/_third_party_main.js')
     file.contents += '\n' + contents
+    const mod = Buffer.byteLength(file.contents) % 16
+    if (mod) {
+      file.contents += ' '.repeat(16 - mod)
+    }
   }
 
   async compileAsync() {

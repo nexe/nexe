@@ -104,7 +104,8 @@ const alias = {
   l: 'loglevel'
 }
 const argv = parseArgv(process.argv, { alias, default: defaults })
-const help = `
+const help =
+  `
 nexe --help              CLI OPTIONS
 
   -b   --build                              -- build from source
@@ -131,7 +132,7 @@ nexe --help              CLI OPTIONS
        --silent                             -- disable logging
        --verbose                            -- set logging to verbose
 
-       -* variable key name                 * option can be used more than once`.trim() + '\n'
+       -* variable key name                 * option can be used more than once`.trim() + EOL
 
 function flattenFilter(...args: any[]): string[] {
   return ([] as string[]).concat(...args).filter(x => x)
@@ -182,7 +183,7 @@ function extractName(options: NexeOptions) {
 
 function normalizeOptionsAsync(input: Partial<NexeOptions>) {
   if (argv.help || argv._.some((x: string) => x === 'version')) {
-    process.stderr.write(argv.help ? help : '2.0.0-beta.4' + EOL, () => process.exit(0))
+    process.stderr.write(argv.help ? help : '2.0.0-beta.6' + EOL, () => process.exit(0))
   }
 
   const options = Object.assign({}, defaults, input) as NexeOptions
