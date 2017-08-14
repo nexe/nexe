@@ -1,7 +1,7 @@
 <p align="center"><img src="https://cloud.githubusercontent.com/assets/2391349/23598327/a17bb68a-01ee-11e7-8f55-88a5fc96e997.png" /></p>
 
 <p align="center">
-  <a href="https://circleci.com/gh/jaredallard/nexe"><img src="https://img.shields.io/circleci/project/jaredallard/nexe.svg" alt="Build Status"></a>
+  <a href="https://circleci.com/gh/nexe/nexe"><img src="https://img.shields.io/circleci/project/nexe/nexe.svg" alt="Build Status"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/dt/nexe.svg" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/v/nexe.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
