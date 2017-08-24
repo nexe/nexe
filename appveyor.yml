@@ -1,0 +1,25 @@
+environment:
+  node_version: "6"
+
+branches:
+  except:
+    - master
+
+install:
+  - ps: Install-Product node $env:node_version
+  - npm i
+
+build: off
+test: off
+
+before_build:
+  - npm run log-node-version
+
+build_script:
+  - npm run task-build-windows
+
+artifacts:
+  - path: .nexe\6.11.2\Release\node.exe
+
+cache:
+  - node_modules

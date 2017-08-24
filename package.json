@@ -9,6 +9,8 @@
     "Caleb Boyd <caleb.boyd@hotmail.com>"
   ],
   "scripts": {
+    "task-build-windows": "node -e \"require('.').compile({ empty: true })\"",
+    "log-node-version": "node -e \"console.log([process.platform, process.arch, process.version.slice(1)].join('-'))\"",
     "prebuild": "rimraf lib && npm run lint",
     "prepublish": "npm run build",
     "lint": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"src/**/*.ts\"",

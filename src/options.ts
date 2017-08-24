@@ -71,6 +71,7 @@ export interface NexeOptions {
 function padRight(str: string, l: number) {
   return (str + ' '.repeat(l)).substr(0, l)
 }
+
 const defaults = {
   temp: process.env.NEXE_TEMP || join(process.cwd(), '.nexe'),
   version: process.version.slice(1),
@@ -78,7 +79,7 @@ const defaults = {
   configure: [],
   make: [],
   targets: [],
-  vcBuild: ['nosign', 'release'],
+  vcBuild: ['nosign', 'release', process.arch],
   enableNodeCli: false,
   bundle: true,
   build: true,

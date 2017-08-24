@@ -172,6 +172,9 @@ export class NexeCompiler {
   }
 
   private _assembleDeliverable(header: NexeHeader, binary: NodeJS.ReadableStream) {
+    if (this.options.empty) {
+      return binary
+    }
     const artifact = new Readable({ read() {} })
     binary.on('data', (chunk: Buffer) => {
       artifact.push(chunk)
