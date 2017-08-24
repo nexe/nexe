@@ -61,7 +61,6 @@ export interface NexeOptions {
   silent?: boolean
   verbose?: boolean
   info?: boolean
-  padding: number
   patches: NexePatch[]
 
   empty: boolean
@@ -183,7 +182,7 @@ function extractName(options: NexeOptions) {
 
 function normalizeOptionsAsync(input: Partial<NexeOptions>) {
   if (argv.help || argv._.some((x: string) => x === 'version')) {
-    process.stderr.write(argv.help ? help : '2.0.0-beta.6' + EOL, () => process.exit(0))
+    process.stderr.write(argv.help ? help : '2.0.0-beta.7' + EOL, () => process.exit(0))
   }
 
   const options = Object.assign({}, defaults, input) as NexeOptions
@@ -199,7 +198,7 @@ function normalizeOptionsAsync(input: Partial<NexeOptions>) {
   options.resources = flattenFilter(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
 
-  if (options.build || options.padding === 0) {
+  if (options.build) {
     options.targets = []
     options.build = true
   } else if (!options.targets.length) {

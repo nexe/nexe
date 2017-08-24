@@ -7,15 +7,6 @@ import ico from './ico'
 import rc from './node-rc'
 import { NexeCompiler } from '../compiler'
 
-const patches = [
-  gyp,
-  (compiler: NexeCompiler, next: () => Promise<void>) => compiler.setMainModule(compiler, next),
-  nexePatches,
-  buildFixes,
-  cli,
-  flags,
-  ico,
-  rc
-]
+const patches = [gyp, nexePatches, buildFixes, cli, flags, ico, rc]
 
 export default patches
