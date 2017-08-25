@@ -1,6 +1,13 @@
 import { NexeCompiler } from '../compiler'
+import { bundleSourceMaps } from '../source-maps/build'
 
 export default async function main(compiler: NexeCompiler, next: () => Promise<void>) {
+  let sourceMapSupport = ''
+  if (true /*compiler.options.sourceMaps*/) {
+    sourceMapSupport = await bundleSourceMaps()
+    require('fs').writeFileSync('./source-map-inject.js', sourceMapSupport)
+  }
+
   await compiler.setFileContentsAsync(
     'lib/_third_party_main.js',
     `
@@ -10,7 +17,7 @@ const isString = x => typeof x === 'string' || x instanceof String
 
 const fd = fs.openSync(process.execPath, 'r')
 const size = fs.statSync(process.execPath).size
-const footer = Buffer.from(Array(46))
+const footer = Buffer.from(Array(32))
 fs.readSync(fd, footer, 0, 32, size - 32)
 
 if (!footer.slice(0, 16).equals(Buffer.from('<nexe~~sentinel>'))) {
@@ -92,13 +99,14 @@ if (resourceSize) {
   }
 }
 
-const contentBuffer = Buffer.from(Array(contentSize))
-fs.readSync(fd, contentBuffer, 0, contentSize, contentStart)
-fs.closeSync(fd)
-const Module = require('module')
-process.mainModule = new Module(process.execPath, null)
-process.mainModule.loaded = true
-process.mainModule._compile(contentBuffer.toString(), process.execPath)
+const contentBuffer = Buffer.from(Array(contentSize));
+fs.readSync(fd, contentBuffer, 0, contentSize, contentStart);
+fs.closeSync(fd);
+${sourceMapSupport}
+const Module = require('module');
+process.mainModule = new Module(process.execPath, null);
+process.mainModule.loaded = true;
+process.mainModule._compile(contentBuffer.toString(), process.execPath);
 `.trim()
   )
   return next()

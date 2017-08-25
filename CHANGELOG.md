@@ -6,7 +6,7 @@ Nexe 2.0 is a rewrite to enable some new features. These include:
   * Quick Builds!
   * Userland build patches
   * New Resource access
-  * stdin and stdout interfaces
+  * stdin interfaces
   * Opt-in bundling
 
 ### Breaking Changes

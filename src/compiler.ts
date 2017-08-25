@@ -33,6 +33,7 @@ export class NexeCompiler {
   public src = join(this.options.temp, this.options.version)
   public files: NexeFile[] = []
   public input: string
+  public bundledInput?: string
   public output: string | null
 
   public resources: { bundle: string; index: { [key: string]: number[] } } = {
@@ -148,7 +149,7 @@ export class NexeCompiler {
   }
 
   private _serializeHeader(header: NexeHeader) {
-    return `/**${JSON.stringify(header)}**/process.__nexe=${JSON.stringify(header)};`
+    return `process.__nexe=${JSON.stringify(header)};`
   }
 
   async compileAsync() {

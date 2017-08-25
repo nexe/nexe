@@ -11,7 +11,7 @@ If this is a bug report, What are the steps to reproduce?
 ```
 
 <br/><br/>
-Please also provide: 
+Please also provide:
 
 - Platform(OS/Version):
 - Host Node Version:
@@ -19,4 +19,3 @@ Please also provide:
 - Nexe version:
 - Python Version:
 
- 
