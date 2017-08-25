@@ -1,6 +1,5 @@
 const { FuseBox } = require('fuse-box')
-const nexe = '../..'
-const { NativeModulePlugin } = require(nexe + '/lib/bundling/fuse')
+const { NativeModulePlugin } = require('../../lib/bundling')
 const fuse = FuseBox.init({
   homeDir: './',
   cache: false,
@@ -18,6 +17,6 @@ const fuse = FuseBox.init({
   ]
 })
 fuse.bundle('app')
-    .target('electron')
+    .target('server')
     .instructions(`> index.js`)
 fuse.run()

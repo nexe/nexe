@@ -3,6 +3,7 @@ import resource from './resource'
 import { NexeCompiler } from './compiler'
 import { argv, normalizeOptionsAsync, NexeOptions } from './options'
 import cli from './cli'
+import bundle from './bundling/fuse'
 import download from './download'
 import artifacts from './artifacts'
 import patches from './patches'
@@ -25,7 +26,7 @@ async function compile(compilerOptions: NexeOptions, callback?: (err: Error | nu
   }
 
   const buildSteps = build ? [download, artifacts, ...patches, ...options.patches] : []
-  const nexe = compose(resource, cli, buildSteps)
+  const nexe = compose(resource, bundle, cli, buildSteps)
   return nexe(compiler).asCallback(callback)
 }
 

@@ -18,8 +18,8 @@ function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
 }
 
 /**
- * The "cli" step detects whether the process is in a tty. If it is then the input is read into memory.
- * Otherwise, it is buffered from stdin. If no input options are passed in the tty, the package.json#main file is used.
+ * The "cli" step detects the appropriate input. If no input options are passed,
+ * the package.json#main file is used.
  * After all the build steps have run, the output (the executable) is written to a file or piped to stdout.
  *
  * Configuration:
@@ -33,10 +33,13 @@ function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
  */
 export default async function cli(compiler: NexeCompiler, next: () => Promise<void>) {
   const { input, output } = compiler.options
-  const { log } = compiler
+  const { log, input: bundledInput } = compiler
+
   if (!input && !process.stdin.isTTY) {
     log.step('Using stdin as input')
     compiler.input = await readStreamAsync(process.stdin)
+  } else if (bundledInput) {
+    await next()
   } else if (input) {
     log.step(`Using input file as the main module: ${input}`)
     compiler.input = await readFileAsync(normalize(input), 'utf-8')
@@ -49,8 +52,9 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
     compiler.input = ''
   }
 
-  compiler.input = compiler.input.trim()
-  await next()
+  if (!bundledInput) {
+    await next()
+  }
 
   compiler.output = output || `${compiler.options.name}${isWindows ? '.exe' : ''}`
   const deliverable = await compiler.compileAsync()
