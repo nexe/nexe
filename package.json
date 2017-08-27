@@ -21,7 +21,8 @@
     "url": "git://github.com/nexe/nexe.git"
   },
   "files": [
-    "lib"
+    "lib",
+    "source-map-support.js"
   ],
   "main": "index.js",
   "bin": {

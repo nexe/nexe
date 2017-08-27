@@ -7,13 +7,13 @@ const env = process.env,
   isWindows = branchName.includes('win32') && Boolean(env.APPVEYOR),
   isPullRequest = Boolean(env.CIRCLE_PR_NUMBER) || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER)
 
-async function main () {
+async function build () {
   if (isScheduled) {
     const releases = await
   }
 }
 
-main().catch(x => {
+build().catch(x => {
   console.error(x)
   process.exit(1)
 })

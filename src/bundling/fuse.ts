@@ -3,11 +3,12 @@ import { FuseBox, JSONPlugin, CSSPlugin, HTMLPlugin, SourceMapPlainJsPlugin } fr
 //import NativeModulePlugin from './fuse-native-module-plugin'
 
 function bundleProducer(filename: string, name: string) {
+  console.error(process.cwd())
   const fuse = FuseBox.init({
     cache: false,
     log: Boolean(process.env.NEXE_BUNDLE_DEBUG) || false,
-    homeDir: './',
-    sourceMaps: true,
+    homeDir: process.cwd(),
+    sourceMaps: false,
     writeBundles: false,
     output: '$name.js',
     target: 'server',
@@ -32,7 +33,5 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   }
 
   compiler.input = await producer(compiler.options.input, compiler.options.name)
-
-  require('fs').writeFileSync('./bundle.js', compiler.input)
   return next()
 }
