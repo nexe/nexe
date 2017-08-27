@@ -1,11 +1,11 @@
 import { NexeCompiler } from '../compiler'
-import { bundleSourceMaps } from '../source-maps/build'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export default async function main(compiler: NexeCompiler, next: () => Promise<void>) {
   let sourceMapSupport = ''
   if (true /*compiler.options.sourceMaps*/) {
-    sourceMapSupport = await bundleSourceMaps()
-    require('fs').writeFileSync('./source-map-inject.js', sourceMapSupport)
+    sourceMapSupport = readFileSync(join(__dirname, '../../source-map-support.js')).toString()
   }
 
   await compiler.setFileContentsAsync(
