@@ -1,8 +1,7 @@
-import { each } from 'bluebird'
-import { readFileAsync, isDirectoryAsync } from './util'
+import { readFileAsync, isDirectoryAsync, each } from '../util'
 import { Buffer } from 'buffer'
 import * as globs from 'globby'
-import { NexeCompiler } from './compiler'
+import { NexeCompiler } from '../compiler'
 
 export default async function resource(compiler: NexeCompiler, next: () => Promise<void>) {
   const resources = compiler.resources

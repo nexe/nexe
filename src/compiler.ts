@@ -1,14 +1,13 @@
 import { normalize, join } from 'path'
-import * as Bluebird from 'bluebird'
 import { Buffer } from 'buffer'
 import { createHash } from 'crypto'
 import { createReadStream } from 'fs'
 import { Readable } from 'stream'
 import { spawn } from 'child_process'
-import { Stream as Needle } from 'nigel'
 import { Logger } from './logger'
 import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows } from './util'
-import { NexeOptions } from './options'
+import { NexeOptions, nexeVersion } from './options'
+import { NexeTarget } from './target'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -51,7 +50,7 @@ export class NexeCompiler {
 
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
-
+    this.log.step('nexe ' + nexeVersion, 'info')
     if (python) {
       if (isWindows) {
         this.env.PATH = '"' + dequote(normalize(python)) + '";' + this.env.PATH
@@ -67,7 +66,10 @@ export class NexeCompiler {
         cachedFile = {
           absPath,
           filename: file,
-          contents: await readFileAsync(absPath, 'utf-8').catch({ code: 'ENOENT' }, () => '')
+          contents: await readFileAsync(absPath, 'utf-8').catch(x => {
+            if (x.code === 'ENOENT') return ''
+            throw x
+          })
         }
         this.files.push(cachedFile)
       }
@@ -84,21 +86,21 @@ export class NexeCompiler {
     }
   }
 
-  quit(code = 0) {
+  quit() {
     const time = Date.now() - this.start
     this.log.write(`Finsihed in ${time / 1000}s`)
-    return this.log.flush().then(x => process.exit(code))
+    return this.log.flush()
   }
 
-  private _getNodeExecutableLocation(target?: string | null) {
+  private _getNodeExecutableLocation(target?: NexeTarget) {
     if (target) {
-      return join(this.options.temp, target)
+      return join(this.options.temp, target.toString())
     }
     return this.nodeSrcBinPath
   }
 
   private _runBuildCommandAsync(command: string, args: string[]) {
-    return new Bluebird((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
@@ -123,7 +125,7 @@ export class NexeCompiler {
         : '...'}`
     )
     await this._configureAsync()
-    const buildOptions = isWindows ? this.options.vcBuild : this.options.make
+    const buildOptions = this.options.make
     this.compileStep.log(
       `Compiling Node${buildOptions.length ? ' with arguments: ' + buildOptions : '...'}`
     )
@@ -152,16 +154,13 @@ export class NexeCompiler {
     return `process.__nexe=${JSON.stringify(header)};`
   }
 
-  async compileAsync() {
+  async compileAsync(target: NexeTarget) {
     const step = (this.compileStep = this.log.step('Compiling result'))
-    let target = this.options.targets.slice().shift()
     const location = this._getNodeExecutableLocation(target)
     let binary = (await pathExistsAsync(location)) ? createReadStream(location) : null
     const header = this._generateHeader()
-    step.log(`Scanning existing binary...`)
 
     if (target && !binary) {
-      //throw new Error('\nNot Implemented, use --build during beta\n')
       binary = await this._fetchPrebuiltBinaryAsync()
     }
 

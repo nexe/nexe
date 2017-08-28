@@ -1,23 +1,7 @@
-declare module 'nigel' {
-  import { Writable } from 'stream'
-  interface Needle {
-    value: Buffer
-    lastPos: number
-    last: number
-    length: number
-    badCharShift: Buffer
-  }
-
-  export function compile(needle: Buffer): Needle
-  export function horspool(haystack: Buffer, needle: Needle, start: number): number
-  export function all(haystack: Buffer, needle: Needle, pos: number): number[]
-  export class Stream extends Writable {
-    constructor(needle: Buffer)
-    needle(needle: Buffer): void
-    flush(): void
-  }
+declare module 'got' {
+  function got(url: string, options?: any): Promise<{ body: string }>
+  export = got
 }
-
 declare module 'download' {
   import { Duplex } from 'stream'
   interface DownloadOptions {

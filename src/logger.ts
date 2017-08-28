@@ -46,14 +46,17 @@ export class Logger {
     this.ora.color = color
   }
 
-  step(text: string): LogStep {
+  step(text: string, method: string = 'succeed'): LogStep {
     if (this.silent) {
       return { modify() {}, log() {} }
     }
     if (!this.ora.id) {
       this.ora.start().text = text
+      if (method !== 'succeed') {
+        this.ora[method]()
+      }
     } else {
-      this.ora.succeed().text = text
+      this.ora[method]().text = text
       this.ora.start()
     }
 

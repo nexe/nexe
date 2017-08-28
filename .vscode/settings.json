@@ -2,5 +2,17 @@
   "typescript.tsdk": "./node_modules/typescript/lib",
   "prettier.semi": false,
   "prettier.singleQuote": true,
-  "prettier.typescriptEnable": ["typescript"]
+  "prettier.typescriptEnable": ["typescript"],
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true
+  },
+  "search.exclude": {
+    "lib/**/*": true,
+    "**/node_modules": true,
+    "**/bower_components": true
+  }
 }

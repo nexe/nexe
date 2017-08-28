@@ -1,8 +1,11 @@
 import * as parseArgv from 'minimist'
 import { NexeCompiler } from './compiler'
-import { basename, extname, join } from 'path'
-import * as Bluebird from 'bluebird'
+import { isWindows } from './util'
+import { basename, extname, join, isAbsolute } from 'path'
+import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
+
+export const nexeVersion = '2.0.0-rc.1'
 
 export interface NexePatch {
   (compiler: NexeCompiler, next: () => Promise<void>): Promise<void>
@@ -10,63 +13,37 @@ export interface NexePatch {
 
 export interface NexeOptions {
   build: boolean
-  /**
-   * Entrypoint filepath
-   */
   input: string
   output: string
-  targets: string[]
-  /**
-   * Build name, Used for executable, and stacktraces
-   */
+  compress: boolean
+  targets: (string | NexeTarget)[]
   name: string
-  /**
-   * The node version to be built
-   */
   version: string
-  python?: string
-  /**
-   * Node flags e.g. "--expose-gc" baked into the executable
-   */
   flags: string[]
-  /**
-   * Pass configuration options to node build configure script
-   */
   configure: string[]
-  /**
-   * Pass make options to node make script
-   */
-  make: string[]
   vcBuild: string[]
+  make: string[]
   snapshot?: string
-  /**
-   * Array of glob strings describing resources to pull into the bundle
-   */
   resources: string[]
-  /**
-   * Temporary directory where nexe artifacts will be cached
-   * TODO dot folder in home dir
-   */
   temp: string
-  ico?: string
-  sourceMaps?: boolean
   rc: { [key: string]: string }
-  /**
-   * Causes nexe to remove all temporary files for current configuration
-   */
-  clean: boolean
   enableNodeCli: boolean
-  sourceUrl?: string
   bundle: boolean | string
+  patches: (string | NexePatch)[]
+  empty: boolean
+  sourceUrl?: string
+  python?: string
   loglevel: 'info' | 'silent' | 'verbose'
   silent?: boolean
   verbose?: boolean
   info?: boolean
-  patches: NexePatch[]
-
-  empty: boolean
+  ico?: string
   warmup?: string
-  downloadOptions?: any
+  clean?: boolean
+  /**
+   * Api Only
+   */
+  downloadOptions: any
 }
 
 function padRight(str: string, l: number) {
@@ -80,10 +57,11 @@ const defaults = {
   configure: [],
   make: [],
   targets: [],
-  vcBuild: ['nosign', 'release', process.arch],
+  vcBuild: isWindows ? ['nosign', 'release', process.arch] : [],
   enableNodeCli: false,
+  compress: false,
+  build: false,
   bundle: true,
-  build: true,
   patches: []
 }
 const alias = {
@@ -98,9 +76,7 @@ const alias = {
   f: 'flag',
   c: 'configure',
   m: 'make',
-  vc: 'vcBuild',
   s: 'snapshot',
-  cli: 'enableNodeCli',
   h: 'help',
   l: 'loglevel'
 }
@@ -117,9 +93,8 @@ nexe --help              CLI OPTIONS
   -v   --version    =${padRight(process.version.slice(1), 23)}-- node version
   -p   --python     =/path/to/python2       -- python executable
   -f   --flag       ="--expose-gc"          -- *v8 flags to include during compilation
-  -c   --configure  ="--with-dtrace"        -- *pass arguments to the configure command
-  -m   --make       ="--loglevel"           -- *pass arguments to the make command
-  -vc  --vcBuild    =x64                    -- *pass arguments to vcbuild.bat
+  -c   --configure  ="--with-dtrace"        -- *pass arguments to the configure step
+  -m   --make       ="--loglevel"           -- *pass arguments to the make/build step
   -s   --snapshot   =/path/to/snapshot      -- build with warmup snapshot
   -r   --resource   =./paths/**/*           -- *embed file bytes within the binary
        --bundle     =./path/to/config       -- pass a module path that exports nexeBundle
@@ -182,20 +157,20 @@ function extractName(options: NexeOptions) {
   return name.replace(/\.exe$/, '')
 }
 
-function normalizeOptionsAsync(input: Partial<NexeOptions>) {
-  if (argv.help || argv._.some((x: string) => x === 'version')) {
-    process.stderr.write(argv.help ? help : '2.0.0-rc.1' + EOL, () => process.exit(0))
+function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOptions | never> {
+  if (argv.help || argv._.some((x: string) => x === 'version') || argv.version === true) {
+    return new Promise(() => {
+      process.stderr.write(argv.help ? help : nexeVersion + EOL, () => process.exit(0))
+    })
   }
-
   const options = Object.assign({}, defaults, input) as NexeOptions
   const opts = options as any
-  delete opts._
+
   options.loglevel = extractLogLevel(options)
   options.name = extractName(options)
   options.flags = flattenFilter(opts.flag, options.flags)
   options.targets = flattenFilter(opts.target, options.targets)
-  options.make = flattenFilter(options.make)
-  options.vcBuild = flattenFilter(options.vcBuild)
+  options.make = flattenFilter(options.vcBuild, options.make)
   options.configure = flattenFilter(options.configure)
   options.resources = flattenFilter(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
@@ -204,9 +179,16 @@ function normalizeOptionsAsync(input: Partial<NexeOptions>) {
     options.targets = []
     options.build = true
   } else if (!options.targets.length) {
-    const defaultTarget = [process.platform, process.arch, options.version].join('-')
-    options.targets = [defaultTarget]
+    options.targets = [getTarget()]
   }
+
+  options.targets = options.targets.map(getTarget)
+  options.patches = options.patches.map(x => {
+    if (typeof x === 'string') {
+      return require(x).default
+    }
+    return x
+  })
 
   Object.keys(alias).filter(k => k !== 'rc').forEach(x => delete opts[x])
 
