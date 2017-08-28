@@ -7,7 +7,6 @@
     "strict": true
   },
   "include":[
-    "src/**/*.ts",
-    "src/patches/sourcemaps.js"
+    "src/**/*.ts"
   ]
 }

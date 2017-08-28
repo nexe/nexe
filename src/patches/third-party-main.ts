@@ -3,11 +3,6 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 
 export default async function main(compiler: NexeCompiler, next: () => Promise<void>) {
-  let sourceMapSupport = ''
-  if (true /*compiler.options.sourceMaps*/) {
-    sourceMapSupport = readFileSync(join(__dirname, '../../source-map-support.js')).toString()
-  }
-
   await compiler.setFileContentsAsync(
     'lib/_third_party_main.js',
     `
@@ -21,7 +16,7 @@ const footer = Buffer.from(Array(32))
 fs.readSync(fd, footer, 0, 32, size - 32)
 
 if (!footer.slice(0, 16).equals(Buffer.from('<nexe~~sentinel>'))) {
-  throw new Error('Invalid Nexe binary')
+  throw 'Invalid Nexe binary'
 }
 
 const contentSize = footer.readDoubleLE(16)
@@ -102,7 +97,6 @@ if (resourceSize) {
 const contentBuffer = Buffer.from(Array(contentSize));
 fs.readSync(fd, contentBuffer, 0, contentSize, contentStart);
 fs.closeSync(fd);
-${sourceMapSupport}
 const Module = require('module');
 process.mainModule = new Module(process.execPath, null);
 process.mainModule.loaded = true;
