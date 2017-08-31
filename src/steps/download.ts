@@ -1,12 +1,12 @@
 import download = require('download')
-import { isDirectoryAsync } from '../util'
+import { pathExistsAsync } from '../util'
 import { LogStep } from '../logger'
 import { IncomingMessage } from 'http'
 import { NexeCompiler } from '../compiler'
 
-function fetchNodeSourceAsync(cwd: string, url: string, step: LogStep, options = {}) {
+function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options = {}) {
   const setText = (p: number) => step.modify(`Downloading Node: ${p.toFixed()}%...`)
-  return download(url, cwd, Object.assign(options, { extract: true, strip: 1 }))
+  return download(url, dest, Object.assign(options, { extract: true, strip: 1 }))
     .on('response', (res: IncomingMessage) => {
       const total = +res.headers['content-length']!
       let current = 0
@@ -18,7 +18,7 @@ function fetchNodeSourceAsync(cwd: string, url: string, step: LogStep, options =
         }
       })
     })
-    .then(() => step.log(`Node source extracted to: ${cwd}`))
+    .then(() => step.log(`Node source extracted to: ${dest}`))
 }
 
 /**
@@ -31,10 +31,14 @@ export default async function downloadNode(compiler: NexeCompiler, next: () => P
   const { version, sourceUrl, downloadOptions } = compiler.options
   const url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`
   const step = log.step(`Downloading Node.js source from: ${url}`)
-  if (await isDirectoryAsync(src)) {
+  if (await pathExistsAsync(src)) {
     step.log('Source already downloaded')
     return next()
   }
 
-  return fetchNodeSourceAsync(src, url, step, downloadOptions).then(next)
+  if (compiler.options.build) {
+    await fetchNodeSourceAsync(src, url, step, downloadOptions).then(next)
+  }
+
+  return next()
 }

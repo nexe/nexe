@@ -61,7 +61,7 @@ const defaults = {
   vcBuild: isWindows ? ['nosign', 'release', process.arch] : [],
   enableNodeCli: false,
   compress: false,
-  build: true,
+  build: false,
   bundle: true,
   patches: []
 }
