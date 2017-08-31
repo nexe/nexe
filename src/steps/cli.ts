@@ -32,29 +32,15 @@ function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
  * @param {*} next
  */
 export default async function cli(compiler: NexeCompiler, next: () => Promise<void>) {
-  const { input, output } = compiler.options
+  const { output } = compiler.options
   const { log, input: bundledInput } = compiler
 
-  if (!input && !process.stdin.isTTY) {
+  if (!process.stdin.isTTY) {
     log.step('Using stdin as input')
     compiler.input = await readStreamAsync(process.stdin)
-  } else if (bundledInput) {
-    await next()
-  } else if (input) {
-    log.step(`Using input file as the main module: ${input}`)
-    compiler.input = await readFileAsync(normalize(input), 'utf-8')
-  } else if (!compiler.options.empty) {
-    const bundle = require.resolve(process.cwd())
-    log.step("Using the cwd's main file as the main module")
-    compiler.input = await readFileAsync(bundle, 'utf-8')
-  } else {
-    log.step('Using empty input as the main module')
-    compiler.input = ''
   }
 
-  if (!bundledInput) {
-    await next()
-  }
+  await next()
 
   compiler.output = isWindows
     ? `${(output || compiler.options.name).replace(/\.exe$/, '')}.exe`

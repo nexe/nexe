@@ -1,7 +1,7 @@
 import * as parseArgv from 'minimist'
 import { NexeCompiler } from './compiler'
 import { isWindows } from './util'
-import { basename, extname, join, isAbsolute } from 'path'
+import { basename, extname, join, isAbsolute, relative } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
 
@@ -18,6 +18,7 @@ export interface NexeOptions {
   compress: boolean
   targets: (string | NexeTarget)[]
   name: string
+  cwd: string
   version: string
   flags: string[]
   configure: string[]
@@ -51,16 +52,16 @@ function padRight(str: string, l: number) {
 }
 
 const defaults = {
-  temp: process.env.NEXE_TEMP || join(process.cwd(), '.nexe'),
   version: process.version.slice(1),
   flags: [],
+  cwd: process.cwd(),
   configure: [],
   make: [],
   targets: [],
   vcBuild: isWindows ? ['nosign', 'release', process.arch] : [],
   enableNodeCli: false,
   compress: false,
-  build: false,
+  build: true,
   bundle: true,
   patches: []
 }
@@ -100,6 +101,7 @@ nexe --help              CLI OPTIONS
        --bundle     =./path/to/config       -- pass a module path that exports nexeBundle
        --temp       =./path/to/temp         -- nexe temp files (for downloads and source builds)
        --no-bundle                          -- set when input is already bundled
+       --cwd                                -- set the current working directory for the command
        --ico                                -- file name for alternate icon file (windows)
        --rc-*                               -- populate rc file options (windows)
        --clean                              -- force download of sources
@@ -131,10 +133,10 @@ function extractCliMap(match: RegExp, options: any) {
     }, {})
 }
 
-function tryResolveMainFileName() {
+function tryResolveMainFileName(cwd: string) {
   let filename
   try {
-    const file = require.resolve(process.cwd())
+    const file = require.resolve(cwd)
     filename = basename(file).replace(extname(file), '')
   } catch (_) {}
 
@@ -150,11 +152,33 @@ function extractLogLevel(options: NexeOptions) {
 
 function extractName(options: NexeOptions) {
   let name = options.name
-  if (typeof options.input === 'string' && !name) {
+  if (!name && typeof options.input === 'string') {
     name = basename(options.input).replace(extname(options.input), '')
   }
-  name = name || tryResolveMainFileName()
+  name = name || tryResolveMainFileName(options.cwd)
   return name.replace(/\.exe$/, '')
+}
+
+function isEntryFile(filename: string) {
+  return filename && !isAbsolute(filename) && filename !== 'node' && /\.(tsx?|jsx?)$/.test(filename)
+}
+
+function findInput(input: string, cwd: string) {
+  const maybeInput = argv._.slice().pop() || ''
+  if (input) {
+    return input
+  }
+  if (isEntryFile(maybeInput)) {
+    return maybeInput
+  }
+  try {
+    const main = require.resolve(cwd)
+    return './' + relative(cwd, main)
+  } catch (e) {
+    void e
+  }
+
+  return ''
 }
 
 function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOptions | never> {
@@ -166,8 +190,10 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   const options = Object.assign({}, defaults, input) as NexeOptions
   const opts = options as any
 
-  options.loglevel = extractLogLevel(options)
+  options.temp = process.env.NEXE_TEMP || join(options.cwd, '.nexe')
   options.name = extractName(options)
+  options.input = findInput(options.input, options.cwd)
+  options.loglevel = extractLogLevel(options)
   options.flags = flattenFilter(opts.flag, options.flags)
   options.targets = flattenFilter(opts.target, options.targets)
   options.make = flattenFilter(options.vcBuild, options.make)

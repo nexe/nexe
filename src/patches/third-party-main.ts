@@ -7,6 +7,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
     'lib/_third_party_main.js',
     `
 const fs = require('fs')
+const path = require('path')
 const Buffer = require('buffer').Buffer
 const isString = x => typeof x === 'string' || x instanceof String
 
@@ -45,8 +46,25 @@ Object.defineProperty(process, '__nexe', (function () {
 if (resourceSize) {
   const originalReadFile = fs.readFile
   const originalReadFileSync = fs.readFileSync
-
+  let setupManifest = () => {
+    const manifest = process.__nexe && process.__nexe.resources
+    if (!manifest) {
+      return
+    }
+    Object.keys(manifest).forEach((key) => {
+      const absolutePath = path.resolve(key)
+      if (!manifest[absolutePath]) {
+        manifest[absolutePath] = manifest[key]
+      }
+      const normalizedPath = path.normalize(key)
+      if (!manifest[normalizedPath]) {
+        manifest[normalizedPath] = manifest[key]
+      }
+    })
+    normalizeManifest = () => {}
+  };
   fs.readFile = function readFile (file, options, callback) {
+    setupManifest()
     const manifest = process.__nexe
     const entry = manifest && manifest.resources[file]
     if (!manifest || !entry || !isString(file)) {
@@ -77,6 +95,7 @@ if (resourceSize) {
   }
 
   fs.readFileSync = function readFileSync (file, options) {
+    setupManifest()
     const manifest = process.__nexe
     const entry = manifest && manifest.resources[file]
     if (!manifest || !entry || !isString(file)) {

@@ -1,8 +1,9 @@
 import { NexeCompiler } from '../compiler'
 import { FuseBox, JSONPlugin, CSSPlugin, HTMLPlugin, QuantumPlugin } from 'fuse-box'
+import { readFileAsync } from '../util'
 //import NativeModulePlugin from './fuse-native-module-plugin'
 
-function bundleProducer(filename: string, options: { name: string; minify: any }) {
+function createBundle(filename: string, options: { name: string; minify: any; cwd: string }) {
   const plugins: any = [JSONPlugin(), CSSPlugin(), HTMLPlugin()]
   if (options.minify) {
     plugins.push(
@@ -16,7 +17,7 @@ function bundleProducer(filename: string, options: { name: string; minify: any }
   const fuse = FuseBox.init({
     cache: false,
     log: Boolean(process.env.NEXE_BUNDLE_DEBUG) || false,
-    homeDir: process.cwd(),
+    homeDir: options.cwd,
     sourceMaps: false,
     writeBundles: false,
     output: '$name.js',
@@ -33,15 +34,22 @@ function bundleProducer(filename: string, options: { name: string; minify: any }
 
 export default async function bundle(compiler: NexeCompiler, next: any) {
   if (!compiler.options.bundle) {
+    compiler.input = await readFileAsync(compiler.options.input, 'utf-8')
     return next()
   }
 
-  let producer = bundleProducer
+  if (compiler.options.empty || !compiler.options.input) {
+    compiler.input = ''
+    return next()
+  }
+
+  let producer = createBundle
   if (typeof compiler.options.bundle === 'string') {
-    producer = require(compiler.options.bundle).bundleProducer
+    producer = require(compiler.options.bundle).createBundle
   }
 
   compiler.input = await producer(compiler.options.input, {
+    cwd: compiler.options.cwd,
     name: compiler.options.name,
     minify: compiler.options.compress
   })
