@@ -37,7 +37,7 @@ export default async function downloadNode(compiler: NexeCompiler, next: () => P
   }
 
   if (compiler.options.build) {
-    await fetchNodeSourceAsync(src, url, step, downloadOptions).then(next)
+    await fetchNodeSourceAsync(src, url, step, downloadOptions)
   }
 
   return next()
