@@ -28,8 +28,8 @@ interface NodeRelease {
   version: string
 }
 
-async function getJson<T>(url: string) {
-  return JSON.parse((await got(url)).body) as T
+async function getJson<T>(url: string, options?: any) {
+  return JSON.parse((await got(url, options)).body) as T
 }
 
 //TODO only build the latest of each major...?
@@ -38,19 +38,20 @@ function isBuildableVersion(version: string) {
   return !~[0, 1, 2, 3, 4, 5, 7].indexOf(major) || version === '4.8.4'
 }
 
-export function getLatestGitRelease() {
-  return getJson<GitRelease>('https://api.github.com/repos/nexe/nexe/releases/latest')
+export function getLatestGitRelease(options?: any) {
+  return getJson<GitRelease>('https://api.github.com/repos/nexe/nexe/releases/latest', options)
 }
 
-export async function storeAsset(asset: GitAsset, dest: string) {
-  await download(asset.browser_download_url, dest)
+export async function storeAsset(asset: GitAsset, dest: string, headers?: any) {
+  const options = headers ? { headers } : undefined
+  await download(asset.browser_download_url, dest, options as any)
 }
 
-export async function getUnBuiltReleases() {
+export async function getUnBuiltReleases(options?: any) {
   const nodeReleases = await getJson<NodeRelease[]>(
     'https://nodejs.org/download/release/index.json'
   )
-  const existingVersions = (await getLatestGitRelease()).assets.map(x => getTarget(x.name))
+  const existingVersions = (await getLatestGitRelease(options)).assets.map(x => getTarget(x.name))
 
   const versionMap: { [key: string]: true } = {}
   return nodeReleases

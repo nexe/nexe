@@ -1,7 +1,7 @@
 import { compile } from '../src/nexe'
-import { 
-  getUnBuiltReleases, 
-  getLatestGitRelease 
+import {
+  getUnBuiltReleases,
+  getLatestGitRelease
 } from '../src/releases'
 import * as ci from './ci'
 import { getTarget } from '../src/target'
@@ -9,16 +9,17 @@ import { pathExistsAsync, statAsync, readFileAsync, execFileAsync } from '../src
 import got = require('got')
 
 const env = process.env,
-  branchName = env.CIRCLE_BRANCH || env.APPVEYOR_REPO_BRANCH,
+  branchName = env.CIRCLE_BRANCH || env.APPVEYOR_REPO_BRANCH || 'master',
   isScheduled = Boolean(env.APPVEYOR_SCHEDULED_BUILD || env.NEXE_TRIGGERED),
   isLinux = Boolean(env.TRAVIS),
   isWindows = Boolean(env.APPVEYOR),
   isMac = Boolean(env.CIRCLECI),
-  isPullRequest = Boolean(env.CIRCLE_PR_NUMBER) || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER)
+  isPullRequest = Boolean(env.CIRCLE_PR_NUMBER) || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER),
+  headers = { 'Authorization': 'token ' + env.GITHUB_TOKEN }
 
 async function build () {
   if (isScheduled) {
-    const releases = await getUnBuiltReleases()
+    const releases = await getUnBuiltReleases({ headers })
     if (!releases.length) {
       return
     }
@@ -30,7 +31,7 @@ async function build () {
       await ci.triggerDockerBuild(linuxOrAlpine)
     }
     if (macBuild) {
-      await ci.triggerMacBuild(macBuild)
+      await ci.triggerMacBuild(macBuild, branchName)
     }
     if (windowsBuild) {
       await ci.triggerWindowsBuild(windowsBuild)
@@ -38,12 +39,13 @@ async function build () {
   }
 
   if (env.NEXE_VERSION) {
-    const 
+    const
       target = getTarget(env.NEXE_VERSION),
       output = isWindows ? './out.exe' : './out',
       options = {
         empty: true,
         build: true,
+        configure: [],
         make: [target.arch],
         version: target.version,
         output
@@ -53,14 +55,16 @@ async function build () {
     }
 
     if (isMac) {
-      await compile(options)
+      const timeout = setInterval(() => console.log('Building...'), 300 * 1000)
+      await compile({...options, make: [], configure: ['--dest-cpu=x64']})
+      clearInterval(timeout)
     }
 
     if (isLinux) {}
 
     if (await pathExistsAsync(output)) {
       await assertNexeBinary(output)
-      const gitRelease = await getLatestGitRelease()
+      const gitRelease = await getLatestGitRelease({ headers })
       await got(gitRelease.upload_url.split('{')[0], {
         query: { name: target.toString() },
         body: await readFileAsync(output),

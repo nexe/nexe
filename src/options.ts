@@ -15,7 +15,6 @@ export interface NexeOptions {
   build: boolean
   input: string
   output: string
-  compress: boolean
   targets: (string | NexeTarget)[]
   name: string
   cwd: string
@@ -40,6 +39,7 @@ export interface NexeOptions {
   info?: boolean
   ico?: string
   warmup?: string
+  compress?: boolean
   clean?: boolean
   /**
    * Api Only
@@ -216,7 +216,9 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
     return x
   })
 
-  Object.keys(alias).filter(k => k !== 'rc').forEach(x => delete opts[x])
+  Object.keys(alias)
+    .filter(k => k !== 'rc')
+    .forEach(x => delete opts[x])
 
   return Promise.resolve(options)
 }

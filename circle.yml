@@ -1,0 +1,11 @@
+# machine:
+#   environment:
+#     NODE_VERSION: 6
+test:
+  override:
+    - npm run nexe-build
+# deployment:
+#   target:
+#     branch: bundle-wip
+#       - npm run nexe-build
+

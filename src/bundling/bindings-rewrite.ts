@@ -4,15 +4,15 @@ import * as child from 'child_process'
 import { createHash } from 'crypto'
 
 export interface ExtractNodeModuleOptions {
-  [key: string]:
-    | {
-        additionalFiles: string[]
-      }
-    | true
+  [key: string]: { additionalFiles: string[] } | true
 }
 
 function hashName(name: string | Buffer) {
-  return createHash('md5').update(name).digest('hex').toString().slice(0, 8)
+  return createHash('md5')
+    .update(name)
+    .digest('hex')
+    .toString()
+    .slice(0, 8)
 }
 
 export function embedDotNode(

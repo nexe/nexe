@@ -16,7 +16,8 @@
 
 ## Motivation and Features
 
-- Supports production ready, ([securable](#security)) builds
+- Supports production ready builds
+- Self contained applications
 - Ability to run multiple applications with *different* node.js runtimes.
 - Distribute binaries without needing node / npm.
 - Idempotent builds
@@ -25,13 +26,11 @@
 - Flexible build pipeline
 - Cross platform builds
 
-## Usage (Beta)
-
-*Note: V2 API is still subject to change. * For v1 see [V1-EOL](https://github.com/nexe/nexe/tree/V1-EOL)
+## Usage
 
 - Existing application bundle:
 
-    `nexe -i ./my-app-bundle.js -o ./my-app.exe`
+  `nexe my-app-bundle.js -o my-app`
 
 - stdin interface
 
@@ -45,7 +44,7 @@ Additional resources can be added to the binary by passing `-r glob/pattern/**/*
 
 ## Compiling Node
 
-By default `nexe` will attempt to download a pre-built executable. However, some users may want to customize the way node is built, either by changing the flags, providing a different icon, or different executable details. These options are supported out of the box, and subsequent builds with compatible options will result in instant build times.
+By default `nexe` will attempt to download a pre-built executable. However, some users may want to customize the way node is built, either by changing the flags, providing a different icon, or different executable details. To build node, use the `build` option/flag
 
 Nexe also exposes its patching pipeline to the user. This allows the application of simple patching of node sources prior to compilation.
 
@@ -57,11 +56,12 @@ Using Nexe Programatically
 
 
 ```javascript
-const nexe = require('nexe')
+const { compile } = require('nexe')
 
-nexe.compile({
-  input: './my-app-bundle.js'
-  output: './my-app.exe'
+compile({
+  input: './my-app.js',
+  output: './my-app.exe',
+  build: true, //builds node
   patches: [
     async (compiler, next) => {
       await compiler.setFileContentsAsync(
@@ -89,13 +89,22 @@ nexe.compile({
  - #### `target: string`
     - Dash seperated platform-architecture-version. e.g. `'win32-ia32-6.10.3'`
     - default: `[process.platform, process.arch, process.version.slice(1)].join('-')`
-- #### `bundle: string`
-    - Path to a custom bundling function. When executed it should either return a fusebox producer, or a string.
-    - If it is a string it will be required and the export `nexeBundle` will be used
-    - Defaults to the internal fuse-box configuration
+- #### `bundle: string | boolean`
+    - If a string is provided it must be a valid relative module path
+    and should provide an export with the following signature:
+    ```typescript
+    export function createBundle (
+      filename: string,
+      options: { name: string, minify: any, cwd: string }
+    ): Promise<string>`
+    ```
+    - default: true, uses the internal fuse-box configuration
  - #### `name: string`
     - Module friendly name of the application
     - default: basename of the input file, or `nexe_${Date.now()}`
+ - #### `cwd: string`
+    - Directory nexe will operate on as though it is the cwd
+    - default: process.cwd()
  - #### `version: string`
     - The Node version you're building for
     - default: `process.version.slice(1)`
@@ -112,7 +121,7 @@ nexe.compile({
     - Example: `['--with-dtrace', '--dest-cpu=x64']`
     - default: `[]`
  - #### `make: Array<string>`
-    - Array of arguments for the node build make step, on windows this step recieves optiosn for vcBuild.bat
+    - Array of arguments for the node build make step, on windows this step recieves options for vcBuild.bat
     - default: `[]` or `['nosign', 'release']` for non windows systems
  - #### `make: Array<string>`
     - Alias for `make` option
@@ -143,10 +152,6 @@ nexe.compile({
  - #### `loglevel: string`
     - Set the loglevel, info, silent, or verbose
     - default: `'info'`
- - #### `padding`
-    - Advanced option for controlling the size available in the executable.
-    - It must be larger than the bundle + resources in bytes
-    - default: 3, 6, 9, 16, 25, or 40 MB sizes are selected automatically.
  - #### `patches: Array<NexePatch>`
     - Userland patches for patching or modifying node source
     - default: `[]`
@@ -163,26 +168,24 @@ For examples, see the built in patches: [src/patches](src/patches)
     - Quickly set a file's contents within the downloaded Node.js source.
  - `replaceInFileAsync(filename: string, ...replaceArgs): Promise<void>`
     - Quickly perform a replace in a file within the downloaded Node.js source. The rest arguments are passed along to `String.prototype.replace`
- - `readFileAsync(filename: string): Promise<SourceFile>`
+ - `readFileAsync(filename: string): Promise<NexeFile>`
     - Access (or create) a file within the downloaded Node.js source.
- - `files: Array<SourceFile>`
-    - The cache of currently read, modified, or created files within the downloaded Node.js source.
+ - `files: Array<NexeFile>`
+    - The cache of the currently read, modified, or created files within the downloaded Node.js source.
 
-#### `SourceFile`
+#### `NexeFile`
   - `contents: string`
+  - `absPath: string`
   - `filename: string`
 
-Any modifications made to `SourceFile#contents` will be maintained in the cache _without_ the need to explicitly write them back out, e.g. using `NexeCompiler#setFileContentsAsync`.
+Any modifications made to `NexeFile#contents` will be maintained in the cache _without_ the need to explicitly write them back out, e.g. using `NexeCompiler#setFileContentsAsync`.
 
 ### Native Modules
 
 Nexe has a plugin built for use with [fuse-box](http://fuse-box.org) > 2.2.1. This plugin currently supports modules that require `.node` files and those that use the `bindings` module.
 Take a look at the [example](examples/native-build/build.js)
 
-Future: Implement support `node-pre-gyp#find`.
-
-## Security
-A common use case for Nexe is production deployment. When distributing executables it is important to [sign](https://en.wikipedia.org/wiki/Code_signing) them before distributing. Nexe was designed specifically to not mangle the binary it produces, this allows the checksum and signature of the size and location offsets to be maintained through the code signing process.
+- [ ] Implement support `node-pre-gyp#find`.
 
 ## Maintainers
 

@@ -150,11 +150,16 @@ export class NexeCompiler {
   private _generateHeader() {
     const version =
       ['configure', 'vcBuild', 'make'].reduce((a, c) => {
-        return (a += (this.options as any)[c].slice().sort().join())
+        return (a += (this.options as any)[c]
+          .slice()
+          .sort()
+          .join())
       }, '') + this.options.enableNodeCli
     const header = {
       resources: this.resources.index,
-      version: createHash('md5').update(version).digest('hex')
+      version: createHash('md5')
+        .update(version)
+        .digest('hex')
     }
     const serializedHeader = this._serializeHeader(header)
     return header

@@ -27,20 +27,24 @@ export function triggerDockerBuild(release: NexeTarget) {
   // })
 }
 
-export function triggerMacBuild (release: NexeTarget) {
-  return Promise.resolve()
-  // assert.ok(env.CIRCLE_TOKEN)
-  // const circle = `https://circleci.com/api/v1.1/project/github/nexe/nexe/tree/master?circle-token=${env.CIRCLE_TOKEN}`
-  // return got(circle, {
-  //   json: true,
-  //   body: {
-  //     build_parameters: {
-  //       NEXE_VERSION: release
-  //     }
-  //   }
-  // })
+export function triggerMacBuild (release: NexeTarget, branch: string) {
+  assert.ok(env.CIRCLE_TOKEN)
+  const circle = `https://circleci.com/api/v1.1/project/github/nexe/nexe/tree/${branch}?circle-token=${env.CIRCLE_TOKEN}`
+  return got(circle, {
+    json: true,
+    body: {
+      build_parameters: {
+        NEXE_VERSION: release.toString(),
+        GITHUB_TOKEN: env.GITHUB_TOKEN
+      }
+    }
+  })
 }
 
 export function triggerWindowsBuild (release: NexeTarget) {
-  return Promise.resolve(env.NEXE_VERSION = release.toString())
+  const hasVersion = 'NEXE_VERSION' in env
+  env.NEXE_VERSION = hasVersion 
+    ? env.NEXE_VERSION!.trim() 
+    : release.toString() 
+  return Promise.resolve()
 }
