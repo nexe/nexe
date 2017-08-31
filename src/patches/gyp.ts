@@ -12,7 +12,10 @@ export default async function nodeGyp(
     nodeGypMarker,
     `
     ${nodeGypMarker}
-    ${files.filter(x => x.filename.startsWith('lib')).map(x => `'${x.filename}'`).toString()},
+    ${files
+      .filter(x => x.filename.startsWith('lib'))
+      .map(x => `'${x.filename}'`)
+      .toString()},
   `.trim()
   )
 }

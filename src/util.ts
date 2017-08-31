@@ -44,11 +44,15 @@ const execFileAsync = pify(execFile)
 const isWindows = process.platform === 'win32'
 
 function pathExistsAsync(path: string) {
-  return statAsync(path).then(x => true).catch(falseOnEnoent)
+  return statAsync(path)
+    .then(x => true)
+    .catch(falseOnEnoent)
 }
 
 function isDirectoryAsync(path: string) {
-  return statAsync(path).then(x => x.isDirectory()).catch(falseOnEnoent)
+  return statAsync(path)
+    .then(x => x.isDirectory())
+    .catch(falseOnEnoent)
 }
 
 export {

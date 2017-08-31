@@ -30,11 +30,13 @@ async function compile(
     : []
   const nexe = compose(resource, bundle, cli, buildSteps)
   return callback
-    ? void nexe(compiler).then(() => callback && callback(null)).catch((e: Error) => {
-        if (callback) {
-          callback(e)
-        } else throw e
-      })
+    ? void nexe(compiler).then(
+        () => callback && callback(null),
+        (e: Error) => {
+          if (callback) callback(e)
+          else throw e
+        }
+      )
     : nexe(compiler)
 }
 

@@ -54,7 +54,7 @@
     "@types/rimraf": "0.0.28",
     "got": "^7.1.0",
     "mocha": "^3.2.0",
-    "prettier": "^1.4.4",
+    "prettier": "^1.6.1",
     "ts-node": "3.3.0",
     "typescript": "^2.4.1"
   }

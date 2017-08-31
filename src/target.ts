@@ -70,17 +70,20 @@ export function getTarget(target: string | NexeTarget = ''): NexeTarget {
     target = `${target.platform}-${target.arch}-${target.version}`
   }
 
-  target.toLowerCase().split('-').forEach(x => {
-    if (isVersion(x)) {
-      version = x
-    }
-    if (isPlatform(x)) {
-      platform = prettyPlatform[x]
-    }
-    if (isArch(x)) {
-      arch = prettyArch[x]
-    }
-  })
+  target
+    .toLowerCase()
+    .split('-')
+    .forEach(x => {
+      if (isVersion(x)) {
+        version = x
+      }
+      if (isPlatform(x)) {
+        platform = prettyPlatform[x]
+      }
+      if (isArch(x)) {
+        arch = prettyArch[x]
+      }
+    })
 
   return new Target(arch, platform, version)
 }
