@@ -2,7 +2,7 @@ import { compile } from '../src/nexe'
 import { 
   getUnBuiltReleases, 
   getLatestGitRelease 
-} from './releases'
+} from '../src/releases'
 import * as ci from './ci'
 import { getTarget } from '../src/target'
 import { pathExistsAsync, statAsync, readFileAsync, execFileAsync } from '../src/util'

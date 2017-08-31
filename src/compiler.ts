@@ -1,4 +1,4 @@
-import { normalize, join } from 'path'
+import { dirname, normalize, join } from 'path'
 import { Buffer } from 'buffer'
 import { createHash } from 'crypto'
 import { createReadStream } from 'fs'
@@ -8,6 +8,7 @@ import { Logger } from './logger'
 import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows } from './util'
 import { NexeOptions, nexeVersion } from './options'
 import { NexeTarget } from './target'
+import { getLatestGitRelease, storeAsset } from './releases'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -133,8 +134,17 @@ export class NexeCompiler {
     return createReadStream(this._getNodeExecutableLocation())
   }
 
-  private _fetchPrebuiltBinaryAsync() {
-    return this._buildAsync()
+  private async _fetchPrebuiltBinaryAsync(target: NexeTarget) {
+    const githubRelease = await getLatestGitRelease()
+    const assetName = target.toString()
+    const asset = githubRelease.assets.find(x => x.name === assetName)
+
+    if (!asset) {
+      throw new Error(`${assetName} not available, create one using --build`)
+    }
+    const filename = this._getNodeExecutableLocation(target)
+    await storeAsset(asset, dirname(filename))
+    return createReadStream(filename)
   }
 
   private _generateHeader() {
@@ -161,7 +171,7 @@ export class NexeCompiler {
     const header = this._generateHeader()
 
     if (target && !binary) {
-      binary = await this._fetchPrebuiltBinaryAsync()
+      binary = await this._fetchPrebuiltBinaryAsync(target)
     }
 
     if (!binary) {
