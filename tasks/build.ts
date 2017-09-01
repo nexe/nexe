@@ -1,21 +1,33 @@
-import { compile } from '../src/nexe'
+import * as nexe from '../src/nexe'
 import {
   getUnBuiltReleases,
   getLatestGitRelease
 } from '../src/releases'
 import * as ci from './ci'
+import { runAlpineBuild } from './docker'
 import { getTarget } from '../src/target'
 import { pathExistsAsync, statAsync, readFileAsync, execFileAsync } from '../src/util'
 import got = require('got')
 
 const env = process.env,
-  branchName = env.CIRCLE_BRANCH || env.APPVEYOR_REPO_BRANCH || 'master',
+  branchName = env.CIRCLE_BRANCH || env.APPVEYOR_REPO_BRANCH || env.TRAVIS_BRANCH || '',
   isScheduled = Boolean(env.APPVEYOR_SCHEDULED_BUILD || env.NEXE_TRIGGERED),
   isLinux = Boolean(env.TRAVIS),
   isWindows = Boolean(env.APPVEYOR),
   isMac = Boolean(env.CIRCLECI),
-  isPullRequest = Boolean(env.CIRCLE_PR_NUMBER) || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER),
+  isPullRequest = Boolean(env.CIRCLE_PR_NUMBER)
+    || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER) 
+    || Boolean(env.TRAVIS_PULL_REQUEST_BRANCH),
   headers = { 'Authorization': 'token ' + env.GITHUB_TOKEN }
+
+if (require.main === module) {
+  if (!isPullRequest) {
+    build().catch(x => {
+      console.error(x)
+      process.exit(1)
+    })
+  }
+}
 
 async function build () {
   if (isScheduled) {
@@ -28,7 +40,7 @@ async function build () {
     const linuxOrAlpine = releases.find(x => x.platform === 'linux' || x.platform === 'alpine')
 
     if (linuxOrAlpine) {
-      await ci.triggerDockerBuild(linuxOrAlpine)
+      await ci.triggerDockerBuild(linuxOrAlpine, branchName)
     }
     if (macBuild) {
       await ci.triggerMacBuild(macBuild, branchName)
@@ -45,23 +57,19 @@ async function build () {
       options = {
         empty: true,
         build: true,
-        configure: [],
-        make: [target.arch],
-        version: target.version,
+        target, //FIXME
         output
       }
-    if (isWindows) {
-      await compile(options)
+    
+    const stop = keepalive()
+    if (target.platform === 'alpine') {
+      await runAlpineBuild(target, nexe.version.split('.')[0])
+    } else {
+      await nexe.compile(options)      
     }
-
-    if (isMac) {
-      const timeout = setInterval(() => console.log('Building...'), 300 * 1000)
-      await compile({...options, make: [], configure: ['--dest-cpu=x64']})
-      clearInterval(timeout)
-    }
-
-    if (isLinux) {}
-
+    stop()
+    
+    
     if (await pathExistsAsync(output)) {
       await assertNexeBinary(output)
       const gitRelease = await getLatestGitRelease({ headers })
@@ -78,18 +86,16 @@ async function build () {
   }
 }
 
+function keepalive () {
+  const keepalive = setInterval(() => console.log('Building...'), 300 * 1000)
+  return () => clearInterval(keepalive)
+}
+
 function assertNexeBinary (file: string) {
   return execFileAsync(file).catch(e => {
     if (e && e.stack && e.stack.includes('Invalid Nexe binary')) {
       return
     }
     throw e
-  })
-}
-
-if (require.main === module) {
-  build().catch(x => {
-    console.error(x)
-    process.exit(1)
   })
 }

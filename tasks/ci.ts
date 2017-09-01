@@ -3,28 +3,27 @@ import got = require('got')
 import * as assert from 'assert'
 const { env } = process
 
-export function triggerDockerBuild(release: NexeTarget) {
-  return Promise.resolve()
-  // assert.ok(env.TRAVIS_TOKEN)
-  // const travis = `https://api.travis-ci.org/repo/nexe/nexe/requests`
-  // return got(travis, {
-  //   json: true,
-  //   body: {
-  //     request: {
-  //       branch: 'master',
-  //       config: {
-  //         merge_mode: 'deep_merge',
-  //         env: {
-  //           NEXE_VERSION: release
-  //         }
-  //       }
-  //     }
-  //   },
-  //   headers: {
-  //     'Travis-API-Version': '3',
-  //     'Authorization': `token ${env.TRAVIS_TOKEN}`
-  //   }
-  // })
+export function triggerDockerBuild(release: NexeTarget, branch: string) {
+  assert.ok(env.TRAVIS_TOKEN)
+  const travis = `https://api.travis-ci.org/repo/nexe%2Fnexe/requests`
+  return got(travis, {
+    json: true,
+    body: {
+      request: {
+        branch: branch,
+        config: {
+          merge_mode: 'deep_merge',
+          env: {
+            NEXE_VERSION: release
+          }
+        }
+      }
+    },
+    headers: {
+      'Travis-API-Version': '3',
+      'Authorization': `token ${env.TRAVIS_TOKEN}`
+    }
+  })
 }
 
 export function triggerMacBuild (release: NexeTarget, branch: string) {
@@ -34,8 +33,7 @@ export function triggerMacBuild (release: NexeTarget, branch: string) {
     json: true,
     body: {
       build_parameters: {
-        NEXE_VERSION: release.toString(),
-        GITHUB_TOKEN: env.GITHUB_TOKEN
+        NEXE_VERSION: release.toString()
       }
     }
   })

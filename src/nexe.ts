@@ -1,7 +1,13 @@
 import { compose, PromiseConfig, Middleware } from 'app-builder'
 import resource from './steps/resource'
 import { NexeCompiler } from './compiler'
-import { argv, normalizeOptionsAsync, NexeOptions, NexePatch } from './options'
+import {
+  argv,
+  nexeVersion as version,
+  normalizeOptionsAsync,
+  NexeOptions,
+  NexePatch
+} from './options'
 import cli from './steps/cli'
 import bundle from './bundling/fuse'
 import download from './steps/download'
@@ -40,4 +46,4 @@ async function compile(
     : nexe(compiler)
 }
 
-export { argv, compile }
+export { argv, compile, version }

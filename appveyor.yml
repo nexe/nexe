@@ -2,9 +2,9 @@ environment:
   CIRCLE_TOKEN:
     secure: TQKcepXmTzCNt4+tUBtYpwEQkdSPwFr9A8ugtoMhNbKu/SW1WM1EpjEu6kYXxpQ4
   TRAVIS_TOKEN:
-    secure: IwsFkKeSwogeIs7gbEhpIkRbrziWdGq0eCSMkAVCgBY=
+    secure: tR7HXYv3x97q90uvPrjUxKZh7R1+uqKct0HdEcqTbsg=
   GITHUB_TOKEN:
-    secure: Sx2cy8b/djm/3wSYMSKK0fxbZ0mnFI09rLCHXqjjzwhunfEkug7xILEl14wVrHUS
+    secure: 3wuEGJsppSKFvdwhp3jprUA9Zkc3WINlc/9oFXjhAR6J05lYMXP7Fl7lXTKpkGZx
 branches:
   except:
     - master
