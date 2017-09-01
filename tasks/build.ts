@@ -12,13 +12,16 @@ import got = require('got')
 const env = process.env,
   branchName = env.CIRCLE_BRANCH || env.APPVEYOR_REPO_BRANCH || env.TRAVIS_BRANCH || '',
   isScheduled = Boolean(env.APPVEYOR_SCHEDULED_BUILD || env.NEXE_TRIGGERED),
-  isLinux = Boolean(env.TRAVIS),
+  isLinux = Boolean(env.CIRCLECI),
   isWindows = Boolean(env.APPVEYOR),
-  isMac = Boolean(env.CIRCLECI),
+  isMac = Boolean(env.TRAVIS),
   isPullRequest = Boolean(env.CIRCLE_PR_NUMBER)
     || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER) 
     || Boolean(env.TRAVIS_PULL_REQUEST_BRANCH),
-  headers = { 'Authorization': 'token ' + env.GITHUB_TOKEN }
+  headers = { 
+    'Authorization': 'token ' + env.GITHUB_TOKEN,
+    'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
+  }
 
 if (require.main === module) {
   if (!isPullRequest) {
@@ -57,7 +60,7 @@ async function build () {
       options = {
         empty: true,
         build: true,
-        target, //FIXME
+        target,
         output
       }
     
@@ -78,7 +81,8 @@ async function build () {
         body: await readFileAsync(output),
         headers: {
           'Authorization': 'token ' + env.GITHUB_TOKEN,
-          'Content-Type': 'application/octet-stream'
+          'Content-Type': 'application/octet-stream',
+          'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
         }
       })
       console.log(target + ' uploaded.')

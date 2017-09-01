@@ -1,7 +1,9 @@
+os: osx
 language: node_js
 node_js:
 - '6'
 script: npm run nexe-build
 env:
-  global:
-    secure: LyC6djYqPfPKz5gHILES9JmSRxQ+ntKOcoaZNM5WID0+gogUoXZBhcmmtvq9RnMpFZN3pYujY6LB5iy7QS2seGjg+feyewNKI30yIK6N9ulJyZZKmrJVDdRx4wvl8YVTkttjcJFkanDGa6zRvFfFDKx/iIdcWLEpnqR/WO1ppf8=
+  - secure: LyC6djYqPfPKz5gHILES9JmSRxQ+ntKOcoaZNM5WID0+gogUoXZBhcmmtvq9RnMpFZN3pYujY6LB5iy7QS2seGjg+feyewNKI30yIK6N9ulJyZZKmrJVDdRx4wvl8YVTkttjcJFkanDGa6zRvFfFDKx/iIdcWLEpnqR/WO1ppf8=
+notifications:
+  email: false

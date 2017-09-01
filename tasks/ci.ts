@@ -3,7 +3,7 @@ import got = require('got')
 import * as assert from 'assert'
 const { env } = process
 
-export function triggerDockerBuild(release: NexeTarget, branch: string) {
+export function triggerMacBuild(release: NexeTarget, branch: string) {
   assert.ok(env.TRAVIS_TOKEN)
   const travis = `https://api.travis-ci.org/repo/nexe%2Fnexe/requests`
   return got(travis, {
@@ -14,7 +14,7 @@ export function triggerDockerBuild(release: NexeTarget, branch: string) {
         config: {
           merge_mode: 'deep_merge',
           env: {
-            NEXE_VERSION: release
+            NEXE_VERSION: release.toString()
           }
         }
       }
@@ -26,7 +26,7 @@ export function triggerDockerBuild(release: NexeTarget, branch: string) {
   })
 }
 
-export function triggerMacBuild (release: NexeTarget, branch: string) {
+export function triggerDockerBuild (release: NexeTarget, branch: string) {
   assert.ok(env.CIRCLE_TOKEN)
   const circle = `https://circleci.com/api/v1.1/project/github/nexe/nexe/tree/${branch}?circle-token=${env.CIRCLE_TOKEN}`
   return got(circle, {

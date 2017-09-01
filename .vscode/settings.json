@@ -3,6 +3,7 @@
   "prettier.semi": false,
   "prettier.singleQuote": true,
   "prettier.typescriptEnable": ["typescript"],
+  "editor.trimAutoWhitespace": true,
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,

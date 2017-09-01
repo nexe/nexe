@@ -135,7 +135,11 @@ export class NexeCompiler {
   }
 
   private async _fetchPrebuiltBinaryAsync(target: NexeTarget) {
-    const githubRelease = await getLatestGitRelease()
+    const githubRelease = await getLatestGitRelease({
+      headers: {
+        'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
+      }
+    })
     const assetName = target.toString()
     const asset = githubRelease.assets.find(x => x.name === assetName)
 
