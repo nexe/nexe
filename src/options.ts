@@ -58,7 +58,7 @@ const defaults = {
   configure: [],
   make: [],
   targets: [],
-  vcBuild: isWindows ? ['nosign', 'release', process.arch] : [],
+  vcBuild: isWindows ? ['nosign', 'release'] : [],
   enableNodeCli: false,
   compress: false,
   build: false,
@@ -201,14 +201,21 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   options.resources = flattenFilter(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
 
-  if (options.build) {
-    options.targets = []
-    options.build = true
-  } else if (!options.targets.length) {
-    options.targets = [getTarget()]
+  options.targets = options.targets.map(getTarget)
+
+  if (options.build && options.targets.length) {
+    const { arch } = options.targets[0] as NexeTarget
+    if (isWindows) {
+      options.make = Array.from(new Set(options.make.concat([arch])))
+    } else {
+      options.configure = Array.from(new Set(options.configure.concat([`--dest-cpu=${arch}`])))
+    }
   }
 
-  options.targets = options.targets.map(getTarget)
+  if (!options.targets.length) {
+    options.targets = [getTarget(options.version)]
+  }
+
   options.patches = options.patches.map(x => {
     if (typeof x === 'string') {
       return require(x).default
