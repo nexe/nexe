@@ -42,11 +42,6 @@ export function getLatestGitRelease(options?: any) {
   return getJson<GitRelease>('https://api.github.com/repos/nexe/nexe/releases/latest', options)
 }
 
-export async function storeAsset(asset: GitAsset, dest: string, headers?: any) {
-  const options = headers ? { headers } : undefined
-  await download(asset.browser_download_url, dest, options as any)
-}
-
 export async function getUnBuiltReleases(options?: any) {
   const nodeReleases = await getJson<NodeRelease[]>(
     'https://nodejs.org/download/release/index.json'

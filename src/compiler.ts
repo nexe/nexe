@@ -8,7 +8,9 @@ import { Logger } from './logger'
 import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows } from './util'
 import { NexeOptions, nexeVersion } from './options'
 import { NexeTarget } from './target'
-import { getLatestGitRelease, storeAsset } from './releases'
+import download = require('download')
+import { getLatestGitRelease } from './releases'
+import { IncomingMessage } from 'http'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -93,7 +95,7 @@ export class NexeCompiler {
     return this.log.flush()
   }
 
-  private _getNodeExecutableLocation(target?: NexeTarget) {
+  public getNodeExecutableLocation(target?: NexeTarget) {
     if (target) {
       return join(this.options.temp, target.toString())
     }
@@ -131,23 +133,35 @@ export class NexeCompiler {
       `Compiling Node${buildOptions.length ? ' with arguments: ' + buildOptions : '...'}`
     )
     await this._runBuildCommandAsync(make, buildOptions)
-    return createReadStream(this._getNodeExecutableLocation())
+    return createReadStream(this.getNodeExecutableLocation())
   }
 
   private async _fetchPrebuiltBinaryAsync(target: NexeTarget) {
-    const githubRelease = await getLatestGitRelease({
+    const downloadOptions: any = {
       headers: {
         'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
       }
-    })
+    }
+    const githubRelease = await getLatestGitRelease(downloadOptions)
     const assetName = target.toString()
     const asset = githubRelease.assets.find(x => x.name === assetName)
 
     if (!asset) {
-      throw new Error(`${assetName} not available, create one using --build`)
+      throw new Error(`${assetName} not available, create one using --build --empty`)
     }
-    const filename = this._getNodeExecutableLocation(target)
-    await storeAsset(asset, dirname(filename))
+    const filename = this.getNodeExecutableLocation(target)
+    await download(
+      asset.browser_download_url,
+      dirname(filename),
+      downloadOptions
+    ).on('response', (res: IncomingMessage) => {
+      const total = +res.headers['content-length']!
+      let current = 0
+      res.on('data', data => {
+        current += data.length
+        this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
+      })
+    })
     return createReadStream(filename)
   }
 
@@ -176,14 +190,13 @@ export class NexeCompiler {
   async compileAsync(target: NexeTarget) {
     const step = (this.compileStep = this.log.step('Compiling result'))
     const build = this.options.build
-    const location = this._getNodeExecutableLocation(target)
+    const location = this.getNodeExecutableLocation(target)
     let binary = (await pathExistsAsync(location)) ? createReadStream(location) : null
     const header = this._generateHeader()
-
-    if (target && !build) {
+    if (!build && !binary) {
+      step.modify('Fetching prebuilt binary')
       binary = await this._fetchPrebuiltBinaryAsync(target)
     }
-
     if (!binary) {
       binary = await this._buildAsync()
       step.log('Node binary compiled')

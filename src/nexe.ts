@@ -14,6 +14,7 @@ import download from './steps/download'
 import artifacts from './steps/artifacts'
 import patches from './patches'
 import { rimrafAsync } from './util'
+import { NexeTarget } from './target'
 
 async function compile(
   compilerOptions?: Partial<NexeOptions>,
@@ -24,10 +25,14 @@ async function compile(
   const build = compiler.options.build
 
   if (options.clean) {
+    let path = compiler.src
+    if (!options.build) {
+      path = compiler.getNodeExecutableLocation(compiler.options.targets[0] as NexeTarget)
+    }
     const step = compiler.log.step('Cleaning up nexe build artifacts...')
-    step.log(`Deleting directory and contents at: ${compiler.src}`)
-    await rimrafAsync(compiler.src)
-    step.log(`Deleted directory and contents at: ${compiler.src}`)
+    step.log(`Deleting contents at: ${path}`)
+    await rimrafAsync(path)
+    step.log(`Deleted contents at: ${path}`)
     return compiler.quit()
   }
 
