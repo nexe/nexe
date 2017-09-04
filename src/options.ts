@@ -5,7 +5,7 @@ import { basename, extname, join, isAbsolute, relative } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
 
-export const nexeVersion = '2.0.0-rc.1'
+export const nexeVersion = '2.0.0-rc.2'
 
 export interface NexePatch {
   (compiler: NexeCompiler, next: () => Promise<void>): Promise<void>
@@ -171,13 +171,15 @@ function findInput(input: string, cwd: string) {
   if (isEntryFile(maybeInput)) {
     return maybeInput
   }
+  if (!process.stdin.isTTY) {
+    return ''
+  }
   try {
     const main = require.resolve(cwd)
     return './' + relative(cwd, main)
   } catch (e) {
     void e
   }
-
   return ''
 }
 
