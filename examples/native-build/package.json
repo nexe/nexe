@@ -13,6 +13,6 @@
     "zmq": "^2.15.3"
   },
   "devDependencies": {
-    "fuse-box": "^2.2.1-beta.7"
+    "fuse-box": "^2.2.31"
   }
 }
