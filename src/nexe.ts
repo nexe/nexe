@@ -9,7 +9,7 @@ import {
   NexePatch
 } from './options'
 import cli from './steps/cli'
-import bundle from './bundling/fuse'
+import bundle from './steps/bundle'
 import download from './steps/download'
 import artifacts from './steps/artifacts'
 import patches from './patches'

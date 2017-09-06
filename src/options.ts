@@ -38,6 +38,7 @@ export interface NexeOptions {
   verbose?: boolean
   info?: boolean
   ico?: string
+  debugBundle?: boolean
   warmup?: string
   compress?: boolean
   clean?: boolean

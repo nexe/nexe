@@ -1,6 +1,6 @@
 import { NexeCompiler } from '../compiler'
 import { FuseBox, JSONPlugin, CSSPlugin, HTMLPlugin, QuantumPlugin } from 'fuse-box'
-import { readFileAsync } from '../util'
+import { readFileAsync, writeFileAsync } from '../util'
 //import NativeModulePlugin from './fuse-native-module-plugin'
 
 function createBundle(filename: string, options: { name: string; minify: any; cwd: string }) {
@@ -53,5 +53,9 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     name: compiler.options.name,
     minify: compiler.options.compress
   })
+  if (compiler.options.debugBundle) {
+    await writeFileAsync(compiler.options.debugBundle, compiler.input)
+  }
+
   return next()
 }
