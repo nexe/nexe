@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { blue as b } from 'chalk'
 import { getTarget, NexeTarget } from '../src/target'
 
-const arch = (isWindows && process.arch === 'ia32') ? 'x86' : process.arch
+const arch = process.arch === 'ia32' ? 'x86' : process.arch
 
 describe('Targets', () => {
   [
