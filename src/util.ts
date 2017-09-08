@@ -22,6 +22,10 @@ function falseOnEnoent(e: any) {
   throw e
 }
 
+function padRight(str: string, l: number) {
+  return (str + ' '.repeat(l)).substr(0, l)
+}
+
 function dequote(input: string) {
   input = input.trim()
   const singleQuote = input.startsWith("'") && input.endsWith("'")
@@ -57,6 +61,7 @@ function isDirectoryAsync(path: string) {
 
 export {
   dequote,
+  padRight,
   isWindows,
   rimrafAsync,
   statAsync,

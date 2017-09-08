@@ -8,14 +8,15 @@ export { platforms, architectures }
 
 export interface NexeTarget {
   version: string
-  platform: NodePlatform
-  arch: NodeArch
+  platform: NodePlatform | string
+  arch: NodeArch | string
 }
 
 //TODO bsd
 const prettyPlatform: { [key: string]: NodePlatform } = {
   win32: 'windows',
   windows: 'windows',
+  win: 'windows',
   darwin: 'mac',
   macos: 'mac',
   mac: 'mac',
@@ -36,7 +37,7 @@ function isVersion(x: string) {
   if (!x) {
     return false
   }
-  return /\d/.test(x.replace(/v|\./g, ''))
+  return /^[\d]+$/.test(x.replace(/v|\.|\s+/g, ''))
 }
 
 function isPlatform(x: string): x is NodePlatform {
@@ -61,7 +62,7 @@ export function targetsEqual(a: NexeTarget, b: NexeTarget) {
   return a.arch === b.arch && a.platform === b.platform && a.version === b.version
 }
 
-export function getTarget(target: string | NexeTarget = ''): NexeTarget {
+export function getTarget(target: string | Partial<NexeTarget> = ''): NexeTarget {
   let arch = process.arch as NodeArch,
     platform = prettyPlatform[process.platform],
     version = process.version.slice(1)
@@ -75,7 +76,7 @@ export function getTarget(target: string | NexeTarget = ''): NexeTarget {
     .split('-')
     .forEach(x => {
       if (isVersion(x)) {
-        version = x
+        version = x.replace(/v/g, '')
       }
       if (isPlatform(x)) {
         platform = prettyPlatform[x]

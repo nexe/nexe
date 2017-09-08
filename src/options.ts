@@ -1,11 +1,12 @@
 import * as parseArgv from 'minimist'
 import { NexeCompiler } from './compiler'
-import { isWindows } from './util'
+import { isWindows, padRight } from './util'
 import { basename, extname, join, isAbsolute, relative } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
+import * as chalk from 'chalk'
 
-export const nexeVersion = '2.0.0-rc.2'
+export const nexeVersion = '2.0.0-rc.3'
 
 export interface NexePatch {
   (compiler: NexeCompiler, next: () => Promise<void>): Promise<void>
@@ -48,10 +49,6 @@ export interface NexeOptions {
   downloadOptions: any
 }
 
-function padRight(str: string, l: number) {
-  return (str + ' '.repeat(l)).substr(0, l)
-}
-
 const defaults = {
   version: process.version.slice(1),
   flags: [],
@@ -83,24 +80,25 @@ const alias = {
   l: 'loglevel'
 }
 const argv = parseArgv(process.argv, { alias, default: defaults })
+const g = chalk.gray
 const help =
   `
 nexe --help              CLI OPTIONS
 
+  -i   --input      ${g('=index.js')}               -- application entry point
+  -o   --output     ${g('=my-app.exe')}             -- path to output file
+  -t   --target     ${g('=mac-x64-8.4.0')}          -- *target a prebuilt binary
+  -n   --name       ${g('=my-app')}                 -- main app module name
+  -v   --version    ${g(`=${padRight(process.version.slice(1), 23)}`)}-- node version
+  -p   --python     ${g('=/path/to/python2')}       -- python executable
+  -f   --flag       ${g('="--expose-gc"')}          -- *v8 flags to include during compilation
+  -c   --configure  ${g('="--with-dtrace"')}        -- *pass arguments to the configure step
+  -m   --make       ${g('="--loglevel"')}           -- *pass arguments to the make/build step
+  -s   --snapshot   ${g('=/path/to/snapshot')}      -- build with warmup snapshot
+  -r   --resource   ${g('=./paths/**/*')}           -- *embed file bytes within the binary
   -b   --build                              -- build from source
-  -i   --input      =index.js               -- application entry point
-  -o   --output     =my-app.exe             -- path to output file
-  -t   --target     =win32-x64-6.10.3       -- *target a prebuilt binary
-  -n   --name       =my-app                 -- main app module name
-  -v   --version    =${padRight(process.version.slice(1), 23)}-- node version
-  -p   --python     =/path/to/python2       -- python executable
-  -f   --flag       ="--expose-gc"          -- *v8 flags to include during compilation
-  -c   --configure  ="--with-dtrace"        -- *pass arguments to the configure step
-  -m   --make       ="--loglevel"           -- *pass arguments to the make/build step
-  -s   --snapshot   =/path/to/snapshot      -- build with warmup snapshot
-  -r   --resource   =./paths/**/*           -- *embed file bytes within the binary
-       --bundle     =./path/to/config       -- pass a module path that exports nexeBundle
-       --temp       =./path/to/temp         -- nexe temp files (for downloads and source builds)
+       --bundle     ${g('=./path/to/config')}       -- pass a module path that exports nexeBundle
+       --temp       ${g('=./path/to/temp')}         -- default './nexe'
        --no-bundle                          -- set when input is already bundled
        --cwd                                -- set the current working directory for the command
        --ico                                -- file name for alternate icon file (windows)
@@ -198,26 +196,26 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   options.input = findInput(options.input, options.cwd)
   options.loglevel = extractLogLevel(options)
   options.flags = flattenFilter(opts.flag, options.flags)
-  options.targets = flattenFilter(opts.target, options.targets)
+  options.targets = flattenFilter(opts.target, options.targets).map(getTarget)
   options.make = flattenFilter(options.vcBuild, options.make)
   options.configure = flattenFilter(options.configure)
   options.resources = flattenFilter(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
 
-  options.targets = options.targets.map(getTarget)
+  if (!options.targets.length) {
+    options.targets = [getTarget(options.version)]
+  }
 
-  if (options.build && options.targets.length) {
+  if (options.build) {
     const { arch } = options.targets[0] as NexeTarget
     if (isWindows) {
-      options.make = Array.from(new Set(options.make.concat([arch])))
+      options.make = Array.from(new Set(options.make.concat(arch)))
     } else {
       options.configure = Array.from(new Set(options.configure.concat([`--dest-cpu=${arch}`])))
     }
   }
 
-  if (!options.targets.length) {
-    options.targets = [getTarget(options.version)]
-  }
+  options.version = (options.targets[0] as NexeTarget).version
 
   options.patches = options.patches.map(x => {
     if (typeof x === 'string') {

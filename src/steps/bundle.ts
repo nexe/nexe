@@ -53,6 +53,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     name: compiler.options.name,
     minify: compiler.options.compress
   })
+
   if (compiler.options.debugBundle) {
     await writeFileAsync(compiler.options.debugBundle, compiler.input)
   }

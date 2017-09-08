@@ -37,7 +37,7 @@ export class NexeCompiler {
   public input: string
   public bundledInput?: string
   public output: string | null
-
+  public targets: NexeTarget[]
   public resources: { bundle: string; index: { [key: string]: number[] } } = {
     index: {},
     bundle: ''
@@ -53,6 +53,7 @@ export class NexeCompiler {
 
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
+    this.targets = options.targets as NexeTarget[]
     this.log.step('nexe ' + nexeVersion, 'info')
     if (python) {
       if (isWindows) {
@@ -147,7 +148,7 @@ export class NexeCompiler {
     const asset = githubRelease.assets.find(x => x.name === assetName)
 
     if (!asset) {
-      throw new Error(`${assetName} not available, create one using --build --empty`)
+      throw new Error(`${assetName} not available, create it using the --build flag`)
     }
     const filename = this.getNodeExecutableLocation(target)
     await download(
