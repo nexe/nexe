@@ -191,7 +191,7 @@ export class NexeCompiler {
   async compileAsync(target: NexeTarget) {
     const step = (this.compileStep = this.log.step('Compiling result'))
     const build = this.options.build
-    const location = this.getNodeExecutableLocation(target)
+    const location = this.getNodeExecutableLocation(build ? undefined : target)
     let binary = (await pathExistsAsync(location)) ? createReadStream(location) : null
     const header = this._generateHeader()
     if (!build && !binary) {
