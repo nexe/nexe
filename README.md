@@ -7,7 +7,7 @@
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
 </p>
 
-<p align="center"><code>npm i nexe@beta -g</code></p>
+<p align="center"><code>npm i nexe -g</code></p>
 <p align="center">Nexe is a command-line utility that compiles your Node.js application into a single executable file.</p>
 
 <p align="center">
@@ -16,7 +16,6 @@
 
 ## Motivation and Features
 
-- Supports production ready builds
 - Self contained applications
 - Ability to run multiple applications with *different* node.js runtimes.
 - Distribute binaries without needing node / npm.
@@ -34,34 +33,31 @@
 
 - stdin interface
 
-  `rollup -c | nexe --resource ./public/**/* -o my-app.exe`
+  `rollup -c | nexe --resource "./public/**/*" -o my-app.exe`
 
 For more CLI options see: `nexe --help`
 
-## Including Additional Resources
+# Advanced
 
-Additional resources can be added to the binary by passing `-r glob/pattern/**/*`. These included files can be read in the application by using `fs.readFile` or `fs.readFileSync`
+## Resources
+
+Additional files or resources can be added to the binary by passing `-r "glob/pattern/**/*"`. These included files can be read in the application by using `fs.readFile` or `fs.readFileSync`
 
 ## Compiling Node
 
-By default `nexe` will attempt to download a pre-built executable. However, some users may want to customize the way node is built, either by changing the flags, providing a different icon, or different executable details. To build node, use the `build` option/flag
-
-Nexe also exposes its patching pipeline to the user. This allows the application of simple patching of node sources prior to compilation.
+By default `nexe` will attempt to download a pre-built executable. However, It may be unavailable ([github releases](https://github.com/nexe/nexe/releases))
+or you may want to customize what is built. See `nexe --help` for a list of options available when passing the `--build` option.
 
 ## Node.js API
 
-Using Nexe Programatically
-
 #### Example
-
 
 ```javascript
 const { compile } = require('nexe')
 
 compile({
   input: './my-app.js',
-  output: './my-app.exe',
-  build: true, //builds node
+  build: true, //required to use patches
   patches: [
     async (compiler, next) => {
       await compiler.setFileContentsAsync(
@@ -78,17 +74,16 @@ compile({
 
 ### `options`
 
- - #### `build: boolean`
-    - Build node from source (required in beta)
  - #### `input: string`
     - Input bundle file path
     - default: stdin or the current directory's main file (package.json)
  - #### `output: string`
     - Output executable file path
     - default: same as `name` with an OS specific extension.
- - #### `target: string`
-    - Dash seperated platform-architecture-version. e.g. `'win32-ia32-6.10.3'`
-    - default: `[process.platform, process.arch, process.version.slice(1)].join('-')`
+ - #### `target: string | object`
+    - Combination of platform-arch-version. e.g. `'win32-ia32-6.10.3'`
+      - each segment is optional, and will be merged with the current environment
+    - default: `process`
 - #### `bundle: string | boolean`
     - If a string is provided it must be a valid relative module path
     and should provide an export with the following signature:
@@ -105,9 +100,8 @@ compile({
  - #### `cwd: string`
     - Directory nexe will operate on as though it is the cwd
     - default: process.cwd()
- - #### `version: string`
-    - The Node version you're building for
-    - default: `process.version.slice(1)`
+ - #### `build: boolean`
+    - Build node from source
  - #### `python: string`
     - On Linux this is the path pointing to your python2 executable
     - On Windows this is the directory where `python` can be accessed
@@ -143,12 +137,13 @@ compile({
     - Example: `{ CompanyName: "ACME Corp" }`
     - default: `{}`
  - #### `clean: boolean`
-    - If included, nexe will remove temporary files for accompanying configuration and exit
+    - If included, nexe will remove temporary files for the accompanying configuration and exit
  - #### `enableNodeCli: boolean`
     - Enable the original Node CLI (will prevent application cli from working)
     - default: `false`
  - #### `sourceUrl: string`
-    - Provide an alternate url for the node source. Should be a `.tar.gz`
+    - Provide an alternate url for the node source code
+    - Note: temporary files will still be created for this under the specified version
  - #### `loglevel: string`
     - Set the loglevel, info, silent, or verbose
     - default: `'info'`
@@ -180,10 +175,10 @@ For examples, see the built in patches: [src/patches](src/patches)
 
 Any modifications made to `NexeFile#contents` will be maintained in the cache _without_ the need to explicitly write them back out, e.g. using `NexeCompiler#setFileContentsAsync`.
 
-### Native Modules
+## Native Modules
 
 Nexe has a plugin built for use with [fuse-box](http://fuse-box.org) > 2.2.1. This plugin currently supports modules that require `.node` files and those that use the `bindings` module.
-Take a look at the [example](examples/native-build/build.js)
+Take a look at the (windows) [example](examples/native-build/build.js)
 
 - [ ] Implement support `node-pre-gyp#find`.
 

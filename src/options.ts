@@ -6,7 +6,7 @@ import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
 import * as c from 'chalk'
 
-export const nexeVersion = '2.0.0-rc.4'
+export const nexeVersion = '2.0.0-rc.5'
 
 export interface NexePatch {
   (compiler: NexeCompiler, next: () => Promise<void>): Promise<void>
@@ -73,15 +73,13 @@ const alias = {
   f: 'flag',
   c: 'configure',
   m: 'make',
-  s: 'snapshot',
   h: 'help',
   l: 'loglevel',
   'fake-argv': 'fakeArgv'
 }
 const argv = parseArgv(process.argv, { alias, default: defaults })
 const g = c.gray
-const help =
-  `
+let help = `
 ${c.bold('nexe <input> [options]')}
 
    ${c.underline.bold('Options:')}
@@ -92,7 +90,6 @@ ${c.bold('nexe <input> [options]')}
   -n   --name         ${g('=my-app')}         -- main app module name
 
   -r   --resource                     -- *embed files (glob) within the binary
-  -s   --snapshot                     -- path to a warmup snapshot
 
    ${c.underline.bold('Building from source:')}
 
@@ -101,6 +98,7 @@ ${c.bold('nexe <input> [options]')}
   -f   --flag                         -- *v8 flags to include during compilation
   -c   --configure                    -- *arguments to the configure step
   -m   --make                         -- *arguments to the make/build step
+       --snapshot                     -- path to a warmup snapshot
        --ico                          -- file name for alternate icon file (windows)
        --rc-*                         -- populate rc file options (windows)
        --sourceUrl                    -- pass an alternate source (node.tar.gz) url
@@ -116,7 +114,8 @@ ${c.bold('nexe <input> [options]')}
        --silent                       -- disable logging
        --verbose                      -- set logging to verbose
 
-       -* variable key name           * option can be used more than once`.trim() + EOL
+       -* variable key name           * option can be used more than once`.trim()
+help = EOL + help + EOL
 
 function flatten(...args: any[]): string[] {
   return ([] as string[]).concat(...args).filter(x => x)
