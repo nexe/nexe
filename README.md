@@ -28,9 +28,9 @@
 
 ## Usage
 
-- Existing application bundle:
+- Application entrypoint:
 
-  `nexe my-app-bundle.js -o my-app`
+  `nexe my-app.js`
 
 - stdin interface
 

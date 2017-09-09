@@ -192,8 +192,8 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   const opts = options as any
 
   options.temp = process.env.NEXE_TEMP || join(options.cwd, '.nexe')
-  options.name = extractName(options)
   options.input = findInput(options.input, options.cwd)
+  options.name = extractName(options)
   options.loglevel = extractLogLevel(options)
   options.flags = flattenFilter(opts.flag, options.flags)
   options.targets = flattenFilter(opts.target, options.targets).map(getTarget)

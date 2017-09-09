@@ -16,7 +16,7 @@ function createBundle(filename: string, options: { name: string; minify: any; cw
   }
   const fuse = FuseBox.init({
     cache: false,
-    log: Boolean(process.env.NEXE_BUNDLE_DEBUG) || false,
+    log: Boolean(process.env.NEXE_BUNDLE_LOG) || false,
     homeDir: options.cwd,
     sourceMaps: false,
     writeBundles: false,
@@ -54,7 +54,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     minify: compiler.options.compress
   })
 
-  if (compiler.options.debugBundle) {
+  if ('string' === typeof compiler.options.debugBundle) {
     await writeFileAsync(compiler.options.debugBundle, compiler.input)
   }
 
