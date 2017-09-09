@@ -1,7 +1,7 @@
 import { NexeCompiler } from '../compiler'
 
 export default async function buildFixes(compiler: NexeCompiler, next: () => Promise<void>) {
-  if (!compiler.options.version.startsWith('8.2')) {
+  if (!compiler.target.version.startsWith('8.2')) {
     return next()
   }
 

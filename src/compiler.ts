@@ -32,12 +32,13 @@ export class NexeCompiler {
   private env = { ...process.env }
   private compileStep: { modify: Function; log: Function }
   public log = new Logger(this.options.loglevel)
-  public src = join(this.options.temp, this.options.version)
+  public src: string
   public files: NexeFile[] = []
   public input: string
   public bundledInput?: string
   public output: string | null
   public targets: NexeTarget[]
+  public target: NexeTarget
   public resources: { bundle: string; index: { [key: string]: number[] } } = {
     index: {},
     bundle: ''
@@ -46,14 +47,16 @@ export class NexeCompiler {
   public writeFileAsync: (file: string, contents: Buffer | string) => Promise<void>
   public replaceInFileAsync: (file: string, replacer: any, replaceValue: string) => Promise<void>
   public setFileContentsAsync: (file: string, contents: string | Buffer) => Promise<void>
-
-  private nodeSrcBinPath = isWindows
-    ? join(this.src, 'Release', 'node.exe')
-    : join(this.src, 'out', 'Release', 'node')
+  private nodeSrcBinPath: string
 
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
     this.targets = options.targets as NexeTarget[]
+    this.target = this.targets[0]
+    this.src = join(this.options.temp, this.target.version)
+    this.nodeSrcBinPath = isWindows
+      ? join(this.src, 'Release', 'node.exe')
+      : join(this.src, 'out', 'Release', 'node')
     this.log.step('nexe ' + nexeVersion, 'info')
     if (python) {
       if (isWindows) {

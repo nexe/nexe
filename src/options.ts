@@ -4,7 +4,7 @@ import { isWindows, padRight } from './util'
 import { basename, extname, join, isAbsolute, relative } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
-import * as chalk from 'chalk'
+import * as c from 'chalk'
 
 export const nexeVersion = '2.0.0-rc.4'
 
@@ -19,7 +19,6 @@ export interface NexeOptions {
   targets: (string | NexeTarget)[]
   name: string
   cwd: string
-  version: string
   flags: string[]
   configure: string[]
   vcBuild: string[]
@@ -36,6 +35,7 @@ export interface NexeOptions {
   python?: string
   loglevel: 'info' | 'silent' | 'verbose'
   silent?: boolean
+  fakeArgv?: boolean
   verbose?: boolean
   info?: boolean
   ico?: string
@@ -50,7 +50,6 @@ export interface NexeOptions {
 }
 
 const defaults = {
-  version: process.version.slice(1),
   flags: [],
   cwd: process.cwd(),
   configure: [],
@@ -68,7 +67,6 @@ const alias = {
   o: 'output',
   t: 'target',
   n: 'name',
-  v: 'version',
   r: 'resource',
   a: 'resource',
   p: 'python',
@@ -77,41 +75,50 @@ const alias = {
   m: 'make',
   s: 'snapshot',
   h: 'help',
-  l: 'loglevel'
+  l: 'loglevel',
+  'fake-argv': 'fakeArgv'
 }
 const argv = parseArgv(process.argv, { alias, default: defaults })
-const g = chalk.gray
+const g = c.gray
 const help =
   `
-nexe --help              CLI OPTIONS
+${c.bold('nexe <input> [options]')}
 
-  -i   --input      ${g('=index.js')}               -- application entry point
-  -o   --output     ${g('=my-app.exe')}             -- path to output file
-  -t   --target     ${g('=mac-x64-8.4.0')}          -- *target a prebuilt binary
-  -n   --name       ${g('=my-app')}                 -- main app module name
-  -v   --version    ${g(`=${padRight(process.version.slice(1), 23)}`)}-- node version
-  -p   --python     ${g('=/path/to/python2')}       -- python executable
-  -f   --flag       ${g('="--expose-gc"')}          -- *v8 flags to include during compilation
-  -c   --configure  ${g('="--with-dtrace"')}        -- *pass arguments to the configure step
-  -m   --make       ${g('="--loglevel"')}           -- *pass arguments to the make/build step
-  -s   --snapshot   ${g('=/path/to/snapshot')}      -- build with warmup snapshot
-  -r   --resource   ${g('=./paths/**/*')}           -- *embed file bytes within the binary
-  -b   --build                              -- build from source
-       --bundle     ${g('=./path/to/config')}       -- pass a module path that exports nexeBundle
-       --temp       ${g('=./path/to/temp')}         -- default './nexe'
-       --no-bundle                          -- set when input is already bundled
-       --cwd                                -- set the current working directory for the command
-       --ico                                -- file name for alternate icon file (windows)
-       --rc-*                               -- populate rc file options (windows)
-       --clean                              -- force download of sources
-       --enableNodeCli                      -- enable node cli enforcement (blocks app cli)
-       --sourceUrl                          -- pass an alternate source (node.tar.gz) url
-       --silent                             -- disable logging
-       --verbose                            -- set logging to verbose
+   ${c.underline.bold('Options:')}
 
-       -* variable key name                 * option can be used more than once`.trim() + EOL
+  -i   --input        ${g('=index.js')}       -- application entry point
+  -o   --output       ${g('=my-app.exe')}     -- path to output file
+  -t   --target       ${g('=8.4.0-x64')}      -- node version description
+  -n   --name         ${g('=my-app')}         -- main app module name
 
-function flattenFilter(...args: any[]): string[] {
+  -r   --resource                     -- *embed files (glob) within the binary
+  -s   --snapshot                     -- path to a warmup snapshot
+
+   ${c.underline.bold('Building from source:')}
+
+  -b   --build                        -- build from source
+  -p   --python                       -- python2 (as python) executable path
+  -f   --flag                         -- *v8 flags to include during compilation
+  -c   --configure                    -- *arguments to the configure step
+  -m   --make                         -- *arguments to the make/build step
+       --ico                          -- file name for alternate icon file (windows)
+       --rc-*                         -- populate rc file options (windows)
+       --sourceUrl                    -- pass an alternate source (node.tar.gz) url
+       --enableNodeCli                -- enable node cli enforcement (blocks app cli)
+
+   ${c.underline.bold('Other options:')}
+
+       --bundle                       -- custom bundling module with 'createBundle' export
+       --temp                         -- temp file storage default './nexe'
+       --cwd                          -- set the current working directory for the command
+       --fake-argv       TODO         -- fake argv[1] with entry file
+       --clean                        -- force download of sources
+       --silent                       -- disable logging
+       --verbose                      -- set logging to verbose
+
+       -* variable key name           * option can be used more than once`.trim() + EOL
+
+function flatten(...args: any[]): string[] {
   return ([] as string[]).concat(...args).filter(x => x)
 }
 
@@ -195,15 +202,15 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   options.input = findInput(options.input, options.cwd)
   options.name = extractName(options)
   options.loglevel = extractLogLevel(options)
-  options.flags = flattenFilter(opts.flag, options.flags)
-  options.targets = flattenFilter(opts.target, options.targets).map(getTarget)
-  options.make = flattenFilter(options.vcBuild, options.make)
-  options.configure = flattenFilter(options.configure)
-  options.resources = flattenFilter(opts.resource, options.resources)
+  options.flags = flatten(opts.flag, options.flags)
+  options.targets = flatten(opts.target, options.targets).map(getTarget)
+  options.make = flatten(options.vcBuild, options.make)
+  options.configure = flatten(options.configure)
+  options.resources = flatten(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
 
   if (!options.targets.length) {
-    options.targets = [getTarget(options.version)]
+    options.targets.push(getTarget())
   }
 
   if (options.build) {
@@ -214,8 +221,6 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
       options.configure = Array.from(new Set(options.configure.concat([`--dest-cpu=${arch}`])))
     }
   }
-
-  options.version = (options.targets[0] as NexeTarget).version
 
   options.patches = options.patches.map(x => {
     if (typeof x === 'string') {

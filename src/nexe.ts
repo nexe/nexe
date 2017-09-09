@@ -11,6 +11,7 @@ import {
 import cli from './steps/cli'
 import bundle from './steps/bundle'
 import download from './steps/download'
+import shim from './steps/shim'
 import artifacts from './steps/artifacts'
 import patches from './patches'
 import { rimrafAsync } from './util'
@@ -39,7 +40,7 @@ async function compile(
   const buildSteps = build
     ? [download, artifacts, ...patches, ...(options.patches as NexePatch[])]
     : []
-  const nexe = compose(resource, bundle, cli, buildSteps)
+  const nexe = compose(resource, bundle, cli, buildSteps, shim)
   return callback
     ? void nexe(compiler).then(
         () => callback && callback(null),
