@@ -66,6 +66,7 @@ const alias = {
   i: 'input',
   o: 'output',
   t: 'target',
+  b: 'build',
   n: 'name',
   r: 'resource',
   a: 'resource',
@@ -80,7 +81,7 @@ const alias = {
 const argv = parseArgv(process.argv, { alias, default: defaults })
 const g = c.gray
 let help = `
-${c.bold('nexe <input> [options]')}
+${c.bold('nexe <entry-file> [options]')}
 
    ${c.underline.bold('Options:')}
 

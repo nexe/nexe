@@ -46,7 +46,7 @@ Additional files or resources can be added to the binary by passing `-r "glob/pa
 ## Compiling Node
 
 By default `nexe` will attempt to download a pre-built executable. However, It may be unavailable ([github releases](https://github.com/nexe/nexe/releases))
-or you may want to customize what is built. See `nexe --help` for a list of options available when passing the `--build` option.
+or you may want to customize what is built. See `nexe --help` for a list of options available when passing the `--build` option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md)
 
 ## Node.js API
 
@@ -106,23 +106,23 @@ compile({
     - On Linux this is the path pointing to your python2 executable
     - On Windows this is the directory where `python` can be accessed
     - default: `null`
- - #### `flags: Array<string>`
+ - #### `flags: string[]`
     - Array of node runtime flags to build node with.
     - Example: `['--expose-gc']`
     - default: `[]`
- - #### `configure: Array<string>`
+ - #### `configure: string[]`
     - Array of arguments for the node build configure step
     - Example: `['--with-dtrace', '--dest-cpu=x64']`
     - default: `[]`
- - #### `make: Array<string>`
+ - #### `make: string[]`
     - Array of arguments for the node build make step, on windows this step recieves options for vcBuild.bat
     - default: `[]` or `['nosign', 'release']` for non windows systems
- - #### `make: Array<string>`
+ - #### `make: string[]`
     - Alias for `make` option
  - #### `snapshot: string`
     - path to a file to be used as the warmup snapshot for the build
     - default: `null`
- - #### `resources: Array<string>`
+ - #### `resources: string[]`
     - Array of globs with files to include in the build
     - Example: `['./public/**/*']`
     - default: `[]`
@@ -141,13 +141,15 @@ compile({
  - #### `enableNodeCli: boolean`
     - Enable the original Node CLI (will prevent application cli from working)
     - default: `false`
+  - #### `fakeArgv: boolean`
+    - fake the entry point file name (`process.argv[1]`). If nexe was used with stdin this will be `'[stdin]'`. 
  - #### `sourceUrl: string`
     - Provide an alternate url for the node source code
     - Note: temporary files will still be created for this under the specified version
  - #### `loglevel: string`
     - Set the loglevel, info, silent, or verbose
     - default: `'info'`
- - #### `patches: Array<NexePatch>`
+ - #### `patches: NexePatch[]`
     - Userland patches for patching or modifying node source
     - default: `[]`
 
@@ -165,7 +167,7 @@ For examples, see the built in patches: [src/patches](src/patches)
     - Quickly perform a replace in a file within the downloaded Node.js source. The rest arguments are passed along to `String.prototype.replace`
  - `readFileAsync(filename: string): Promise<NexeFile>`
     - Access (or create) a file within the downloaded Node.js source.
- - `files: Array<NexeFile>`
+ - `files: NexeFile[]`
     - The cache of the currently read, modified, or created files within the downloaded Node.js source.
 
 #### `NexeFile`

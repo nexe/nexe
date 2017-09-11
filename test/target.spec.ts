@@ -16,7 +16,7 @@ describe('Targets', () => {
     ['alpine-notsupported-6.10.3', `alpine-${arch}-6.10.3`],
     ['not-a-thing', getTarget(process).toString()]
   ].forEach(([input, expected]) => {
-    it(`${padRight(JSON.stringify(input), 53)} ${b('->')}   ${expected}`, () => {
+    it(`should accept: ${padRight(JSON.stringify(input), 53)} ${b('->')}   ${expected}`, () => {
       expect(getTarget(input).toString()).to.equal(expected)
     })
   })
