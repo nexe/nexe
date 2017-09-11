@@ -4,15 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "bundle": "node build",
-    "build-windows": "nexe -i app.js -o app.exe"
+    "build": "node build"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "sqlite3": "^3.1.10",
     "zmq": "^2.15.3"
   },
-  "devDependencies": {
-    "fuse-box": "^2.2.31"
-  }
+  "devDependencies": {}
 }

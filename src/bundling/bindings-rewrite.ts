@@ -20,9 +20,8 @@ export function embedDotNode(
   file: { contents: string; absPath: string }
 ) {
   const contents = fs.readFileSync(file.absPath)
-  const module = Object.keys(options).find(x =>
-    Boolean(~file.absPath.indexOf(path.join('node_modules', x)))
-  )!
+  const modulePathParts = file.absPath.split(path.sep).reverse()
+  const module = modulePathParts[modulePathParts.findIndex(x => x === 'node_modules') - 1]
   const bindingName = path.basename(file.absPath)
   const settings = options[module]
   const moduleDir = hashName(contents)
@@ -31,7 +30,7 @@ export function embedDotNode(
     'base64'
   )}';function mkdirp(r,t){t=t||null,r=path.resolve(r);try{fs.mkdirSync(r),t=t||r}catch(c){if("ENOENT"===c.code)t=mkdirp(path.dirname(r),t),mkdirp(r,t);else{var i;try{i=fs.statSync(r)}catch(r){throw c}if(!i.isDirectory())throw c}}return t};`
 
-  if (settings === true) {
+  if (!settings || settings === true) {
     file.contents += `
       mkdirp('${moduleDir}');
       var bindingPath = path.join(process.cwd(), '${moduleDir}', '${bindingName}')
@@ -105,13 +104,13 @@ export class BindingsRewrite {
   public nativeModulePaths: string[] = []
   public rewrite = false
 
-  isRequireBindings(node: any) {
-    return node.callee.name === 'require' && node.arguments[0].value === 'bindings'
+  isRequire(node: any, moduleName: string) {
+    return node.callee.name === 'require' && node.arguments[0].value === moduleName
   }
 
   onNode(absolutePath: string, node: any, parent: any) {
     if (node.type === 'CallExpression') {
-      if (this.isRequireBindings(node) && parent.type === 'VariableDeclarator') {
+      if (this.isRequire(node, 'bindings') && parent.type === 'VariableDeclarator') {
         /**
          * const loadBindings = require('bindings');
          *   -> const loadBindings = String('');
@@ -123,7 +122,7 @@ export class BindingsRewrite {
         return
       }
 
-      if (this.isRequireBindings(node) && parent.type === 'CallExpression') {
+      if (this.isRequire(node, 'bindings') && parent.type === 'CallExpression') {
         /**
          *const bindings = require('bindings')('native-module')....
          *  -> const bindings = require('./path/to/native/module.node').....

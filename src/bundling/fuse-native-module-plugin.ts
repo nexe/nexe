@@ -8,6 +8,7 @@ export interface FuseBoxFile {
     dependencies: string[]
     requiresRegeneration: boolean
   }
+  consume(): void
   loadContents(): void
   makeAnalysis(
     parsingOptions?: any,
@@ -20,19 +21,16 @@ export interface FuseBoxFile {
   ): void
 }
 
-export default function(options: ExtractNodeModuleOptions) {
+export default function(options: ExtractNodeModuleOptions = {}) {
   return new NativeModulePlugin(options)
 }
 
 export class NativeModulePlugin {
-  public test: RegExp
+  public test = /node_modules.*(\.js|\.node)$|\.node$/
   public limit2Project = false
   private modules: (keyof ExtractNodeModuleOptions)[]
 
-  constructor(public options: ExtractNodeModuleOptions) {
-    this.options = options
-    this.test = new RegExp(`node_modules\/(${Object.keys(options).join('|')}).*\.js|\.node$`)
-  }
+  constructor(public options = {}) {}
 
   init(context: any) {
     context.allowExtension('.node')
@@ -47,6 +45,7 @@ export class NativeModulePlugin {
     }
 
     const bindingsRewrite = new BindingsRewrite()
+
     file.makeAnalysis(null, {
       plugins: [
         {

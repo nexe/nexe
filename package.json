@@ -45,7 +45,6 @@
     "uglify-js": "3.0.28"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.8",
     "@types/chai": "^4.0.4",
     "@types/chalk": "^0.4.31",
     "@types/globby": "^0.6.0",

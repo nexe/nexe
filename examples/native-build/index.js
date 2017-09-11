@@ -8,7 +8,6 @@ setInterval(function(){
   console.log('sending a multipart message envelope')
   pub.send(['kitty cats', 'meow!'])
 }, 2500)
-console.log('global', global.require.main)
 var sub = zmq.socket('sub')
 sub.connect('tcp://127.0.0.1:3000')
 sub.subscribe('kitty cats')

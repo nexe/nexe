@@ -30,6 +30,7 @@ export interface NexeOptions {
   enableNodeCli: boolean
   bundle: boolean | string
   patches: (string | NexePatch)[]
+  native: any
   empty: boolean
   sourceUrl?: string
   python?: string
@@ -161,7 +162,8 @@ function extractName(options: NexeOptions) {
   if (!name && typeof options.input === 'string') {
     name = basename(options.input).replace(extname(options.input), '')
   }
-  name = name || tryResolveMainFileName(options.cwd)
+  name = name === 'index' ? tryResolveMainFileName(options.cwd) : name
+
   return name.replace(/\.exe$/, '')
 }
 
