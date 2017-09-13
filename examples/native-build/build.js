@@ -1,5 +1,4 @@
 const nexe = require('../..')
-
 nexe.compile({
   output: 'native-build',
   silent: true,

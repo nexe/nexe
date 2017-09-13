@@ -71,8 +71,9 @@ compile({
   console.log('success')
 })
 ```
+## NexeOptions
 
-### `options`
+### `options: object`
 
  - #### `input: string`
     - Input bundle file path
@@ -88,12 +89,9 @@ compile({
     - If a string is provided it must be a valid relative module path
     and should provide an export with the following signature:
     ```typescript
-    export function createBundle (
-      filename: string,
-      options: { name: string, minify: any, cwd: string }
-    ): Promise<string>`
+    export function createBundle (options: NexeOptions): Promise<string>`
     ```
-    - default: true, uses the internal fuse-box configuration
+    - default: true
  - #### `name: string`
     - Module friendly name of the application
     - default: basename of the input file, or `nexe_${Date.now()}`

@@ -1,7 +1,7 @@
 import * as parseArgv from 'minimist'
 import { NexeCompiler } from './compiler'
 import { isWindows, padRight } from './util'
-import { basename, extname, join, isAbsolute, relative } from 'path'
+import { basename, extname, join, isAbsolute, relative, dirname } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
 import * as c from 'chalk'
@@ -66,6 +66,7 @@ const defaults = {
 const alias = {
   i: 'input',
   o: 'output',
+  v: 'version',
   t: 'target',
   b: 'build',
   n: 'name',
@@ -147,7 +148,11 @@ function tryResolveMainFileName(cwd: string) {
     filename = basename(file).replace(extname(file), '')
   } catch (_) {}
 
-  return !filename || filename === 'index' ? 'nexe_' + Date.now() : filename
+  if (filename === 'index' && basename(cwd)) {
+    return basename(cwd)
+  }
+
+  return filename ? filename : 'nexe_' + Date.now()
 }
 
 function extractLogLevel(options: NexeOptions) {
