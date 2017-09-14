@@ -1,6 +1,7 @@
 import { NexeCompiler } from '../compiler'
 import { FuseBox, JSONPlugin, CSSPlugin, HTMLPlugin, QuantumPlugin } from 'fuse-box'
 import { readFileAsync, writeFileAsync } from '../util'
+import { resolve } from 'path'
 import NativeModulePlugin from '../bundling/fuse-native-module-plugin'
 import { NexeOptions } from '../options'
 
@@ -46,7 +47,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   let producer = createBundle
   if (typeof compiler.options.bundle === 'string') {
-    producer = require(compiler.options.bundle).createBundle
+    producer = require(resolve(compiler.options.cwd, compiler.options.bundle)).createBundle
   }
 
   compiler.input = await producer(compiler.options)

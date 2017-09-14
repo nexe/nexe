@@ -89,7 +89,7 @@ compile({
     - If a string is provided it must be a valid relative module path
     and should provide an export with the following signature:
     ```typescript
-    export function createBundle (options: NexeOptions): Promise<string>`
+    export function createBundle (options: NexeOptions): Promise<string>
     ```
     - default: true
  - #### `name: string`
