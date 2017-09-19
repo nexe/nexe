@@ -1,0 +1,12 @@
+{
+  "name": "nexe-daemon",
+  "version": "1.0.0",
+  "description": "Plugin for nexe to create installable services",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Caleb Boyd",
+  "license": "MIT",
+  "devDependencies": {
+    "nexe": "^2.0.0-rc.6"
+  }
+}

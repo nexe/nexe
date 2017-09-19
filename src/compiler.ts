@@ -5,7 +5,7 @@ import { createReadStream } from 'fs'
 import { Readable } from 'stream'
 import { spawn } from 'child_process'
 import { Logger } from './logger'
-import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows } from './util'
+import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows, bound } from './util'
 import { NexeOptions, nexeVersion } from './options'
 import { NexeTarget } from './target'
 import download = require('download')
@@ -34,19 +34,16 @@ export class NexeCompiler {
   public log = new Logger(this.options.loglevel)
   public src: string
   public files: NexeFile[] = []
+  public shims: string[] = []
   public input: string
   public bundledInput?: string
   public output: string | null
   public targets: NexeTarget[]
   public target: NexeTarget
-  public resources: { bundle: string; index: { [key: string]: number[] } } = {
+  public resources: { bundle: Buffer; index: { [key: string]: number[] } } = {
     index: {},
-    bundle: ''
+    bundle: Buffer.from('')
   }
-  public readFileAsync: (file: string) => Promise<NexeFile>
-  public writeFileAsync: (file: string, contents: Buffer | string) => Promise<void>
-  public replaceInFileAsync: (file: string, replacer: any, replaceValue: string) => Promise<void>
-  public setFileContentsAsync: (file: string, contents: string | Buffer) => Promise<void>
   private nodeSrcBinPath: string
 
   constructor(public options: NexeOptions) {
@@ -65,38 +62,62 @@ export class NexeCompiler {
         this.env.PYTHON = python
       }
     }
+  }
 
-    this.readFileAsync = async (file: string) => {
-      let cachedFile = this.files.find(x => normalize(x.filename) === normalize(file))
-      if (!cachedFile) {
-        const absPath = join(this.src, file)
-        cachedFile = {
-          absPath,
-          filename: file,
-          contents: await readFileAsync(absPath, 'utf-8').catch(x => {
-            if (x.code === 'ENOENT') return ''
-            throw x
-          })
-        }
-        this.files.push(cachedFile)
+  @bound
+  addResource(file: string, contents: Buffer) {
+    const { resources } = this
+    resources.index[file] = [resources.bundle.byteLength, contents.byteLength]
+    resources.bundle = Buffer.concat([resources.bundle, contents])
+  }
+
+  @bound
+  async readFileAsync(file: string) {
+    this.assertBuild()
+    let cachedFile = this.files.find(x => normalize(x.filename) === normalize(file))
+    if (!cachedFile) {
+      const absPath = join(this.src, file)
+      cachedFile = {
+        absPath,
+        filename: file,
+        contents: await readFileAsync(absPath, 'utf-8').catch(x => {
+          if (x.code === 'ENOENT') return ''
+          throw x
+        })
       }
-      return cachedFile
+      this.files.push(cachedFile)
     }
-    this.writeFileAsync = (file, contents) => writeFileAsync(join(this.src, file), contents)
-    this.replaceInFileAsync = async (file, replace: string | RegExp, value: string) => {
-      const entry = await this.readFileAsync(file)
-      entry.contents = entry.contents.replace(replace, value)
-    }
-    this.setFileContentsAsync = async (file: string, contents: string) => {
-      const entry = await this.readFileAsync(file)
-      entry.contents = contents
-    }
+    return cachedFile
+  }
+
+  @bound
+  writeFileAsync(file: string, contents: string | Buffer) {
+    this.assertBuild()
+    return writeFileAsync(join(this.src, file), contents)
+  }
+
+  @bound
+  async replaceInFileAsync(file: string, replace: string | RegExp, value: string) {
+    const entry = await this.readFileAsync(file)
+    entry.contents = entry.contents.replace(replace, value)
+  }
+
+  @bound
+  async setFileContentsAsync(file: string, contents: string) {
+    const entry = await this.readFileAsync(file)
+    entry.contents = contents
   }
 
   quit() {
     const time = Date.now() - this.start
     this.log.write(`Finished in ${time / 1000}s`)
     return this.log.flush()
+  }
+
+  assertBuild() {
+    if (!this.options.build) {
+      throw new Error('This feature is only available with `--build`')
+    }
   }
 
   public getNodeExecutableLocation(target?: NexeTarget) {
@@ -217,12 +238,13 @@ export class NexeCompiler {
       artifact.push(chunk)
     })
     binary.on('close', () => {
-      const content = this._serializeHeader(header) + this.input
+      const content = this._serializeHeader(header) + this.shims.join(';') + ';' + this.input
+
       artifact.push(content)
       artifact.push(this.resources.bundle)
       const lengths = Buffer.from(Array(16))
       lengths.writeDoubleLE(Buffer.byteLength(content), 0)
-      lengths.writeDoubleLE(Buffer.byteLength(this.resources.bundle), 8)
+      lengths.writeDoubleLE(this.resources.bundle.byteLength, 8)
       artifact.push(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths]))
       artifact.push(null)
     })

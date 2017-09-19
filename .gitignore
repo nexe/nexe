@@ -4,6 +4,7 @@ coverage
 node_modules
 *.log
 *.exe
+!winsw.exe
 .idea
 .nexe
 lib

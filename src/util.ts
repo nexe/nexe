@@ -26,6 +26,22 @@ function padRight(str: string, l: number) {
   return (str + ' '.repeat(l)).substr(0, l)
 }
 
+const bound: MethodDecorator = function bound<T>(
+  target: Object,
+  propertyKey: string,
+  descriptor: TypedPropertyDescriptor<T>
+) {
+  const configurable = true
+  return {
+    configurable,
+    get(this: T) {
+      const value = (descriptor.value as any).bind(this)
+      Object.defineProperty(this, propertyKey, { configurable, value, writable: true })
+      return value
+    }
+  }
+}
+
 function dequote(input: string) {
   input = input.trim()
   const singleQuote = input.startsWith("'") && input.endsWith("'")
@@ -62,6 +78,7 @@ function isDirectoryAsync(path: string) {
 export {
   dequote,
   padRight,
+  bound,
   isWindows,
   rimrafAsync,
   statAsync,

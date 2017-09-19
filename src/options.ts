@@ -148,10 +148,6 @@ function tryResolveMainFileName(cwd: string) {
     filename = basename(file).replace(extname(file), '')
   } catch (_) {}
 
-  if (filename === 'index' && basename(cwd)) {
-    return basename(cwd)
-  }
-
   return filename ? filename : 'nexe_' + Date.now()
 }
 
@@ -162,12 +158,23 @@ function extractLogLevel(options: NexeOptions) {
   return 'info'
 }
 
+function isName(name: string) {
+  return name && name !== 'index'
+}
+
 function extractName(options: NexeOptions) {
   let name = options.name
-  if (!name && typeof options.input === 'string') {
+  if (!isName(name) && typeof options.input === 'string') {
     name = basename(options.input).replace(extname(options.input), '')
   }
-  name = name === 'index' ? tryResolveMainFileName(options.cwd) : name
+
+  if (!isName(name)) {
+    name = tryResolveMainFileName(options.cwd)
+  }
+
+  if (!isName(name) && basename(options.cwd)) {
+    name = basename(options.cwd)
+  }
 
   return name.replace(/\.exe$/, '')
 }

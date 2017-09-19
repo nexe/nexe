@@ -18,15 +18,8 @@ export default async function resource(compiler: NexeCompiler, next: () => Promi
     count++
     step.log(`Including file: ${file}`)
     const contents = await readFileAsync(file)
-    const commentSafeContents = contents.toString('base64')
-    resources.index[file] = [
-      Buffer.byteLength(resources.bundle),
-      Buffer.byteLength(commentSafeContents)
-    ]
-    resources.bundle += commentSafeContents
+    compiler.addResource(file, contents)
   })
-  step.log(
-    `Included ${count} file(s). ${(Buffer.byteLength(resources.bundle) / 1e6).toFixed(3)} MB`
-  )
+  step.log(`Included ${count} file(s). ${(resources.bundle.byteLength / 1e6).toFixed(3)} MB`)
   return next()
 }
