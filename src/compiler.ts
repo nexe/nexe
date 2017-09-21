@@ -95,7 +95,7 @@ export class NexeCompiler {
 
   quit() {
     const time = Date.now() - this.start
-    this.log.write(`Finsihed in ${time / 1000}s`)
+    this.log.write(`Finished in ${time / 1000}s`)
     return this.log.flush()
   }
 
