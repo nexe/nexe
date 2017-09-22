@@ -37,16 +37,21 @@
 
 For more CLI options see: `nexe --help`
 
-# Advanced
+### Examples
+
+- `nexe server.js -r public/**/*.html`
+- `nexe my-bundle.js --no-bundle -o app.exe`
+- `nexe --build`
+- `nexe -t x86-8.0.0`
 
 ## Resources
 
-Additional files or resources can be added to the binary by passing `-r "glob/pattern/**/*"`. These included files can be read in the application by using `fs.readFile` or `fs.readFileSync`
+Additional files or resources can be added to the binary by passing `-r "glob/pattern/**/*"`. These included files can be read in the application by using `fs.readFile` or `fs.readFileSync`.
 
 ## Compiling Node
 
 By default `nexe` will attempt to download a pre-built executable. However, It may be unavailable ([github releases](https://github.com/nexe/nexe/releases))
-or you may want to customize what is built. See `nexe --help` for a list of options available when passing the `--build` option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md)
+or you may want to customize what is built. See `nexe --help` for a list of options available when passing the `--build` option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptbale version of python 2. eg. Systems that have python2 will need to create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486)
 
 ## Node.js API
 
@@ -132,7 +137,15 @@ compile({
     - Path to a user provided icon to be used (Windows only).
  - #### `rc: object`
     - Settings for patching the [node.rc](https://github.com/nodejs/node/blob/master/src/res/node.rc) configuration file (Windows only).
-    - Example: `{ CompanyName: "ACME Corp" }`
+    - Example:
+      ```javascript
+        {
+          CompanyName: "ACME Corp",
+          PRODUCTVERSION: "17,3,0,0",
+          FILEVERSION: "1,2,3,4"
+          ...
+        }
+      ```
     - default: `{}`
  - #### `clean: boolean`
     - If included, nexe will remove temporary files for the accompanying configuration and exit
@@ -187,6 +200,21 @@ Take a look at the (windows) [example](examples/native-build/build.js)
 [![Jared Allard](https://avatars.githubusercontent.com/u/2391349?s=130)](https://jaredallard.me/) | [![Caleb Boyd](https://avatars.githubusercontent.com/u/5818726?s=130)](https://github.com/calebboyd) | [![Christopher Karper](https://avatars.githubusercontent.com/u/653156?s=130)](https://github.com/ckarper) | [![Dustin Greif](https://avatars.githubusercontent.com/u/3026298?s=130)](https://github.com/dgreif) |
 ---|---|---|---
 [Jared Allard](https://github.com/jaredallard) | [Caleb Boyd](http://github.com/calebboyd) | [Christopher Karper](https://github.com/ckarper) | [Dustin Greif](https://github.com/dgreif) |
+
+## Contributing
+
+Building
+```
+$ git clone git@github.com:nexe/nexe.git
+$ cd nexe
+$ yarn
+```
+
+Testing
+```
+$ npm test
+```
+
 
 ### Former
 

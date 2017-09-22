@@ -6,7 +6,7 @@ import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
 import * as c from 'chalk'
 
-export const nexeVersion = '2.0.0-rc.6'
+export const nexeVersion = '2.0.0-rc.7'
 
 export interface NexePatch {
   (compiler: NexeCompiler, next: () => Promise<void>): Promise<void>

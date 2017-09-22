@@ -32,8 +32,7 @@ function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
  * @param {*} next
  */
 export default async function cli(compiler: NexeCompiler, next: () => Promise<void>) {
-  const { output } = compiler.options
-  const { log, input: bundledInput } = compiler
+  const { log } = compiler
 
   if (!process.stdin.isTTY) {
     log.step('Using stdin as input')
@@ -41,10 +40,6 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
   }
 
   await next()
-
-  compiler.output = isWindows
-    ? `${(output || compiler.options.name).replace(/\.exe$/, '')}.exe`
-    : `${output || compiler.options.name}`
 
   const target = compiler.options.targets.shift() as NexeTarget
   const deliverable = await compiler.compileAsync(target)

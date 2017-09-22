@@ -37,15 +37,17 @@ export class NexeCompiler {
   public shims: string[] = []
   public input: string
   public bundledInput?: string
-  public output: string | null
   public targets: NexeTarget[]
   public target: NexeTarget
   public resources: { bundle: Buffer; index: { [key: string]: number[] } } = {
     index: {},
     bundle: Buffer.from('')
   }
-  private nodeSrcBinPath: string
+  public output = isWindows
+    ? `${(this.options.output || this.options.name).replace(/\.exe$/, '')}.exe`
+    : `${this.options.output || this.options.name}`
 
+  private nodeSrcBinPath: string
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
     this.targets = options.targets as NexeTarget[]
