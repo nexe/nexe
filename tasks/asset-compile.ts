@@ -1,12 +1,12 @@
-import * as nexe from '../src/nexe'
+import * as nexe from '../lib/nexe'
 import {
   getUnBuiltReleases,
   getLatestGitRelease
-} from '../src/releases'
+} from '../lib/releases'
 import * as ci from './ci'
 import { runAlpineBuild } from './docker'
-import { getTarget } from '../src/target'
-import { pathExistsAsync, statAsync, readFileAsync, execFileAsync } from '../src/util'
+import { getTarget } from '../lib/target'
+import { pathExistsAsync, statAsync, readFileAsync, execFileAsync } from '../lib/util'
 import got = require('got')
 
 const env = process.env,

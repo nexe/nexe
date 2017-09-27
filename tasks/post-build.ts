@@ -20,9 +20,11 @@ function inject (filename: string, ...replacements: string[]) {
     if (replace !== 'replace') {
       return substring
     }
+    console.log('Replacing: ', substring)
     return replacements[+file] 
       ? replacements[+file] 
       : JSON.stringify(readFileSync(file, 'utf8'))
-  })
+  })  
   writeFileSync(filename, contents)
+  console.log(`Wrote: ${filename}`)
 }

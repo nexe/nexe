@@ -1,5 +1,5 @@
-import { NexeTarget } from '../src/target'
-import { writeFileAsync, readFileAsync } from '../src/util'
+import { NexeTarget } from '../lib/target'
+import { writeFileAsync, readFileAsync } from '../lib/util'
 import { spawn } from 'child_process'
 import got = require('got')
 import { createWriteStream, WriteStream } from 'fs'

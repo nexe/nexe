@@ -1,4 +1,4 @@
-import { NexeTarget } from '../src/releases'
+import { NexeTarget } from '../lib/releases'
 import got = require('got')
 import * as assert from 'assert'
 const { env } = process
