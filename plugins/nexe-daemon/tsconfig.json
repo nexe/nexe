@@ -3,7 +3,7 @@
     "target": "es5",
     "module": "commonjs",
     "lib": [ "es2016" ],
-    "outDir": ".",
+    "outDir": "lib",
     "strict": true
   },
   "include": [

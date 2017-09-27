@@ -5,4 +5,4 @@ machine:
     - docker
 test:
   override:
-    - npm run nexe-build
+    - npm run asset-compile

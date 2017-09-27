@@ -51,7 +51,7 @@ Additional files or resources can be added to the binary by passing `-r "glob/pa
 ## Compiling Node
 
 By default `nexe` will attempt to download a pre-built executable. However, It may be unavailable ([github releases](https://github.com/nexe/nexe/releases))
-or you may want to customize what is built. See `nexe --help` for a list of options available when passing the `--build` option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptbale version of python 2. eg. Systems that have python2 will need to create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486)
+or you may want to customize what is built. See `nexe --help` for a list of options available when passing the [`--build`](#build-boolean) option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptbale version of python 2. eg. Systems that have python2 will need to create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486)
 
 ## Node.js API
 
@@ -104,7 +104,7 @@ compile({
     - Directory nexe will operate on as though it is the cwd
     - default: process.cwd()
  - #### `build: boolean`
-    - Build node from source
+    - Build node from source, passing this flag tells nexe to download and build from source. Subsequently using this flag will cause nexe to use the previously built binary. To rebuild, first add [`--clean`](#clean-boolean)
  - #### `python: string`
     - On Linux this is the path pointing to your python2 executable
     - On Windows this is the directory where `python` can be accessed
@@ -163,12 +163,16 @@ compile({
  - #### `patches: NexePatch[]`
     - Userland patches for patching or modifying node source
     - default: `[]`
+ - #### `plugins: NexePatch[]`
+    - Userland plugins for modifying nexe executable behavior
+    - default: `[]`
 
 ### `NexePatch: (compiler: NexeCompiler, next: () => Promise<void>) => Promise<void>`
 
-A patch is just a middleware function that takes two arguments, the `compiler`, and `next`. The compiler is described below, and `next` ensures that the pipeline continues. Its invocation should always be awaited or returned to ensure correct behavior.
+Patches and Plugins are just a middleware functions that take two arguments, the `compiler`, and `next`. The compiler is described below, and `next` ensures that the pipeline continues. Its invocation should always be awaited or returned to ensure correct behavior. Patches also require that [`--build`](#build-boolean) be set, while plugins do not.
 
 For examples, see the built in patches: [src/patches](src/patches)
+A plugin
 
 ### `NexeCompiler`
 
@@ -178,6 +182,8 @@ For examples, see the built in patches: [src/patches](src/patches)
     - Quickly perform a replace in a file within the downloaded Node.js source. The rest arguments are passed along to `String.prototype.replace`
  - `readFileAsync(filename: string): Promise<NexeFile>`
     - Access (or create) a file within the downloaded Node.js source.
+ - `addResource(filename: string, contents: Buffer): void`
+    - Add a resource to the nexe bundle
  - `files: NexeFile[]`
     - The cache of the currently read, modified, or created files within the downloaded Node.js source.
 

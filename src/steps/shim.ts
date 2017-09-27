@@ -1,18 +1,25 @@
 import { NexeCompiler } from '../compiler'
 
+function wrap(code: string) {
+  return '!(function () {' + code + '})();'
+}
+
 export default function(compiler: NexeCompiler, next: () => Promise<void>) {
-  if (!compiler.options.fakeArgv) {
-    return next()
+  compiler.shims.push(wrap(compiler.getHeader()))
+
+  if (compiler.options.resources.length) {
+    compiler.shims.push(wrap('{{replace:lib/steps/shim-fs.js}}'))
   }
 
-  const nty = !process.stdin.isTTY
-  const input = nty ? '[stdin]' : compiler.options.input
-
-  compiler.input =
-    `!(() => {
-    var r = require('path').resolve;
-    process.argv.splice(1,0, ${nty ? `'${input}'` : `r("${input}")`});
-  })();` + compiler.input
+  if (compiler.options.fakeArgv) {
+    const nty = !process.stdin.isTTY
+    const input = nty ? '[stdin]' : compiler.options.input
+    compiler.shims.push(
+      wrap(`
+      var r = require('path').resolve; 
+      process.argv.splice(1,0, ${nty ? `'${input}'` : `r("${input}")`});`)
+    )
+  }
 
   return next()
 }

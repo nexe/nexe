@@ -9,12 +9,13 @@
     "Caleb Boyd <caleb.boyd@hotmail.com>"
   ],
   "scripts": {
-    "nexe-build": "ts-node tasks/build",
+    "asset-compile": "ts-node tasks/asset-compile",
     "prebuild": "rimraf lib && npm run lint",
     "prepublish": "npm test && npm run build",
     "test": "mocha test/**/*.spec.ts",
     "lint": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"src/**/*.ts\"",
-    "build": "tsc --declaration"
+    "build": "tsc --declaration",
+    "postbuild": "ts-node tasks/post-build"
   },
   "repository": {
     "type": "git",

@@ -6,7 +6,7 @@ import { getTarget, NexeTarget } from './target'
 import { EOL } from 'os'
 import * as c from 'chalk'
 
-export const nexeVersion = '2.0.0-rc.7'
+export const version = '{{replace:0}}'
 
 export interface NexePatch {
   (compiler: NexeCompiler, next: () => Promise<void>): Promise<void>
@@ -30,6 +30,7 @@ export interface NexeOptions {
   enableNodeCli: boolean
   bundle: boolean | string
   patches: (string | NexePatch)[]
+  plugins: (string | NexePatch)[]
   native: any
   empty: boolean
   sourceUrl?: string
@@ -61,7 +62,8 @@ const defaults = {
   compress: false,
   build: false,
   bundle: true,
-  patches: []
+  patches: [],
+  plugins: []
 }
 const alias = {
   i: 'input',
@@ -87,37 +89,37 @@ ${c.bold('nexe <entry-file> [options]')}
 
    ${c.underline.bold('Options:')}
 
-  -i   --input        ${g('=index.js')}       -- application entry point
-  -o   --output       ${g('=my-app.exe')}     -- path to output file
-  -t   --target       ${g('=8.4.0-x64')}      -- node version description
-  -n   --name         ${g('=my-app')}         -- main app module name
-
-  -r   --resource                     -- *embed files (glob) within the binary
+  -i   --input                      -- application entry point
+  -o   --output                     -- path to output file
+  -t   --target                     -- node version description
+  -n   --name                       -- main app module name
+  -r   --resource                   -- *embed files (glob) within the binary
+       --plugin                     -- extend nexe runtime behavior
 
    ${c.underline.bold('Building from source:')}
 
-  -b   --build                        -- build from source
-  -p   --python                       -- python2 (as python) executable path
-  -f   --flag                         -- *v8 flags to include during compilation
-  -c   --configure                    -- *arguments to the configure step
-  -m   --make                         -- *arguments to the make/build step
-       --snapshot                     -- path to a warmup snapshot
-       --ico                          -- file name for alternate icon file (windows)
-       --rc-*                         -- populate rc file options (windows)
-       --sourceUrl                    -- pass an alternate source (node.tar.gz) url
-       --enableNodeCli                -- enable node cli enforcement (blocks app cli)
+  -b   --build                      -- build from source
+  -p   --python                     -- python2 (as python) executable path
+  -f   --flag                       -- *v8 flags to include during compilation
+  -c   --configure                  -- *arguments to the configure step
+  -m   --make                       -- *arguments to the make/build step
+       --snapshot                   -- path to a warmup snapshot
+       --ico                        -- file name for alternate icon file (windows)
+       --rc-*                       -- populate rc file options (windows)
+       --sourceUrl                  -- pass an alternate source (node.tar.gz) url
+       --enableNodeCli              -- enable node cli enforcement (blocks app cli)
 
    ${c.underline.bold('Other options:')}
 
-       --bundle                       -- custom bundling module with 'createBundle' export
-       --temp                         -- temp file storage default './nexe'
-       --cwd                          -- set the current working directory for the command
-       --fake-argv       TODO         -- fake argv[1] with entry file
-       --clean                        -- force download of sources
-       --silent                       -- disable logging
-       --verbose                      -- set logging to verbose
+       --bundle                     -- custom bundling module with 'createBundle' export
+       --temp                       -- temp file storage default './nexe'
+       --cwd                        -- set the current working directory for the command
+       --fake-argv                  -- fake argv[1] with entry file
+       --clean                      -- force download of sources
+       --silent                     -- disable logging
+       --verbose                    -- set logging to verbose
 
-       -* variable key name           * option can be used more than once`.trim()
+       -* variable key name         * option can be used more than once`.trim()
 help = EOL + help + EOL
 
 function flatten(...args: any[]): string[] {
@@ -203,12 +205,7 @@ function findInput(input: string, cwd: string) {
   return ''
 }
 
-function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOptions | never> {
-  if (argv.help || argv._.some((x: string) => x === 'version') || argv.version === true) {
-    return new Promise(() => {
-      process.stderr.write(argv.help ? help : nexeVersion + EOL, () => process.exit(0))
-    })
-  }
+function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOptions> {
   const options = Object.assign({}, defaults, input) as NexeOptions
   const opts = options as any
 
@@ -236,12 +233,15 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
     }
   }
 
-  options.patches = options.patches.map(x => {
+  const requireDefault = (x: string) => {
     if (typeof x === 'string') {
       return require(x).default
     }
     return x
-  })
+  }
+
+  options.plugins = options.plugins.map(requireDefault)
+  options.patches = options.patches.map(requireDefault)
 
   Object.keys(alias)
     .filter(k => k !== 'rc')
@@ -250,4 +250,4 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   return Promise.resolve(options)
 }
 
-export { argv, normalizeOptionsAsync }
+export { argv, normalizeOptionsAsync, help }

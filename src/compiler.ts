@@ -6,7 +6,7 @@ import { Readable } from 'stream'
 import { spawn } from 'child_process'
 import { Logger } from './logger'
 import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows, bound } from './util'
-import { NexeOptions, nexeVersion } from './options'
+import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
 import download = require('download')
 import { getLatestGitRelease } from './releases'
@@ -22,12 +22,14 @@ export interface NexeFile {
   contents: string
 }
 
+export { NexeOptions }
+
 interface NexeHeader {
   resources: { [key: string]: number[] }
   version: string
 }
 
-export class NexeCompiler {
+export class NexeCompiler<T extends NexeOptions = NexeOptions> {
   private start = Date.now()
   private env = { ...process.env }
   private compileStep: { modify: Function; log: Function }
@@ -48,7 +50,7 @@ export class NexeCompiler {
     : `${this.options.output || this.options.name}`
 
   private nodeSrcBinPath: string
-  constructor(public options: NexeOptions) {
+  constructor(public options: T) {
     const { python } = (this.options = options)
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
@@ -56,7 +58,7 @@ export class NexeCompiler {
     this.nodeSrcBinPath = isWindows
       ? join(this.src, 'Release', 'node.exe')
       : join(this.src, 'out', 'Release', 'node')
-    this.log.step('nexe ' + nexeVersion, 'info')
+    this.log.step('nexe ' + version, 'info')
     if (python) {
       if (isWindows) {
         this.env.PATH = '"' + dequote(normalize(python)) + '";' + this.env.PATH
@@ -192,7 +194,7 @@ export class NexeCompiler {
     return createReadStream(filename)
   }
 
-  private _generateHeader() {
+  getHeader() {
     const version =
       ['configure', 'vcBuild', 'make'].reduce((a, c) => {
         return (a += (this.options as any)[c]
@@ -206,11 +208,6 @@ export class NexeCompiler {
         .update(version)
         .digest('hex')
     }
-    const serializedHeader = this._serializeHeader(header)
-    return header
-  }
-
-  private _serializeHeader(header: NexeHeader) {
     return `process.__nexe=${JSON.stringify(header)};`
   }
 
@@ -219,7 +216,6 @@ export class NexeCompiler {
     const build = this.options.build
     const location = this.getNodeExecutableLocation(build ? undefined : target)
     let binary = (await pathExistsAsync(location)) ? createReadStream(location) : null
-    const header = this._generateHeader()
     if (!build && !binary) {
       step.modify('Fetching prebuilt binary')
       binary = await this._fetchPrebuiltBinaryAsync(target)
@@ -228,10 +224,10 @@ export class NexeCompiler {
       binary = await this._buildAsync()
       step.log('Node binary compiled')
     }
-    return this._assembleDeliverable(header, binary)
+    return this._assembleDeliverable(binary)
   }
 
-  private _assembleDeliverable(header: NexeHeader, binary: NodeJS.ReadableStream) {
+  private _assembleDeliverable(binary: NodeJS.ReadableStream) {
     if (this.options.empty) {
       return binary
     }
@@ -240,8 +236,7 @@ export class NexeCompiler {
       artifact.push(chunk)
     })
     binary.on('close', () => {
-      const content = this._serializeHeader(header) + this.shims.join(';') + ';' + this.input
-
+      const content = [this.shims.join(''), this.input].join(';')
       artifact.push(content)
       artifact.push(this.resources.bundle)
       const lengths = Buffer.from(Array(16))

@@ -1,11 +1,19 @@
 #!/usr/bin/env node
-const nexe = require('./lib/nexe')
-const eol = require('os').EOL
-
-module.exports = nexe
-
+const options = require('./lib/options')
 if (require.main === module) {
-  nexe.compile(nexe.argv).catch((e) => {
-    process.stderr.write(eol + e.stack, () => process.exit(1))
-  })
+  //fast path for help/version
+  const argv = options.argv
+  const eol = require('os').EOL
+  const showHelp = argv.help || argv._.some(x => x === 'help')
+  const showVersion = argv.version || argv._.some(x => x === 'version')
+  if (showHelp || showVersion) {    
+    process.stderr.write(showHelp ? options.help : options.version + eol)
+  } else {
+    const nexe = require('./lib/nexe')
+    nexe.compile(argv).catch((e) => {
+      process.stderr.write(eol + e.stack)
+    })
+  }
+} else {
+  module.exports = require('./lib/nexe')
 }

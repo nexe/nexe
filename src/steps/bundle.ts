@@ -1,11 +1,11 @@
 import { NexeCompiler } from '../compiler'
-import { FuseBox, JSONPlugin, CSSPlugin, HTMLPlugin, QuantumPlugin } from 'fuse-box'
 import { readFileAsync, writeFileAsync } from '../util'
 import { resolve, relative } from 'path'
 import NativeModulePlugin from '../bundling/fuse-native-module-plugin'
 import { NexeOptions } from '../options'
 
 function createBundle(options: NexeOptions) {
+  const { FuseBox, JSONPlugin, CSSPlugin, HTMLPlugin, QuantumPlugin } = require('fuse-box')
   const plugins: any = [JSONPlugin(), CSSPlugin(), HTMLPlugin(), NativeModulePlugin(options.native)]
   if (options.compress) {
     plugins.push(
@@ -28,9 +28,9 @@ function createBundle(options: NexeOptions) {
   })
   const input = relative(options.cwd, options.input).replace(/\\/g, '/')
   fuse.bundle(options.name).instructions(`> ${input}`)
-  return fuse.run().then(x => {
+  return fuse.run().then((x: any) => {
     let output = ''
-    x.bundles.forEach(y => (output = y.context.output.lastPrimaryOutput.content!.toString()))
+    x.bundles.forEach((y: any) => (output = y.context.output.lastPrimaryOutput.content.toString()))
     return output
   })
 }

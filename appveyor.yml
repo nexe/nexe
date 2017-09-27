@@ -14,7 +14,7 @@ install:
 build: off
 test: off
 build_script:
-  - npm run nexe-build
+  - npm run asset-compile
 artifacts:
   - path: .nexe\**\node.exe
 cache:

@@ -33,13 +33,15 @@ function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
  */
 export default async function cli(compiler: NexeCompiler, next: () => Promise<void>) {
   const { log } = compiler
-
+  let stdInUsed = false
   if (!process.stdin.isTTY) {
-    log.step('Using stdin as input')
+    stdInUsed = true
     compiler.input = await readStreamAsync(process.stdin)
   }
 
   await next()
+
+  log.step(`Bundling: '${stdInUsed ? '[stdin]' : compiler.options.input}'`)
 
   const target = compiler.options.targets.shift() as NexeTarget
   const deliverable = await compiler.compileAsync(target)

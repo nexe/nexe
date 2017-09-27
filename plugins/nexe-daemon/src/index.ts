@@ -1,4 +1,4 @@
-import { NexeCompiler } from 'nexe'
+import { NexeCompiler, NexeOptions } from 'nexe'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
@@ -9,6 +9,8 @@ interface NexeDaemonOptions {
   executable: string
 }
 
+type DaemonOptions = NexeOptions & { daemon: { windows: NexeDaemonOptions } }
+
 function renderWinswConfig(options: any) {
   return '<configuration>\r\n' +
     `${Object.keys(options).reduce((config: string, element: string) => {
@@ -16,7 +18,7 @@ function renderWinswConfig(options: any) {
     }, '')}</configuration>\r\n`
 }
 
-export default function daemon (compiler: NexeCompiler, next: () => Promise<void>) {
+export default function daemon (compiler: NexeCompiler<DaemonOptions>, next: () => Promise<void>) {
   if (compiler.target.platform !== 'windows') {
     return next()
   }
@@ -42,7 +44,7 @@ export default function daemon (compiler: NexeCompiler, next: () => Promise<void
     './nexe/plugin/daemon/app.js',
     Buffer.from(compiler.input)
   )
-  compiler.input = `{{replace:plugins/nexe-daemon/nexe-deamon.js}}`
+  compiler.input = '{{replace:plugins/nexe-daemon/lib/nexe-daemon.js}}'
 
   return next()
 }

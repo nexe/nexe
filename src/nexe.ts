@@ -1,13 +1,7 @@
-import { compose, PromiseConfig, Middleware } from 'app-builder'
+import { compose, Middleware } from 'app-builder'
 import resource from './steps/resource'
 import { NexeCompiler } from './compiler'
-import {
-  argv,
-  nexeVersion as version,
-  normalizeOptionsAsync,
-  NexeOptions,
-  NexePatch
-} from './options'
+import { argv, version, help, normalizeOptionsAsync, NexeOptions, NexePatch } from './options'
 import cli from './steps/cli'
 import bundle from './steps/bundle'
 import download from './steps/download'
@@ -40,7 +34,7 @@ async function compile(
   const buildSteps = build
     ? [download, artifacts, ...patches, ...(options.patches as NexePatch[])]
     : []
-  const nexe = compose(resource, bundle, cli, buildSteps, shim)
+  const nexe = compose(resource, bundle, cli, buildSteps, shim, options.plugins as NexePatch[])
   return callback
     ? void nexe(compiler).then(
         () => callback && callback(null),
@@ -52,4 +46,4 @@ async function compile(
     : nexe(compiler)
 }
 
-export { argv, compile, version }
+export { argv, compile, version, NexeCompiler, NexeOptions, help }
