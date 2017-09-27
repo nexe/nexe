@@ -139,7 +139,13 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
         stdio: 'ignore'
       })
         .once('error', reject)
-        .once('close', resolve)
+        .once('close', (code: number) => {
+          if (code != 0) {
+            const error = `${command} ${args.join(' ')} exited with code: ${code}`
+            reject(new Error(error))
+          }
+          resolve()
+        })
     })
   }
 

@@ -41,8 +41,6 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
 
   await next()
 
-  log.step(`Bundling: '${stdInUsed ? '[stdin]' : compiler.options.input}'`)
-
   const target = compiler.options.targets.shift() as NexeTarget
   const deliverable = await compiler.compileAsync(target)
 
@@ -56,7 +54,11 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
           reject(e)
         } else if (compiler.output) {
           chmodSync(compiler.output, '755')
-          step.log(`Executable written to: ${compiler.output}`)
+          step.log(
+            `Entry: '${stdInUsed
+              ? '[stdin]'
+              : compiler.options.input}' written to: ${compiler.output}`
+          )
           resolve(compiler.quit())
         }
       })
