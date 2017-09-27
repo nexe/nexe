@@ -5,7 +5,7 @@ import { writeFileSync, readFileSync } from 'fs'
  * '{{replace:path/to/file}}' => "file contents"
  * And the package.json version.
  */
-inject('plugins/nexe-daemon/lib/index.js')
+//inject('plugins/nexe-daemon/lib/index.js')
 inject('lib/patches/third-party-main.js')
 inject('lib/steps/shim.js')
 inject('lib/options.js', JSON.stringify(require('../package.json').version))

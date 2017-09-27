@@ -5,9 +5,6 @@ environment:
     secure: tR7HXYv3x97q90uvPrjUxKZh7R1+uqKct0HdEcqTbsg=
   GITHUB_TOKEN:
     secure: 3wuEGJsppSKFvdwhp3jprUA9Zkc3WINlc/9oFXjhAR6J05lYMXP7Fl7lXTKpkGZx
-branches:
-  except:
-    - master
 install:
   - ps: Install-Product node 6
   - npm i

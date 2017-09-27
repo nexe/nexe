@@ -12,9 +12,9 @@ import got = require('got')
 const env = process.env,
   branchName = env.CIRCLE_BRANCH || env.APPVEYOR_REPO_BRANCH || env.TRAVIS_BRANCH || '',
   isScheduled = Boolean(env.APPVEYOR_SCHEDULED_BUILD || env.NEXE_TRIGGERED),
-  isLinux = Boolean(env.CIRCLECI),
+  isLinux = Boolean(env.TRAVIS),
   isWindows = Boolean(env.APPVEYOR),
-  isMac = Boolean(env.TRAVIS),
+  isMac = Boolean(env.CIRCLECI),
   isPullRequest = Boolean(env.CIRCLE_PR_NUMBER)
     || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER) 
     || Boolean(env.TRAVIS_PULL_REQUEST_BRANCH),

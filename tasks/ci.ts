@@ -14,7 +14,10 @@ export function triggerMacBuild(release: NexeTarget, branch: string) {
         config: {
           merge_mode: 'deep_merge',
           env: {
-            NEXE_VERSION: release.toString()
+            //use matrix so that secure global variable is merged
+            matrix: {
+              NEXE_VERSION: release.toString()
+            }
           }
         }
       }

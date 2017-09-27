@@ -1,6 +1,6 @@
 machine:
   node:
-    version: 6.11.2
+    version: 6.11.3
   services:
     - docker
 test:

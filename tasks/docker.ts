@@ -62,6 +62,7 @@ export async function runAlpineBuild (target: NexeTarget, nexeVersion: string) {
   } catch(e) {
     console.log(e)
   } finally {
+    output.on('error', (e) => console.log(e))
     output.close()
     await got(`https://transfer.sh/${Math.random().toString(36).substring(2)}.txt`, {
       body: await readFileAsync(outFilename),
