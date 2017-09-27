@@ -209,7 +209,7 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   const options = Object.assign({}, defaults, input) as NexeOptions
   const opts = options as any
 
-  options.temp = process.env.NEXE_TEMP || join(options.cwd, '.nexe')
+  options.temp = options.temp || process.env.NEXE_TEMP || join(options.cwd, '.nexe')
   options.input = findInput(options.input, options.cwd)
   options.name = extractName(options)
   options.loglevel = extractLogLevel(options)
