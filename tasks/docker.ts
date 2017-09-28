@@ -5,7 +5,7 @@ import got = require('got')
 import execa = require('execa')
 import { appendFileSync } from 'fs'
 
-function alpine (target: NexeTarget, nexeVersion: string) {  
+function alpine (target: NexeTarget) {  
   return `
 FROM ${target.arch === 'x64' ? '' : 'i386/'}alpine:3.4
 RUN apk add --no-cache curl make gcc g++ binutils-gold python linux-headers paxctl libgcc libstdc++ git vim tar gzip wget
@@ -26,8 +26,8 @@ RUN rm /nexe_temp/\${NODE_VERSION}/out/Release/node && \
 `.trim()
 }
 
-export async function runAlpineBuild (target: NexeTarget, nexeVersion: string) {
-  await writeFileAsync('Dockerfile', alpine(target, nexeVersion))
+export async function runAlpineBuild (target: NexeTarget) {
+  await writeFileAsync('Dockerfile', alpine(target))
   const outFilename = 'nexe-alpine-build-log.txt'
   await writeFileAsync(outFilename, '')
   let output: any = []

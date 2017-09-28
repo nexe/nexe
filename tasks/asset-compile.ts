@@ -66,12 +66,11 @@ async function build () {
     
     const stop = keepalive()
     if (target.platform === 'alpine') {
-      await runAlpineBuild(target, nexe.version.split('.')[0])
+      await runAlpineBuild(target)
     } else {
       await nexe.compile(options)      
     }
     stop()
-    
     
     if (await pathExistsAsync(output)) {
       await assertNexeBinary(output)
