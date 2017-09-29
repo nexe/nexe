@@ -5,15 +5,18 @@ import { readFileAsync, dequote, isWindows } from '../util'
 import { NexeCompiler } from '../compiler'
 import { NexeTarget } from '../target'
 
-function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
+function getStdIn(stdin: NodeJS.ReadStream): Promise<string> {
   return new Promise(resolve => {
-    let input = ''
-    stream.setEncoding('utf-8')
-    stream.on('data', (x: string) => {
-      input += x
-    })
-    stream.once('end', () => resolve(dequote(input)))
-    stream.resume && stream.resume()
+    let out = ''
+    stdin
+      .setEncoding('utf8')
+      .on('readable', () => {
+        let current
+        while ((current = stdin.read())) {
+          out += current
+        }
+      })
+      .on('end', () => resolve(out))
   })
 }
 
@@ -34,9 +37,9 @@ function readStreamAsync(stream: NodeJS.ReadableStream): PromiseLike<string> {
 export default async function cli(compiler: NexeCompiler, next: () => Promise<void>) {
   const { log } = compiler
   let stdInUsed = false
-  if (!process.stdin.isTTY) {
+  if (!process.stdin.isTTY && compiler.options.enableStdIn) {
     stdInUsed = true
-    compiler.input = await readStreamAsync(process.stdin)
+    compiler.input = await getStdIn(process.stdin)
   }
 
   await next()
@@ -53,10 +56,10 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
         if (e) {
           reject(e)
         } else if (compiler.output) {
-          chmodSync(compiler.output, '755')
+          chmodSync(compiler.output, '755') //todo fix erroneous rw mode change
           step.log(
             `Entry: '${stdInUsed
-              ? '[stdin]'
+              ? compiler.options.empty ? '[empty]' : '[stdin]'
               : compiler.options.input}' written to: ${compiler.output}`
           )
           resolve(compiler.quit())

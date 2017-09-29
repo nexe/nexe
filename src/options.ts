@@ -34,6 +34,7 @@ export interface NexeOptions {
   native: any
   empty: boolean
   sourceUrl?: string
+  enableStdIn?: boolean
   python?: string
   loglevel: 'info' | 'silent' | 'verbose'
   silent?: boolean
@@ -82,7 +83,7 @@ const alias = {
   l: 'loglevel',
   'fake-argv': 'fakeArgv'
 }
-const argv = parseArgv(process.argv, { alias, default: defaults })
+const argv = parseArgv(process.argv, { alias, default: { ...defaults, enableStdIn: true } })
 const g = c.gray
 let help = `
 ${c.bold('nexe <entry-file> [options]')}
