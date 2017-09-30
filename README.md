@@ -205,10 +205,15 @@ Any modifications made to `NexeFile#contents` will be maintained in the cache _w
 
 ## Native Modules
 
-Nexe has a plugin built for use with [fuse-box](http://fuse-box.org) > 2.2.1. This plugin currently supports modules that require `.node` files and those that use the `bindings` module.
-Take a look at the (windows) [example](examples/native-build/build.js)
+Any `.node` binding can be used with nexe. These library files will be bundled and written alongside the resulting binary at runtime. Currently, nexe supports modules loaded directly (`.node` files) and those loaded with the `'bindings'` module. It does not yet support modules using `node-pre-gyp#find`. 
 
-- [ ] Implement support `node-pre-gyp#find`.
+Its important to note: unless your native module conditionally loads each platform binary. Nexe builds with native modules will be platform specific. Eg. You will no longer be able to use cross platform builds. 
+
+Nexe builds with native modules will need to target the same version, platform and architecture as the platform hosting the module. At least until [N-API](https://github.com/nodejs/abi-stable-node) is fully propegated
+
+TODO
+
+- [ ] Implement support for `node-pre-gyp#find`.
 
 ## Maintainers
 
