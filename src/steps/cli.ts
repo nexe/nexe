@@ -39,7 +39,7 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
   let stdInUsed = false
   if (!process.stdin.isTTY && compiler.options.enableStdIn) {
     stdInUsed = true
-    compiler.input = await getStdIn(process.stdin)
+    compiler.input = dequote(await getStdIn(process.stdin))
   }
 
   await next()
