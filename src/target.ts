@@ -28,6 +28,7 @@ const prettyPlatform: { [key: string]: NodePlatform } = {
 //TODO arm
 const prettyArch: { [key: string]: NodeArch } = {
   x86: 'x86',
+  amd64: 'x64',
   ia32: 'x86',
   x32: 'x86',
   x64: 'x64'

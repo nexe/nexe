@@ -87,8 +87,17 @@ compile({
     - Output executable file path
     - default: same as `name` with an OS specific extension.
  - #### `target: string | object`
-    - Combination of platform-arch-version. e.g. `'win32-ia32-6.10.3'`
+    - An object or string describing platform-arch-version. e.g. `'windows-ia32-6.10.3'`
       - each segment is optional, and will be merged with the current environment
+      - Examples: ([full list](https://github.com/nexe/nexe/releases))
+        - `'win32-x86-8.6.0`
+        - `{ platform: 'alpine' }`
+        - `darwin-8.6.0`
+        - `linux-x64`
+        - `macos-8.4.0`
+
+        See [test/target.spec.ts](test/target.spec.ts)
+    - If the [`build`](#build-boolean) flag is set, the platform portion of the target is ignored.
     - default: `process`
 - #### `bundle: string | boolean`
     - If a string is provided it must be a valid relative module path
