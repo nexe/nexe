@@ -90,6 +90,12 @@ acorn-jsx@^4.0.1:
   dependencies:
     acorn "^5.0.3"
 
+acorn-object-rest-spread@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/acorn-object-rest-spread/-/acorn-object-rest-spread-1.1.0.tgz#78699aefdd18ec3182caadadf52e2697c048f476"
+  dependencies:
+    acorn "^5.0.3"
+
 acorn@^2.6.4:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-2.7.0.tgz#ab6e7d9d886aaca8b085bc3312b79a198433f0e7"
@@ -993,14 +999,15 @@ fstream@^1.0.0, fstream@^1.0.10, fstream@^1.0.2:
     mkdirp ">=0.5 0"
     rimraf "2"
 
-fuse-box@2.2.31:
-  version "2.2.31"
-  resolved "https://registry.yarnpkg.com/fuse-box/-/fuse-box-2.2.31.tgz#36d267a6c6a79952a9c1fb7d1643c1949a6d42f5"
+fuse-box@2.3.1-beta.23:
+  version "2.3.1-beta.23"
+  resolved "https://registry.yarnpkg.com/fuse-box/-/fuse-box-2.3.1-beta.23.tgz#9681d732fe80be8ffc467e5af98c5d82986782e8"
   dependencies:
     acorn "^5.0.3"
     acorn-es7 "^0.1.0"
     acorn-es7-plugin "^1.1.7"
     acorn-jsx "^4.0.1"
+    acorn-object-rest-spread "^1.1.0"
     ansi "^0.3.1"
     app-root-path "^2.0.1"
     base64-img "^1.0.3"
