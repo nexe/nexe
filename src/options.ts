@@ -241,8 +241,8 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
     return x
   }
 
-  options.plugins = options.plugins.map(requireDefault)
-  options.patches = options.patches.map(requireDefault)
+  options.plugins = flatten(opts.plugin, options.plugins).map(requireDefault)
+  options.patches = flatten(opts.patch, options.patches).map(requireDefault)
 
   Object.keys(alias)
     .filter(k => k !== 'rc')

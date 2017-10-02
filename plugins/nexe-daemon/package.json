@@ -2,21 +2,23 @@
   "name": "nexe-daemon",
   "version": "1.0.0",
   "description": "Plugin for nexe to create installable services",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "clean": "rimraf *.js",
     "build": "tsc",
     "postpublish": "npm run clean"
   },
   "files": [
-    "*.js",
+    "lib",
     "winsw.exe"
   ],
   "author": "Caleb Boyd",
   "license": "MIT",
   "devDependencies": {
-    "nexe": "^2.0.0-rc.6",
     "rimraf": "^2.6.2",
     "typescript": "^2.5.2"
+  },
+  "dependencies": {
+    "nexe": "^2.0.0-rc.11"
   }
 }

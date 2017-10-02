@@ -129,7 +129,7 @@ compile({
  - #### `make: string[]`
     - Array of arguments for the node build make step, on windows this step recieves options for vcBuild.bat
     - default: `[]` or `['nosign', 'release']` for non windows systems
- - #### `make: string[]`
+ - #### `vcBuild: string[]`
     - Alias for `make` option
  - #### `snapshot: string`
     - path to a file to be used as the warmup snapshot for the build
@@ -180,8 +180,7 @@ compile({
 
 Patches and Plugins are just a middleware functions that take two arguments, the `compiler`, and `next`. The compiler is described below, and `next` ensures that the pipeline continues. Its invocation should always be awaited or returned to ensure correct behavior. Patches also require that [`--build`](#build-boolean) be set, while plugins do not.
 
-For examples, see the built in patches: [src/patches](src/patches)
-A plugin
+For examples, see the built in patches: [src/patches](src/patches).
 
 ### `NexeCompiler`
 

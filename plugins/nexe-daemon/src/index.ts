@@ -22,13 +22,12 @@ export default function daemon (compiler: NexeCompiler<DaemonOptions>, next: () 
   if (compiler.target.platform !== 'windows') {
     return next()
   }
-  
   compiler.addResource(
     './nexe/plugin/daemon/winsw.exe',
-    readFileSync(require.resolve('./winsw.exe'))
+    readFileSync(require.resolve('../winsw.exe'))
   )  
   const name = compiler.options.name,
-    options = compiler.options.daemon.windows,
+    options = compiler.options.daemon && compiler.options.daemon.windows || {},
     defaults: NexeDaemonOptions = {
       id: name,
       name,
@@ -37,7 +36,7 @@ export default function daemon (compiler: NexeCompiler<DaemonOptions>, next: () 
     } 
 
   compiler.addResource(
-    './nexe/plugin/daemon/winsw-config.xml',
+    './nexe/plugin/daemon/winsw.xml',
     Buffer.from(renderWinswConfig(Object.assign(defaults, options)))
   )
   compiler.addResource(
