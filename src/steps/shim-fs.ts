@@ -1,22 +1,27 @@
 import { Stats } from 'fs'
 import { ok } from 'assert'
-import { resolve, normalize } from 'path'
+import { dirname, resolve, normalize, basename } from 'path'
 
 const binary = (process as any).__nexe as NexeBinary
 ok(binary)
 const manifest = binary.resources
+const directories: { [key: string]: { [key: string]: boolean } } = {}
 const isString = (x: any): x is string => typeof x === 'string' || x instanceof String
 
 if (Object.keys(manifest).length) {
   const fs = require('fs')
   const originalReadFile = fs.readFile
   const originalReadFileSync = fs.readFileSync
+  const originalReaddir = fs.readdir
+  const originalReaddirSync = fs.readdirSync
   const resourceStart = binary.layout.resourceStart
 
   let setupManifest = () => {
-    const manifest = binary.resources
     Object.keys(manifest).forEach(key => {
       const absolutePath = resolve(key)
+      const dirPath = dirname(absolutePath)
+      directories[dirPath] = directories[dirPath] || {}
+      directories[dirPath][basename(absolutePath)] = true
       if (!manifest[absolutePath]) {
         manifest[absolutePath] = manifest[key]
       }
@@ -27,8 +32,35 @@ if (Object.keys(manifest).length) {
     })
     setupManifest = () => {}
   }
-  //TODO track inflight fs reqs??
+  //naive patches intended to work for most use cases
   var nfs = {
+    readdir: function readdir(path: string | Buffer, options: any, callback: any) {
+      setupManifest()
+      path = path.toString()
+      if ('function' === typeof options) {
+        callback = options
+        options = { encoding: 'utf8' }
+      }
+      const dir = directories[resolve(path)]
+      if (dir) {
+        process.nextTick(() => {
+          callback(null, Object.keys(dir))
+        })
+      } else {
+        return originalReaddir.apply(fs, arguments)
+      }
+    },
+
+    readdirSync: function readdirSync(path: string | Buffer, options: any) {
+      setupManifest()
+      path = path.toString()
+      const dir = directories[resolve(path)]
+      if (dir) {
+        return Object.keys(dir)
+      }
+      return originalReaddirSync.apply(fs, arguments)
+    },
+
     readFile: function readFile(file: any, options: any, callback: any) {
       setupManifest()
       const entry = manifest[file]
