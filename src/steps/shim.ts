@@ -7,6 +7,16 @@ function wrap(code: string) {
 export default function(compiler: NexeCompiler, next: () => Promise<void>) {
   compiler.shims.push(wrap(compiler.getHeader()))
 
+  compiler.shims.push(
+    wrap(`
+    if (process.argv[1] && process.env.NODE_UNIQUE_ID) {
+      const cluster = require('cluster')
+      cluster._setupWorker()
+      delete process.env.NODE_UNIQUE_ID
+    }
+  `)
+  )
+
   if (compiler.options.resources.length) {
     compiler.shims.push(wrap('{{replace:lib/steps/shim-fs.js}}'))
   }
