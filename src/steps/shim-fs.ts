@@ -7,6 +7,10 @@ ok(binary)
 const manifest = binary.resources
 const directories: { [key: string]: { [key: string]: boolean } } = {}
 const isString = (x: any): x is string => typeof x === 'string' || x instanceof String
+const isNotFile = () => false
+const isNotDirectory = isNotFile
+const isFile = () => true
+const isDirectory = isFile
 
 if (Object.keys(manifest).length) {
   const fs = require('fs')
@@ -14,7 +18,49 @@ if (Object.keys(manifest).length) {
   const originalReadFileSync = fs.readFileSync
   const originalReaddir = fs.readdir
   const originalReaddirSync = fs.readdirSync
+  const originalStatSync = fs.statSync
+  const originalStat = fs.stat
   const resourceStart = binary.layout.resourceStart
+
+  const statTime = function() {
+    const stat = binary.layout.stat
+    return {
+      dev: 0,
+      ino: 0,
+      nlink: 0,
+      rdev: 0,
+      uid: 123,
+      gid: 500,
+      blksize: 4096,
+      blocks: 0,
+      atime: new Date(stat.atime),
+      atimeMs: stat.atime.getTime(),
+      mtime: new Date(stat.mtime),
+      mtimeMs: stat.mtime.getTime(),
+      ctime: new Date(stat.ctime),
+      ctimMs: stat.ctime.getTime(),
+      birthtime: new Date(stat.birthtime),
+      birthtimeMs: stat.birthtime.getTime()
+    }
+  }
+
+  const createStat = function(directoryExtensions: any, fileExtensions?: any) {
+    if (!fileExtensions) {
+      return Object.assign({}, binary.layout.stat, directoryExtensions, { size: 0 }, statTime())
+    }
+    const size = directoryExtensions[1]
+    return Object.assign({}, binary.layout.stat, fileExtensions, { size }, statTime())
+  }
+
+  const ownStat = function(path: string | Buffer) {
+    const key = resolve(path)
+    if (directories[key]) {
+      return createStat({ isDirectory, isFile: isNotFile })
+    }
+    if (manifest[key]) {
+      return createStat(manifest[key], { isFile, isDirectory: isNotDirectory })
+    }
+  }
 
   let setupManifest = () => {
     Object.keys(manifest).forEach(key => {
@@ -107,6 +153,23 @@ if (Object.keys(manifest).length) {
       fs.readSync(fd, result, 0, length, resourceOffset)
       fs.closeSync(fd)
       return encoding ? result.toString(encoding) : result
+    },
+    statSync: function statSync(path: string | Buffer) {
+      const stat = ownStat(path)
+      if (stat) {
+        return stat
+      }
+      return originalStatSync.apply(fs, arguments)
+    },
+    stat: function stat(path: string | Buffer, callback: any) {
+      const stat = ownStat(path)
+      if (stat) {
+        process.nextTick(() => {
+          callback(null, stat)
+        })
+      } else {
+        return originalStat.apply(fs, arguments)
+      }
     }
   }
   Object.assign(fs, nfs)
