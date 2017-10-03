@@ -1,6 +1,6 @@
 import { normalize } from 'path'
 import { Readable } from 'stream'
-import { createWriteStream, chmodSync } from 'fs'
+import { createWriteStream, chmodSync, statSync } from 'fs'
 import { readFileAsync, dequote, isWindows } from '../util'
 import { NexeCompiler } from '../compiler'
 import { NexeTarget } from '../target'
@@ -56,7 +56,8 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
         if (e) {
           reject(e)
         } else if (compiler.output) {
-          chmodSync(compiler.output, '755') //todo fix erroneous rw mode change
+          const mode = statSync(compiler.output).mode | 0o111
+          chmodSync(compiler.output, mode.toString(8).slice(-3))
           step.log(
             `Entry: '${stdInUsed
               ? compiler.options.empty ? '[empty]' : '[stdin]'
