@@ -4,7 +4,7 @@ import { createHash } from 'crypto'
 import { createReadStream } from 'fs'
 import { Readable } from 'stream'
 import { spawn } from 'child_process'
-import { Logger } from './logger'
+import { Logger, LogStep } from './logger'
 import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows, bound } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
@@ -32,7 +32,7 @@ interface NexeHeader {
 export class NexeCompiler<T extends NexeOptions = NexeOptions> {
   private start = Date.now()
   private env = { ...process.env }
-  private compileStep: { modify: Function; log: Function }
+  private compileStep: LogStep
   public log = new Logger(this.options.loglevel)
   public src: string
   public files: NexeFile[] = []
@@ -132,14 +132,25 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
   }
 
   private _runBuildCommandAsync(command: string, args: string[]) {
+    if (this.log.verbose) {
+      this.compileStep.pause()
+    }
     return new Promise((resolve, reject) => {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
-        stdio: this.options.loglevel === 'verbose' ? 'inherit' : 'ignore'
+        stdio: this.log.verbose ? 'inherit' : 'ignore'
       })
-        .once('error', reject)
+        .once('error', (e: Error) => {
+          if (this.log.verbose) {
+            this.compileStep.resume()
+          }
+          reject(e)
+        })
         .once('close', (code: number) => {
+          if (this.log.verbose) {
+            this.compileStep.resume()
+          }
           if (code != 0) {
             const error = `${command} ${args.join(' ')} exited with code: ${code}`
             reject(new Error(error))
