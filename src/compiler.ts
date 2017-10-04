@@ -136,7 +136,7 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
-        stdio: 'ignore'
+        stdio: this.options.loglevel === 'verbose' ? 'inherit' : 'ignore'
       })
         .once('error', reject)
         .once('close', (code: number) => {
