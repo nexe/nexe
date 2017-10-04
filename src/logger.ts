@@ -6,10 +6,12 @@ const frameLength = 120
 export interface LogStep {
   modify(text: string, color?: string): void
   log(text: string, color?: string): void
+  pause(): void
+  resume(): void
 }
 
 export class Logger {
-  private verbose: boolean
+  public verbose: boolean
   private silent: boolean
   private ora: any
   private modify: Function
@@ -48,7 +50,7 @@ export class Logger {
 
   step(text: string, method: string = 'succeed'): LogStep {
     if (this.silent) {
-      return { modify() {}, log() {} }
+      return { modify() {}, log() {}, pause() {}, resume() {} }
     }
     if (!this.ora.id) {
       this.ora.start().text = text
@@ -62,7 +64,9 @@ export class Logger {
 
     return {
       modify: this.modify,
-      log: this.verbose ? this.write : this.modify
+      log: this.verbose ? this.write : this.modify,
+      pause: () => this.ora.stopAndPersist(),
+      resume: () => this.ora.start()
     } as LogStep
   }
 }
