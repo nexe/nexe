@@ -1,4 +1,5 @@
-import { BindingsRewrite, embedDotNode, ExtractNodeModuleOptions } from './bindings-rewrite'
+import { BindingsRewrite } from './bindings-rewrite'
+import { embedDotNode, EmbedNodeModuleOptions } from './embed-node'
 
 export interface FuseBoxFile {
   info: { absPath: string }
@@ -21,14 +22,14 @@ export interface FuseBoxFile {
   ): void
 }
 
-export default function(options: ExtractNodeModuleOptions = {}) {
+export default function(options: EmbedNodeModuleOptions = {}) {
   return new NativeModulePlugin(options)
 }
 
 export class NativeModulePlugin {
   public test = /node_modules.*(\.js|\.node)$|\.node$/
   public limit2Project = false
-  private modules: (keyof ExtractNodeModuleOptions)[]
+  private modules: (keyof EmbedNodeModuleOptions)[]
 
   constructor(public options = {}) {}
 
