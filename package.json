@@ -2,7 +2,7 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "2.0.0-rc.13",
+  "version": "2.0.0-rc.14",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
@@ -10,10 +10,10 @@
   ],
   "scripts": {
     "asset-compile": "ts-node tasks/asset-compile",
-    "prebuild": "rimraf lib && npm run lint",
+    "test": "mocha",
+    "fmt": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"{src,plugins,tasks}/**/*.ts\"",
     "prepublish": "npm test && npm run build",
-    "test": "mocha test/**/*.spec.ts",
-    "lint": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"src/**/*.ts\"",
+    "prebuild": "rimraf lib && npm run fmt",
     "build": "tsc --declaration",
     "postbuild": "ts-node tasks/post-build"
   },

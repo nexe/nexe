@@ -1,4 +1,4 @@
-import { normalize } from 'path'
+import { normalize, relative } from 'path'
 import { Readable } from 'stream'
 import { createWriteStream, chmodSync, statSync } from 'fs'
 import { readFileAsync, dequote, isWindows } from '../util'
@@ -56,12 +56,15 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
         if (e) {
           reject(e)
         } else if (compiler.output) {
-          const mode = statSync(compiler.output).mode | 0o111
-          chmodSync(compiler.output, mode.toString(8).slice(-3))
+          const output = compiler.output
+          const mode = statSync(output).mode | 0o111
+          chmodSync(output, mode.toString(8).slice(-3))
+          const inputFile = relative(process.cwd(), compiler.options.input)
+          const outputFile = relative(process.cwd(), output)
           step.log(
             `Entry: '${stdInUsed
               ? compiler.options.empty ? '[empty]' : '[stdin]'
-              : compiler.options.input}' written to: ${compiler.output}`
+              : inputFile}' written to: ${outputFile}`
           )
           resolve(compiler.quit())
         }

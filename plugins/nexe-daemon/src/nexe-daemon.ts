@@ -4,7 +4,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as cp from 'child_process'
 
-function mkdirp (r: string, t?: any): any {
+function mkdirp(r: string, t?: any): any {
   ;(t = t || null), (r = path.resolve(r))
   try {
     fs.mkdirSync(r), (t = t || r)
@@ -31,23 +31,20 @@ if (~installIndex) {
     const filename = path.join(directory, path.basename(process.execPath))
     const readStream = fs.createReadStream(process.execPath)
     const writeStream = fs.createWriteStream(filename)
-  
-    const onError = function () {
+
+    const onError = function() {
       readStream.removeAllListeners()
       writeStream.removeAllListeners()
       //TODO
     }
-  
+
     readStream
       .on('error', onError)
       .pipe(writeStream)
       .on('error', onError)
       .on('close', () => {
         const winsw = filename.replace('.exe', '-service.exe')
-        fs.writeFileSync(
-          winsw,
-          fs.readFileSync('./nexe/plugin/daemon/winsw.exe')
-        )
+        fs.writeFileSync(winsw, fs.readFileSync('./nexe/plugin/daemon/winsw.exe'))
         fs.writeFileSync(
           filename.replace('.exe', '-service.xml'),
           fs.readFileSync('./nexe/plugin/daemon/winsw.xml')
@@ -56,14 +53,14 @@ if (~installIndex) {
       })
   }
 } else {
-  console.log("DIRECTORY NOT FOUND")
+  console.log('DIRECTORY NOT FOUND')
   require('./nexe/plugin/daemon/app.js')
 }
 
-function installService (filename: string) {
-  cp.exec(filename + ' install', (error) => {
+function installService(filename: string) {
+  cp.exec(filename + ' install', error => {
     if (error && !error.message.includes('already exists')) {
       throw error
-    }    
+    }
   })
 }

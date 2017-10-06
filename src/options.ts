@@ -1,9 +1,9 @@
 import * as parseArgv from 'minimist'
 import { NexeCompiler } from './compiler'
 import { isWindows, padRight } from './util'
-import { basename, extname, join, isAbsolute, relative, dirname } from 'path'
+import { basename, extname, join, isAbsolute, relative, dirname, resolve } from 'path'
 import { getTarget, NexeTarget } from './target'
-import { EOL } from 'os'
+import { EOL, homedir } from 'os'
 import * as c from 'chalk'
 
 export const version = '{{replace:0}}'
@@ -113,7 +113,7 @@ ${c.bold('nexe <entry-file> [options]')}
    ${c.underline.bold('Other options:')}
 
        --bundle                     -- custom bundling module with 'createBundle' export
-       --temp                       -- temp file storage default './nexe'
+       --temp                       -- temp file storage default '~/.nexe'
        --cwd                        -- set the current working directory for the command
        --fake-argv                  -- fake argv[1] with entry file
        --clean                      -- force download of sources
@@ -182,36 +182,38 @@ function extractName(options: NexeOptions) {
   return name.replace(/\.exe$/, '')
 }
 
-function isEntryFile(filename: string) {
-  return filename && !isAbsolute(filename) && filename !== 'node' && /\.(tsx?|jsx?)$/.test(filename)
+function isEntryFile(filename?: string): filename is string {
+  return Boolean(
+    filename && !isAbsolute(filename) && filename !== 'node' && /\.(tsx?|jsx?)$/.test(filename)
+  )
 }
 
-function findInput(input: string, cwd: string) {
-  const maybeInput = argv._.slice().pop() || ''
+export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
   if (input) {
-    return input
+    return resolve(cwd, input)
   }
-  if (isEntryFile(maybeInput)) {
-    return maybeInput
+  if (isEntryFile(maybeEntry)) {
+    return resolve(cwd, maybeEntry)
   }
   if (!process.stdin.isTTY) {
     return ''
   }
   try {
-    const main = require.resolve(cwd)
-    return './' + relative(cwd, main)
+    return require.resolve(cwd)
   } catch (e) {
-    void e
+    throw new Error('No entry file found')
   }
-  return ''
 }
 
-function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOptions> {
+function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   const options = Object.assign({}, defaults, input) as NexeOptions
   const opts = options as any
-
-  options.temp = options.temp || process.env.NEXE_TEMP || join(options.cwd, '.nexe')
-  options.input = findInput(options.input, options.cwd)
+  const cwd = (options.cwd = resolve(options.cwd))
+  options.temp = options.temp
+    ? resolve(cwd, options.temp)
+    : process.env.NEXE_TEMP || join(homedir(), '.nexe')
+  const maybeEntry = input === argv ? argv._[argv._.length - 1] : undefined
+  options.input = resolveEntry(options.input, cwd, maybeEntry)
   options.name = extractName(options)
   options.loglevel = extractLogLevel(options)
   options.flags = flatten(opts.flag, options.flags)
@@ -220,6 +222,10 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
   options.configure = flatten(options.configure)
   options.resources = flatten(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
+  options.output = isWindows
+    ? `${(options.output || options.name).replace(/\.exe$/, '')}.exe`
+    : `${options.output || options.name}`
+  options.output = resolve(cwd, options.output)
 
   if (!options.targets.length) {
     options.targets.push(getTarget())
@@ -248,7 +254,7 @@ function normalizeOptionsAsync(input?: Partial<NexeOptions>): Promise<NexeOption
     .filter(k => k !== 'rc')
     .forEach(x => delete opts[x])
 
-  return Promise.resolve(options)
+  return options
 }
 
-export { argv, normalizeOptionsAsync, help }
+export { argv, normalizeOptions, help }

@@ -1,7 +1,7 @@
 import { compose, Middleware } from 'app-builder'
 import resource from './steps/resource'
 import { NexeCompiler } from './compiler'
-import { argv, version, help, normalizeOptionsAsync, NexeOptions, NexePatch } from './options'
+import { argv, version, help, normalizeOptions, NexeOptions, NexePatch } from './options'
 import cli from './steps/cli'
 import bundle from './steps/bundle'
 import download from './steps/download'
@@ -15,7 +15,7 @@ async function compile(
   compilerOptions?: Partial<NexeOptions>,
   callback?: (err: Error | null) => void
 ) {
-  const options = await normalizeOptionsAsync(compilerOptions)
+  const options = normalizeOptions(compilerOptions)
   const compiler = new NexeCompiler(options)
   const build = compiler.options.build
 

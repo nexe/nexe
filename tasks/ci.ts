@@ -5,8 +5,7 @@ const { env } = process
 
 export function triggerMacBuild(release: NexeTarget, branch: string) {
   assert.ok(env.CIRCLE_TOKEN)
-  const circle = `https://circleci.com/api/v1.1/project/github/nexe/nexe/tree/${
-    branch}?circle-token=${env.CIRCLE_TOKEN}`
+  const circle = `https://circleci.com/api/v1.1/project/github/nexe/nexe/tree/${branch}?circle-token=${env.CIRCLE_TOKEN}`
   return got(circle, {
     json: true,
     body: {
@@ -17,7 +16,7 @@ export function triggerMacBuild(release: NexeTarget, branch: string) {
   })
 }
 
-export function triggerDockerBuild (release: NexeTarget, branch: string) {
+export function triggerDockerBuild(release: NexeTarget, branch: string) {
   assert.ok(env.TRAVIS_TOKEN)
   const travis = `https://api.travis-ci.org/repo/nexe%2Fnexe/requests`
   return got(travis, {
@@ -38,15 +37,13 @@ export function triggerDockerBuild (release: NexeTarget, branch: string) {
     },
     headers: {
       'Travis-API-Version': '3',
-      'Authorization': `token ${env.TRAVIS_TOKEN}`
+      Authorization: `token ${env.TRAVIS_TOKEN}`
     }
   })
 }
 
-export function triggerWindowsBuild (release: NexeTarget) {
+export function triggerWindowsBuild(release: NexeTarget) {
   const hasVersion = 'NEXE_VERSION' in env
-  env.NEXE_VERSION = hasVersion 
-    ? env.NEXE_VERSION!.trim() 
-    : release.toString() 
+  env.NEXE_VERSION = hasVersion ? env.NEXE_VERSION!.trim() : release.toString()
   return Promise.resolve()
 }

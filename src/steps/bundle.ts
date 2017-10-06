@@ -16,17 +16,18 @@ function createBundle(options: NexeOptions) {
       })
     )
   }
+  const cwd = options.cwd
   const fuse = FuseBox.init({
     cache: false,
     log: Boolean(process.env.NEXE_BUNDLE_LOG) || false,
-    homeDir: options.cwd,
+    homeDir: cwd,
     sourceMaps: false,
     writeBundles: false,
     output: '$name.js',
     target: 'server',
     plugins
   })
-  const input = relative(options.cwd, options.input).replace(/\\/g, '/')
+  const input = relative(cwd, resolve(cwd, options.input)).replace(/\\/g, '/')
   fuse.bundle(options.name).instructions(`> ${input}`)
   return fuse.run().then((x: any) => {
     let output = ''
@@ -36,8 +37,9 @@ function createBundle(options: NexeOptions) {
 }
 
 export default async function bundle(compiler: NexeCompiler, next: any) {
-  if (!compiler.options.bundle) {
-    compiler.input = await readFileAsync(compiler.options.input, 'utf-8')
+  const { bundle, cwd, empty, input } = compiler.options
+  if (!bundle) {
+    compiler.input = await readFileAsync(resolve(cwd, input), 'utf-8')
     return next()
   }
 
@@ -48,13 +50,13 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   let producer = createBundle
   if (typeof compiler.options.bundle === 'string') {
-    producer = require(resolve(compiler.options.cwd, compiler.options.bundle)).createBundle
+    producer = require(resolve(cwd, bundle)).createBundle
   }
 
   compiler.input = await producer(compiler.options)
 
   if ('string' === typeof compiler.options.debugBundle) {
-    await writeFileAsync(compiler.options.debugBundle, compiler.input)
+    await writeFileAsync(resolve(cwd, compiler.options.debugBundle), compiler.input)
   }
 
   return next()

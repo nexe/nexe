@@ -45,10 +45,7 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
     index: {},
     bundle: Buffer.from('')
   }
-  public output = isWindows
-    ? `${(this.options.output || this.options.name).replace(/\.exe$/, '')}.exe`
-    : `${this.options.output || this.options.name}`
-
+  public output = this.options.output
   private nodeSrcBinPath: string
   constructor(public options: T) {
     const { python } = (this.options = options)
@@ -196,18 +193,17 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       throw new Error(`${assetName} not available, create it using the --build flag`)
     }
     const filename = this.getNodeExecutableLocation(target)
-    await download(
-      asset.browser_download_url,
-      dirname(filename),
-      downloadOptions
-    ).on('response', (res: IncomingMessage) => {
-      const total = +res.headers['content-length']!
-      let current = 0
-      res.on('data', data => {
-        current += data.length
-        this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
-      })
-    })
+    await download(asset.browser_download_url, dirname(filename), downloadOptions).on(
+      'response',
+      (res: IncomingMessage) => {
+        const total = +res.headers['content-length']!
+        let current = 0
+        res.on('data', data => {
+          current += data.length
+          this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
+        })
+      }
+    )
     return createReadStream(filename)
   }
 

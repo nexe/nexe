@@ -1,8 +1,5 @@
 import * as nexe from '../lib/nexe'
-import {
-  getUnBuiltReleases,
-  getLatestGitRelease
-} from '../lib/releases'
+import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import * as ci from './ci'
 import { runAlpineBuild } from './docker'
 import { getTarget } from '../lib/target'
@@ -15,11 +12,12 @@ const env = process.env,
   isLinux = Boolean(env.TRAVIS),
   isWindows = Boolean(env.APPVEYOR),
   isMac = Boolean(env.CIRCLECI),
-  isPullRequest = Boolean(env.CIRCLE_PR_NUMBER)
-    || Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER) 
-    || Boolean(env.TRAVIS_PULL_REQUEST_BRANCH),
-  headers = { 
-    'Authorization': 'token ' + env.GITHUB_TOKEN,
+  isPullRequest =
+    Boolean(env.CIRCLE_PR_NUMBER) ||
+    Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER) ||
+    Boolean(env.TRAVIS_PULL_REQUEST_BRANCH),
+  headers = {
+    Authorization: 'token ' + env.GITHUB_TOKEN,
     'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
   }
 
@@ -32,7 +30,7 @@ if (require.main === module) {
   }
 }
 
-async function build () {
+async function build() {
   if (isScheduled) {
     const releases = await getUnBuiltReleases({ headers })
     if (!releases.length) {
@@ -54,8 +52,7 @@ async function build () {
   }
 
   if (env.NEXE_VERSION) {
-    const
-      target = getTarget(env.NEXE_VERSION),
+    const target = getTarget(env.NEXE_VERSION),
       output = isWindows ? './out.exe' : './out',
       options = {
         empty: true,
@@ -63,15 +60,15 @@ async function build () {
         target,
         output
       }
-    
+
     const stop = keepalive()
     if (target.platform === 'alpine') {
       await runAlpineBuild(target)
     } else {
-      await nexe.compile(options)      
+      await nexe.compile(options)
     }
     stop()
-    
+
     if (await pathExistsAsync(output)) {
       await assertNexeBinary(output)
       const gitRelease = await getLatestGitRelease({ headers })
@@ -79,7 +76,7 @@ async function build () {
         query: { name: target.toString() },
         body: await readFileAsync(output),
         headers: {
-          'Authorization': 'token ' + env.GITHUB_TOKEN,
+          Authorization: 'token ' + env.GITHUB_TOKEN,
           'Content-Type': 'application/octet-stream',
           'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
         }
@@ -89,12 +86,12 @@ async function build () {
   }
 }
 
-function keepalive () {
+function keepalive() {
   const keepalive = setInterval(() => console.log('Building...'), 300 * 1000)
   return () => clearInterval(keepalive)
 }
 
-function assertNexeBinary (file: string) {
+function assertNexeBinary(file: string) {
   return execFileAsync(file).catch(e => {
     if (e && e.stack && e.stack.includes('Invalid Nexe binary')) {
       return
