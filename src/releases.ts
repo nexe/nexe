@@ -32,7 +32,6 @@ async function getJson<T>(url: string, options?: any) {
   return JSON.parse((await got(url, options)).body) as T
 }
 
-//TODO only build the latest of each major...?
 function isBuildableVersion(version: string) {
   const major = +version.split('.')[0]
   return !~[0, 1, 2, 3, 4, 5, 7].indexOf(major) || version === '4.8.4'

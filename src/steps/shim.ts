@@ -23,7 +23,7 @@ export default function(compiler: NexeCompiler, next: () => Promise<void>) {
 
   //compiler.shims.push(wrap('{/{replace:lib/steps/shim-require.js}}'))
 
-  if (compiler.options.fakeArgv) {
+  if (compiler.options.fakeArgv !== false) {
     const nty = !process.stdin.isTTY
     const input = nty ? '[stdin]' : compiler.options.input
     compiler.shims.push(
