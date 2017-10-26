@@ -218,18 +218,18 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   options.loglevel = extractLogLevel(options)
   options.flags = flatten(opts.flag, options.flags)
   options.targets = flatten(opts.target, options.targets).map(getTarget)
+  if (!options.targets.length) {
+    options.targets.push(getTarget())
+  }
   options.make = flatten(options.vcBuild, options.make)
   options.configure = flatten(options.configure)
   options.resources = flatten(opts.resource, options.resources)
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
-  options.output = isWindows
-    ? `${(options.output || options.name).replace(/\.exe$/, '')}.exe`
-    : `${options.output || options.name}`
+  options.output =
+    (options.targets[0] as NexeTarget).platform === 'windows'
+      ? `${(options.output || options.name).replace(/\.exe$/, '')}.exe`
+      : `${options.output || options.name}`
   options.output = resolve(cwd, options.output)
-
-  if (!options.targets.length) {
-    options.targets.push(getTarget())
-  }
 
   if (options.build) {
     const { arch } = options.targets[0] as NexeTarget
