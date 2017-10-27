@@ -1,5 +1,6 @@
 import { createHash } from 'crypto'
 import * as path from 'path'
+import * as fs from 'fs'
 
 export interface EmbedNodeModuleOptions {
   [key: string]: { additionalFiles: string[] } | true
