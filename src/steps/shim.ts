@@ -25,7 +25,7 @@ export default function(compiler: NexeCompiler, next: () => Promise<void>) {
 
   if (compiler.options.fakeArgv !== false) {
     const nty = !process.stdin.isTTY
-    const input = nty ? '[stdin]' : compiler.options.input
+    const input = nty ? '[stdin]' : compiler.options.input.replace(/\\/g,'\\\\')
     compiler.shims.push(
       wrap(`
       var r = require('path').resolve; 
