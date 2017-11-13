@@ -25,11 +25,11 @@ export default function(compiler: NexeCompiler, next: () => Promise<void>) {
 
   if (compiler.options.fakeArgv !== false) {
     const nty = !process.stdin.isTTY
-    const input = nty ? '[stdin]' : compiler.options.input
+    const input = nty ? '[stdin]' : JSON.stringify(compiler.options.input)
     compiler.shims.push(
       wrap(`
       var r = require('path').resolve; 
-      process.argv.splice(1,0, ${nty ? `'${input}'` : `r("${input}")`});`)
+      process.argv.splice(1,0, ${nty ? `'${input}'` : `r(${input})`});`)
     )
   }
 
