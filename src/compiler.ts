@@ -186,7 +186,7 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       }
     }
     if (this.options.ghToken) {
-      downloadOptions.headers.Authorization =  'token ' + this.options.ghToken
+      downloadOptions.headers.Authorization = 'token ' + this.options.ghToken
     }
     const githubRelease = await getLatestGitRelease(downloadOptions)
     const assetName = target.toString()

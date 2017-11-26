@@ -83,7 +83,7 @@ const alias = {
   h: 'help',
   l: 'loglevel',
   'fake-argv': 'fakeArgv',
-  'gh-token': 'ghToken',
+  'gh-token': 'ghToken'
 }
 const argv = parseArgv(process.argv, { alias, default: { ...defaults, enableStdIn: true } })
 const g = c.gray
