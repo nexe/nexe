@@ -196,6 +196,8 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       throw new Error(`${assetName} not available, create it using the --build flag`)
     }
     const filename = this.getNodeExecutableLocation(target)
+    // Remove the authorization, as the download is done via amazon S3 and does not need the token
+    delete downloadOptions.headers.Authorization
     await download(asset.browser_download_url, dirname(filename), downloadOptions).on(
       'response',
       (res: IncomingMessage) => {
