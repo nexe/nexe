@@ -33,6 +33,7 @@ export interface NexeOptions {
   plugins: (string | NexePatch)[]
   native: any
   empty: boolean
+  ghToken: string
   sourceUrl?: string
   enableStdIn?: boolean
   python?: string
@@ -81,7 +82,8 @@ const alias = {
   m: 'make',
   h: 'help',
   l: 'loglevel',
-  'fake-argv': 'fakeArgv'
+  'fake-argv': 'fakeArgv',
+  'gh-token': 'ghToken',
 }
 const argv = parseArgv(process.argv, { alias, default: { ...defaults, enableStdIn: true } })
 const g = c.gray
@@ -221,6 +223,7 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   if (!options.targets.length) {
     options.targets.push(getTarget())
   }
+  options.ghToken = options.ghToken || process.env.GITHUB_TOKEN || ''
   options.make = flatten(options.vcBuild, options.make)
   options.configure = flatten(options.configure)
   options.resources = flatten(opts.resource, options.resources)

@@ -164,6 +164,10 @@ compile({
     - default: `false`
   - #### `fakeArgv: boolean`
     - fake the entry point file name (`process.argv[1]`). If nexe was used with stdin this will be `'[stdin]'`. 
+ - #### `ghToken: string`
+    - Provide a Github Token for accessing nexe releases
+    - This is usually needed in CI environments
+    - default: `process.env.GITHUB_TOKEN`
  - #### `sourceUrl: string`
     - Provide an alternate url for the node source code
     - Note: temporary files will still be created for this under the specified version

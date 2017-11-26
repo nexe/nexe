@@ -185,6 +185,9 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
         'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
       }
     }
+    if (this.options.ghToken) {
+      downloadOptions.headers.Authorization =  'token ' + this.options.ghToken
+    }
     const githubRelease = await getLatestGitRelease(downloadOptions)
     const assetName = target.toString()
     const asset = githubRelease.assets.find(x => x.name === assetName)
