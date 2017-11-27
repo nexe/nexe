@@ -34,7 +34,7 @@ async function getJson<T>(url: string, options?: any) {
 
 function isBuildableVersion(version: string) {
   const major = +version.split('.')[0]
-  return !~[0, 1, 2, 3, 4, 5, 7].indexOf(major) || version === '4.8.4'
+  return !~[0, 1, 2, 3, 4, 5, 7].indexOf(major)
 }
 
 export function getLatestGitRelease(options?: any) {
@@ -58,6 +58,7 @@ export async function getUnBuiltReleases(options?: any) {
       platforms.forEach(platform => {
         architectures.forEach(arch => {
           if (arch === 'x86' && platform === 'mac') return
+          if (arch === 'arm71' && platform !== 'linux') return
           versions.push(getTarget({ platform, arch, version }))
         })
       })

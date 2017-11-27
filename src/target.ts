@@ -1,8 +1,8 @@
 export type NodePlatform = 'windows' | 'mac' | 'alpine' | 'linux'
-export type NodeArch = 'x86' | 'x64'
+export type NodeArch = 'x86' | 'x64' | 'arm71'
 
 const platforms: NodePlatform[] = ['windows', 'mac', 'alpine', 'linux'],
-  architectures: NodeArch[] = ['x86', 'x64']
+  architectures: NodeArch[] = ['x86', 'x64', 'arm71']
 
 export { platforms, architectures }
 
@@ -28,6 +28,9 @@ const prettyPlatform: { [key: string]: NodePlatform } = {
 //TODO arm
 const prettyArch: { [key: string]: NodeArch } = {
   x86: 'x86',
+  arm: 'arm71',
+  arm7: 'arm71',
+  arm71: 'arm71',
   amd64: 'x64',
   ia32: 'x86',
   x32: 'x86',
