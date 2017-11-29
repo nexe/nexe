@@ -180,14 +180,15 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
   }
 
   private async _fetchPrebuiltBinaryAsync(target: NexeTarget) {
-    const downloadOptions: any = {
-      headers: {
-        'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
-      }
-    }
+    let downloadOptions = this.options.downloadOptions
+
     if (this.options.ghToken) {
-      downloadOptions.headers.Authorization = 'token ' + this.options.ghToken
+      downloadOptions = Object.assign({}, downloadOptions)
+      downloadOptions.headers = Object.assign({}, downloadOptions.headers, {
+        Authorization: 'token ' + this.options.ghToken
+      })
     }
+
     const githubRelease = await getLatestGitRelease(downloadOptions)
     const assetName = target.toString()
     const asset = githubRelease.assets.find(x => x.name === assetName)
@@ -196,19 +197,19 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       throw new Error(`${assetName} not available, create it using the --build flag`)
     }
     const filename = this.getNodeExecutableLocation(target)
-    // Remove the authorization, as the download is done via amazon S3 and does not need the token
-    delete downloadOptions.headers.Authorization
-    await download(asset.browser_download_url, dirname(filename), downloadOptions).on(
-      'response',
-      (res: IncomingMessage) => {
-        const total = +res.headers['content-length']!
-        let current = 0
-        res.on('data', data => {
-          current += data.length
-          this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
-        })
-      }
-    )
+
+    await download(
+      asset.browser_download_url,
+      dirname(filename),
+      this.options.downloadOptions
+    ).on('response', (res: IncomingMessage) => {
+      const total = +res.headers['content-length']!
+      let current = 0
+      res.on('data', data => {
+        current += data.length
+        this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
+      })
+    })
     return createReadStream(filename)
   }
 

@@ -6,6 +6,8 @@ import { getTarget, NexeTarget } from './target'
 import { EOL, homedir } from 'os'
 import * as c from 'chalk'
 
+const caw = require('caw')
+
 export const version = '{{replace:0}}'
 
 export interface NexePatch {
@@ -227,6 +229,15 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   options.make = flatten(options.vcBuild, options.make)
   options.configure = flatten(options.configure)
   options.resources = flatten(opts.resource, options.resources)
+
+  options.downloadOptions = options.downloadOptions || {}
+  options.downloadOptions.headers = options.downloadOptions.headers || {}
+  options.downloadOptions.headers['User-Agent'] = 'nexe (https://www.npmjs.com/package/nexe)'
+  options.downloadOptions.agent = process.env.HTTPS_PROXY
+    ? caw(process.env.HTTPS_PROXY, { protocol: 'https' })
+    : options.downloadOptions.agent || require('https').globalAgent
+  options.downloadOptions.rejectUnauthorized = process.env.HTTPS_PROXY ? false : true
+
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
   options.output =
     (options.targets[0] as NexeTarget).platform === 'windows'

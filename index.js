@@ -10,9 +10,7 @@ if (require.main === module) {
     process.stderr.write(showHelp ? options.help : options.version + eol)
   } else {
     const nexe = require('./lib/nexe')
-    nexe.compile(argv).catch((e) => {
-      process.stderr.write(eol + e.stack)
-    })
+    nexe.compile(argv)
   }
 } else {
   module.exports = require('./lib/nexe')

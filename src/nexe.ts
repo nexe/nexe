@@ -10,6 +10,7 @@ import artifacts from './steps/artifacts'
 import patches from './patches'
 import { rimrafAsync } from './util'
 import { NexeTarget } from './target'
+import { EOL } from 'os'
 
 async function compile(
   compilerOptions?: Partial<NexeOptions>,
@@ -39,11 +40,21 @@ async function compile(
     ? void nexe(compiler).then(
         () => callback && callback(null),
         (e: Error) => {
+          if (compiler.options.loglevel !== 'silent') {
+            process.stderr.write(EOL + e.stack + EOL)
+          }
+          compiler.quit()
           if (callback) callback(e)
           else throw e
         }
       )
-    : nexe(compiler)
+    : nexe(compiler).catch((e: Error) => {
+        if (compiler.options.loglevel !== 'silent') {
+          process.stderr.write(EOL + e.stack + EOL)
+        }
+        compiler.quit()
+        throw e
+      })
 }
 
 export { argv, compile, version, NexeCompiler, NexeOptions, help }

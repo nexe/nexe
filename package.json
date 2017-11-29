@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "app-builder": "^5.1.0",
+    "caw": "^2.0.1",
     "chalk": "^1.1.3",
     "download": "^6.2.0",
     "fuse-box": "^2.3.4-beta.11",
