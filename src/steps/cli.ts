@@ -62,9 +62,9 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
           const inputFile = relative(process.cwd(), compiler.options.input)
           const outputFile = relative(process.cwd(), output)
           step.log(
-            `Entry: '${stdInUsed
-              ? compiler.options.empty ? '[empty]' : '[stdin]'
-              : inputFile}' written to: ${outputFile}`
+            `Entry: '${
+              stdInUsed ? (compiler.options.empty ? '[empty]' : '[stdin]') : inputFile
+            }' written to: ${outputFile}`
           )
           resolve(compiler.quit())
         }

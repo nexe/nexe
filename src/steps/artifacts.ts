@@ -14,7 +14,7 @@ function readDirAsync(dir: string): Promise<string[]> {
     return Promise.all(
       paths.map((file: string) => {
         const path = join(dir, file)
-        return isDirectoryAsync(path).then(x => (x ? readDirAsync(path) : path as any))
+        return isDirectoryAsync(path).then(x => (x ? readDirAsync(path) : (path as any)))
       })
     ).then(result => {
       return [].concat(...(result as any))

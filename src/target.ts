@@ -65,7 +65,7 @@ export function targetsEqual(a: NexeTarget, b: NexeTarget) {
 
 export function getTarget(target: string | Partial<NexeTarget> = ''): NexeTarget {
   const currentArch = process.arch
-  let arch = currentArch in prettyArch ? prettyArch[process.arch] : process.arch as NodeArch,
+  let arch = currentArch in prettyArch ? prettyArch[process.arch] : (process.arch as NodeArch),
     platform = prettyPlatform[process.platform],
     version = process.version.slice(1)
 

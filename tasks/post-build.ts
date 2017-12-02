@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync } from 'fs'
 
 /**
- * post build step to insert code files into code files. 
+ * post build step to insert code files into code files.
  * '{{replace:path/to/file}}' => "file contents"
  * And the package.json version.
  */

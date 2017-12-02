@@ -166,9 +166,9 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
 
   private async _buildAsync() {
     this.compileStep.log(
-      `Configuring node build${this.options.configure.length
-        ? ': ' + this.options.configure
-        : '...'}`
+      `Configuring node build${
+        this.options.configure.length ? ': ' + this.options.configure : '...'
+      }`
     )
     await this._configureAsync()
     const buildOptions = this.options.make
@@ -198,18 +198,17 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
     }
     const filename = this.getNodeExecutableLocation(target)
 
-    await download(
-      asset.browser_download_url,
-      dirname(filename),
-      this.options.downloadOptions
-    ).on('response', (res: IncomingMessage) => {
-      const total = +res.headers['content-length']!
-      let current = 0
-      res.on('data', data => {
-        current += data.length
-        this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
-      })
-    })
+    await download(asset.browser_download_url, dirname(filename), this.options.downloadOptions).on(
+      'response',
+      (res: IncomingMessage) => {
+        const total = +res.headers['content-length']!
+        let current = 0
+        res.on('data', data => {
+          current += data.length
+          this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
+        })
+      }
+    )
     return createReadStream(filename)
   }
 
