@@ -1,16 +1,16 @@
+import { EOL } from 'os'
 import { compose, Middleware } from 'app-builder'
-import resource from './steps/resource'
+import { rimrafAsync } from './util'
+import { NexeTarget } from './target'
 import { NexeCompiler } from './compiler'
-import { argv, version, help, normalizeOptions, NexeOptions, NexePatch } from './options'
+import { normalizeOptions, NexeOptions, NexePatch } from './options'
+import resource from './steps/resource'
 import cli from './steps/cli'
 import bundle from './steps/bundle'
 import download from './steps/download'
 import shim from './steps/shim'
 import artifacts from './steps/artifacts'
 import patches from './patches'
-import { rimrafAsync } from './util'
-import { NexeTarget } from './target'
-import { EOL } from 'os'
 
 async function compile(
   compilerOptions?: Partial<NexeOptions>,
@@ -35,26 +35,25 @@ async function compile(
   const buildSteps = build
     ? [download, artifacts, ...patches, ...(options.patches as NexePatch[])]
     : []
-  const nexe = compose(resource, bundle, cli, buildSteps, shim, options.plugins as NexePatch[])
-  return callback
-    ? void nexe(compiler).then(
-        () => callback && callback(null),
-        (e: Error) => {
-          if (compiler.options.loglevel !== 'silent') {
-            process.stderr.write(EOL + e.stack + EOL)
-          }
-          compiler.quit()
-          if (callback) callback(e)
-          else throw e
-        }
-      )
-    : nexe(compiler).catch((e: Error) => {
-        if (compiler.options.loglevel !== 'silent') {
-          process.stderr.write(EOL + e.stack + EOL)
-        }
-        compiler.quit()
-        throw e
-      })
+  const nexe = compose(resource, bundle, shim, cli, buildSteps, options.plugins as NexePatch[])
+  let error = null
+
+  try {
+    await nexe(compiler)
+  } catch (e) {
+    error = e
+  }
+
+  if (error) {
+    if (compiler.options.loglevel !== 'silent' && error) {
+      process.stderr.write(EOL + error.stack + EOL)
+    }
+    compiler.quit()
+    if (callback) return callback(error)
+    return Promise.reject(error)
+  }
+  if (callback) callback(null)
 }
 
-export { argv, compile, version, NexeCompiler, NexeOptions, help }
+export { compile, NexeCompiler }
+export { argv, version, NexeOptions, help } from './options'

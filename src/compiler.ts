@@ -245,6 +245,10 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
     return this._assembleDeliverable(binary)
   }
 
+  code() {
+    return [this.shims.join(''), this.input].join(';')
+  }
+
   private _assembleDeliverable(binary: NodeJS.ReadableStream) {
     if (this.options.empty) {
       return binary
@@ -254,7 +258,7 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       artifact.push(chunk)
     })
     binary.on('close', () => {
-      const content = [this.shims.join(''), this.input].join(';')
+      const content = this.code()
       artifact.push(content)
       artifact.push(this.resources.bundle)
       const lengths = Buffer.from(Array(16))
