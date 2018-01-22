@@ -16,6 +16,7 @@ if (Object.keys(manifest).length) {
   const fs = require('fs')
   const originalReadFile = fs.readFile
   const originalReadFileSync = fs.readFileSync
+  const originalCreateReadStream = fs.createReadStream
   const originalReaddir = fs.readdir
   const originalReaddirSync = fs.readdirSync
   const originalStatSync = fs.statSync
@@ -138,6 +139,24 @@ if (Object.keys(manifest).length) {
           })
         })
       })
+    },
+    createReadStream: function createReadStream(file: any, options: any) {
+      setupManifest()
+      const entry = manifest[file]
+      if (!entry || !isString(file)) {
+        return originalCreateReadStream.apply(fs, arguments)
+      }
+      const [offset, length] = entry
+      const resourceOffset = resourceStart + offset
+      const opts = !options ? {} : isString(options) ? { encoding: options } : options
+
+      return fs.createReadStream(
+        process.execPath,
+        Object.assign({}, opts, {
+          start: resourceOffset,
+          end: resourceOffset + length
+        })
+      )
     },
     readFileSync: function readFileSync(file: any, options: any) {
       setupManifest()
