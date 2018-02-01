@@ -160,7 +160,9 @@ compile({
  - #### `clean: boolean`
     - If included, nexe will remove temporary files for the accompanying configuration and exit
  - #### `enableNodeCli: boolean`
-    - Enable the original Node CLI (will prevent application cli from working)
+    - Enable the original Node CLI (will prevent application cli from working).
+    - Node CLI arguments passed via the [NODE_OPTIONS](https://nodejs.org/api/cli.html#cli_node_options_options) environment
+      variable will still be processed. NODE_OPTIONS support can be disabled with the `--without-node-options` configure flag.
     - default: `false`
   - #### `fakeArgv: boolean`
     - fake the entry point file name (`process.argv[1]`). If nexe was used with stdin this will be `'[stdin]'`. 
