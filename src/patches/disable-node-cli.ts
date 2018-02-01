@@ -5,8 +5,12 @@ export default async function disableNodeCli(compiler: NexeCompiler, next: () =>
     return next()
   }
 
-  const nodeccMarker = "argv[index][0] == '-'"
+  const nodeccMarker = 'argv[index][0] =='
 
-  await compiler.replaceInFileAsync('src/node.cc', nodeccMarker, nodeccMarker.replace('-', ']'))
+  await compiler.replaceInFileAsync(
+    'src/node.cc',
+    `${nodeccMarker} '-'`,
+    `(${nodeccMarker} is_env ? '-' : ']')`
+  )
   return next()
 }
