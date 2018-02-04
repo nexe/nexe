@@ -256,6 +256,29 @@ const nfs: any = {
     }
   }
 }
+const patches = (process as any).nexe.patches
+delete (process as any).nexe
+
+patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
+  const [filepath] = args
+  setupManifest()
+  if (manifest[filepath]) {
+    return nfs.readFileSync(filepath, 'utf-8')
+  }
+  return original.call(this, ...args)
+}
+patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
+  setupManifest()
+  const [filepath] = args
+  if (manifest[filepath]) {
+    return 0
+  }
+  if (directories[filepath]) {
+    return 1
+  }
+  return original.call(this, ...args)
+}
+Object.assign(fs, nfs)
 
 if (typeof fs.exists === 'function') {
   nfs.exists = function(filepath: string, cb: Function) {

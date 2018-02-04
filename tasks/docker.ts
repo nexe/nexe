@@ -1,4 +1,4 @@
-import { NexeTarget } from '../lib/target'
+import { NexeTarget, architectures } from '../lib/target'
 import { writeFileAsync, readFileAsync } from '../lib/util'
 import { spawn } from 'child_process'
 import got = require('got')
@@ -26,15 +26,28 @@ RUN rm /nexe_temp/\${NODE_VERSION}/out/Release/node && \
 `.trim()
 }
 
-export async function runAlpineBuild(target: NexeTarget) {
-  await writeFileAsync('Dockerfile', alpine(target))
-  const outFilename = 'nexe-alpine-build-log.txt'
+function arm(target: NexeTarget) {
+  return `
+FROM hypriot/rpi-node
+ENV NEXE_VERSION=beta
+WORKDIR /
+
+RUN yarn global add nexe@\${NEXE_VERSION} && \
+  nexe --build --empty -o out -t ${target.version}
+`.trim()
+}
+
+export async function runDockerBuild(target: NexeTarget) {
+  //todo switch on alpine and arm
+  const dockerfile = alpine(target)
+  await writeFileAsync('Dockerfile', dockerfile)
+  const outFilename = 'nexe-docker-build-log.txt'
   await writeFileAsync(outFilename, '')
   let output: any = []
 
   try {
-    output.push(await execa.shell(`docker build -t nexe-alpine .`))
-    output.push(await execa.shell(`docker run -d --name nexe nexe-alpine sh`))
+    output.push(await execa.shell(`docker build -t nexe-docker .`))
+    output.push(await execa.shell(`docker run -d --name nexe nexe-docker sh`))
     output.push(await execa.shell(`docker cp nexe:/out out`))
     output.push(await execa.shell(`docker rm nexe`))
   } catch (e) {

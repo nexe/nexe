@@ -2,7 +2,7 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "2.0.0-rc.34",
+  "version": "2.0.0-next.10",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
@@ -11,10 +11,9 @@
   "scripts": {
     "asset-compile": "ts-node tasks/asset-compile",
     "test": "mocha",
-    "fmt": "prettier --parser typescript --no-semi   --print-width 100 --single-quote --write \"{src,plugins,tasks}/**/*.ts\"",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test",
-    "prebuild": "rimraf lib && npm run fmt",
+    "lint": "tslint \"{src,plugins,tasks}/**/*.ts\" --fix",
+    "prepublishOnly": "npm run lint && npm run build && npm test",
+    "prebuild": "rimraf lib",
     "build": "tsc --declaration",
     "postbuild": "ts-node tasks/post-build"
   },
@@ -23,8 +22,7 @@
     "url": "git://github.com/nexe/nexe.git"
   },
   "files": [
-    "lib",
-    "source-map-support.js"
+    "lib"
   ],
   "typings": "lib/nexe.d.ts",
   "main": "index.js",
@@ -35,37 +33,37 @@
     "node": ">=6"
   },
   "dependencies": {
-    "app-builder": "^5.1.0",
-    "typescript": "2.5.3",
+    "app-builder": "^5.2.0",
     "caw": "^2.0.1",
-    "chalk": "^1.1.3",
-    "download": "^6.2.0",
-    "fuse-box": "^3.1.0",
-    "globby": "^6.1.0",
-    "got": "^8.0.3",
+    "chalk": "^2.3.2",
+    "download": "^6.2.5",
+    "globby": "^8.0.1",
+    "got": "^8.3.0",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
-    "ora": "^1.2.0",
+    "ora": "^2.0.0",
     "pify": "^3.0.0",
-    "rimraf": "^2.6.1",
-    "uglify-es": "^3.3.9",
-    "uglify-js": "3.0.28"
+    "resolve-dependencies": "^1.1.0",
+    "rimraf": "^2.6.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.4",
-    "@types/chalk": "^0.4.31",
-    "@types/execa": "^0.7.0",
-    "@types/globby": "^0.6.0",
+    "@types/chai": "^4.1.2",
+    "@types/execa": "^0.8.1",
+    "@types/globby": "^6.1.0",
     "@types/minimist": "^1.2.0",
-    "@types/mkdirp": "^0.3.29",
-    "@types/mocha": "^2.2.42",
-    "@types/ora": "^0.3.31",
-    "@types/pify": "0.0.28",
-    "@types/rimraf": "0.0.28",
+    "@types/mkdirp": "^0.5.2",
+    "@types/mocha": "^2.2.48",
+    "@types/ora": "^1.3.1",
+    "@types/pify": "3.0.0",
+    "@types/rimraf": "2.0.2",
     "chai": "^4.1.2",
-    "execa": "^0.8.0",
-    "mocha": "^3.5.0",
-    "prettier": "^1.6.1",
-    "ts-node": "3.3.0"
+    "execa": "^0.9.0",
+    "mocha": "^5.0.0",
+    "prettier": "^1.10.2",
+    "ts-node": "4.1.0",
+    "tslint": "^5.9.1",
+    "tslint-config-prettier": "^1.7.0",
+    "tslint-plugin-prettier": "^1.3.0",
+    "typescript": "2.7.1"
   }
 }
