@@ -6,7 +6,7 @@ import { getTarget, NexeTarget } from '../src/target'
 const arch = process.arch === 'ia32' ? 'x86' : process.arch
 
 describe('Targets', () => {
-  [
+  ;[
     ['win-ia32-6.11.2', 'windows-x86-6.11.2'],
     [{ version: '6.11.2', platform: 'win', arch: 'ia32' }, 'windows-x86-6.11.2'],
     ['win32-x64-6.11.2', 'windows-x64-6.11.2'],
@@ -23,8 +23,7 @@ describe('Targets', () => {
     })
   })
 
-  it ('should stringify and toString', () => {
+  it('should stringify and toString', () => {
     expect(JSON.stringify(getTarget(process))).to.equal(`"${getTarget(process)}"`)
   })
 })
-

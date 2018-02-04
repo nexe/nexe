@@ -1,9 +1,7 @@
 {
-  "typescript.tsdk": "./node_modules/typescript/lib",
-  "prettier.semi": false,
-  "prettier.singleQuote": true,
-  "prettier.typescriptEnable": ["typescript"],
-  "editor.trimAutoWhitespace": true,
+  "tslint.enable": true,
+  "tslint.run": "onType",
+  "tslint.autoFixOnSave": true,
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,

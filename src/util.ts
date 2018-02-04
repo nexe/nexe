@@ -10,9 +10,11 @@ export async function each<T>(
   action: (item: T, index: number, list: T[]) => Promise<any>
 ) {
   const l = await list
-  for (let i = 0; i < l.length; i++) {
-    await action(l[i], i, l)
-  }
+  return Promise.all(l.map(action))
+}
+
+export function wrap(code: string) {
+  return '!(function () {' + code + '})();'
 }
 
 function falseOnEnoent(e: any) {
@@ -28,7 +30,7 @@ function padRight(str: string, l: number) {
 
 const bound: MethodDecorator = function bound<T>(
   target: Object,
-  propertyKey: string,
+  propertyKey: string | Symbol,
   descriptor: TypedPropertyDescriptor<T>
 ) {
   const configurable = true
@@ -36,7 +38,11 @@ const bound: MethodDecorator = function bound<T>(
     configurable,
     get(this: T) {
       const value = (descriptor.value as any).bind(this)
-      Object.defineProperty(this, propertyKey, { configurable, value, writable: true })
+      Object.defineProperty(this, propertyKey as string, {
+        configurable,
+        value,
+        writable: true
+      })
       return value
     }
   }

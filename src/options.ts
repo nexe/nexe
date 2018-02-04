@@ -4,8 +4,7 @@ import { isWindows, padRight } from './util'
 import { basename, extname, join, isAbsolute, relative, dirname, resolve } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL, homedir } from 'os'
-import * as c from 'chalk'
-
+import c from 'chalk'
 const caw = require('caw')
 
 export const version = '{{replace:0}}'
@@ -140,12 +139,15 @@ function flatten(...args: any[]): string[] {
 function extractCliMap(match: RegExp, options: any) {
   return Object.keys(options)
     .filter(x => match.test(x))
-    .reduce((map: { [key: string]: string }, option: keyof NexeOptions) => {
-      const key = option.split('-')[1]
-      map[key] = options[option]
-      delete options[option]
-      return map
-    }, {})
+    .reduce(
+      (map: any, option: any) => {
+        const key = option.split('-')[1]
+        map[key] = options[option]
+        delete options[option]
+        return map
+      },
+      {} as any
+    )
 }
 
 function tryResolveMainFileName(cwd: string) {

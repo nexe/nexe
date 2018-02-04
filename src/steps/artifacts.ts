@@ -39,7 +39,6 @@ function maybeReadFileContentsAsync(file: string) {
  *  - After the patch functions have run, the temporary directory is emptied
  *  - Original versions of sources to be patched are written to the temporary directory
  *  - Finally, The patched files are written into source.
- *
  */
 export default async function artifacts(compiler: NexeCompiler, next: () => Promise<void>) {
   const { src } = compiler

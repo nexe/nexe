@@ -1,7 +1,7 @@
 import * as nexe from '../lib/nexe'
 import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import * as ci from './ci'
-import { runAlpineBuild } from './docker'
+import { runDockerBuild } from './docker'
 import { getTarget } from '../lib/target'
 import { pathExistsAsync, statAsync, readFileAsync, execFileAsync } from '../lib/util'
 import got = require('got')
@@ -62,8 +62,8 @@ async function build() {
       }
 
     const stop = keepalive()
-    if (target.platform === 'alpine') {
-      await runAlpineBuild(target)
+    if (['arm71', 'alpine'].indexOf(target.platform)) {
+      await runDockerBuild(target)
     } else {
       await nexe.compile(options)
     }
