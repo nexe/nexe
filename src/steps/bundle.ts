@@ -1,39 +1,23 @@
 import { NexeCompiler } from '../compiler'
 import { readFileAsync, writeFileAsync } from '../util'
 import { resolve, relative } from 'path'
-import NativeModulePlugin from '../bundling/fuse-native-module-plugin'
 import { NexeOptions } from '../options'
+import resolveFiles from 'resolve-dependencies'
 
-function createBundle(options: NexeOptions) {
-  const { FuseBox, JSONPlugin, CSSPlugin, HTMLPlugin, QuantumPlugin } = require('fuse-box')
-  const plugins: any = [JSONPlugin(), CSSPlugin(), HTMLPlugin(), NativeModulePlugin(options.native)]
-  if (options.compress) {
-    plugins.push(
-      QuantumPlugin({
-        target: 'server@esnext',
-        uglify: true,
-        bakeApiIntoBundle: options.name
-      })
-    )
-  }
-  const cwd = options.cwd
-  const fuse = FuseBox.init({
-    cache: false,
-    log: Boolean(process.env.NEXE_BUNDLE_LOG) || false,
-    homeDir: cwd,
-    sourceMaps: false,
-    writeBundles: false,
-    output: '$name.js',
-    target: 'server@esnext', //try not to transpile
-    plugins
+function makeRelative(cwd: string, path: string) {
+  return './' + relative(cwd, path)
+}
+
+let producer = async function(compiler: NexeCompiler) {
+  const { cwd, input } = compiler.options
+  const { files } = await resolveFiles({ entries: [compiler.options.input], cwd })
+  Object.keys(files).forEach(x => {
+    const file = files[x]!
+    if (file) {
+      compiler.addResource(makeRelative(cwd, x), Buffer.from(file.contents))
+    }
   })
-  const input = relative(cwd, resolve(cwd, options.input)).replace(/\\/g, '/')
-  fuse.bundle(options.name).instructions(`> ${input}`)
-  return fuse.run().then((x: any) => {
-    let output = ''
-    x.bundles.forEach((y: any) => (output = y.context.output.lastPrimaryOutput.content.toString()))
-    return output
-  })
+  return Promise.resolve('require(' + JSON.stringify(makeRelative(cwd, input)) + ')')
 }
 
 export default async function bundle(compiler: NexeCompiler, next: any) {
@@ -43,20 +27,21 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     return next()
   }
 
-  if (compiler.options.empty || !compiler.options.input) {
+  if (!input) {
     compiler.input = ''
     return next()
   }
 
-  let producer = createBundle
   if (typeof bundle === 'string') {
     producer = require(resolve(cwd, bundle)).createBundle
   }
 
-  compiler.input = await producer(compiler.options)
+  compiler.input = await producer(compiler)
+  const debugBundle = compiler.options.debugBundle
 
-  if ('string' === typeof compiler.options.debugBundle) {
-    await writeFileAsync(resolve(cwd, compiler.options.debugBundle), compiler.input)
+  if (debugBundle) {
+    let bundleDebugFile = typeof debugBundle === 'string' ? debugBundle : 'nexe-debug.bundle.js'
+    await writeFileAsync(resolve(cwd, bundleDebugFile), compiler.input)
   }
 
   return next()

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const fd = fs.openSync(process.execPath, 'r')
 const stat = fs.statSync(process.execPath)
-const footer = Buffer.from(Array(32))
+const footer = Buffer.alloc(32, 0)
 
 fs.readSync(fd, footer, 0, 32, stat.size - 32)
 

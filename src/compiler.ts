@@ -29,15 +29,15 @@ interface NexeHeader {
   version: string
 }
 
-export class NexeCompiler<T extends NexeOptions = NexeOptions> {
+export class NexeCompiler {
   private start = Date.now()
   private env = { ...process.env }
-  private compileStep: LogStep
+  private compileStep: LogStep | undefined
   public log = new Logger(this.options.loglevel)
   public src: string
   public files: NexeFile[] = []
   public shims: string[] = []
-  public input: string
+  public input: string | undefined
   public bundledInput?: string
   public targets: NexeTarget[]
   public target: NexeTarget
@@ -47,7 +47,7 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
   }
   public output = this.options.output
   private nodeSrcBinPath: string
-  constructor(public options: T) {
+  constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
@@ -130,7 +130,7 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
 
   private _runBuildCommandAsync(command: string, args: string[]) {
     if (this.log.verbose) {
-      this.compileStep.pause()
+      this.compileStep!.pause()
     }
     return new Promise((resolve, reject) => {
       spawn(command, args, {
@@ -140,13 +140,13 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       })
         .once('error', (e: Error) => {
           if (this.log.verbose) {
-            this.compileStep.resume()
+            this.compileStep!.resume()
           }
           reject(e)
         })
         .once('close', (code: number) => {
           if (this.log.verbose) {
-            this.compileStep.resume()
+            this.compileStep!.resume()
           }
           if (code != 0) {
             const error = `${command} ${args.join(' ')} exited with code: ${code}`
@@ -165,14 +165,14 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
   }
 
   private async _buildAsync() {
-    this.compileStep.log(
+    this.compileStep!.log(
       `Configuring node build${
         this.options.configure.length ? ': ' + this.options.configure : '...'
       }`
     )
     await this._configureAsync()
     const buildOptions = this.options.make
-    this.compileStep.log(
+    this.compileStep!.log(
       `Compiling Node${buildOptions.length ? ' with arguments: ' + buildOptions : '...'}`
     )
     await this._runBuildCommandAsync(make, buildOptions)
@@ -205,28 +205,11 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
         let current = 0
         res.on('data', data => {
           current += data.length
-          this.compileStep.modify(`Downloading...${(current / total * 100).toFixed()}%`)
+          this.compileStep!.modify(`Downloading...${(current / total * 100).toFixed()}%`)
         })
       }
     )
     return createReadStream(filename)
-  }
-
-  getHeader() {
-    const version =
-      ['configure', 'vcBuild', 'make'].reduce((a, c) => {
-        return (a += (this.options as any)[c]
-          .slice()
-          .sort()
-          .join())
-      }, '') + this.options.enableNodeCli
-    const header = {
-      resources: this.resources.index,
-      version: createHash('md5')
-        .update(version)
-        .digest('hex')
-    }
-    return `process.__nexe=${JSON.stringify(header)};`
   }
 
   async compileAsync(target: NexeTarget) {

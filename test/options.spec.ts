@@ -8,7 +8,7 @@ describe('options', () => {
   describe('cwd', () => {
     it('should use process.cwd() if nothing is provided', () => {
       const options = normalizeOptions()
-      expect(options.cwd).to.equal(process.cwd())     
+      expect(options.cwd).to.equal(process.cwd())
     })
     it('should use the main module in a package directory', () => {
       const options = normalizeOptions()
@@ -16,11 +16,11 @@ describe('options', () => {
     })
     it('should resolve pathed options against cwd', () => {
       const cwd = '/a/b/c'
-      const options = normalizeOptions({ 
-        cwd, 
+      const options = normalizeOptions({
+        cwd,
         input: '123.js',
         output: 'abc',
-        temp: './d' 
+        temp: './d'
       })
       expect(options.temp).to.equal(path.resolve(cwd, './d'))
       expect(options.input).to.equal(path.resolve(cwd, '123.js'))
@@ -39,7 +39,7 @@ describe('options', () => {
         input: 'src/folder/app.js'
       })
       expect(options.output).to.equal(path.resolve(`./app${ext}`))
-    }) 
+    })
     it('should default to the folder/project name if filename is index', () => {
       const options = normalizeOptions()
       expect(options.output).to.equal(path.resolve(`./nexe${ext}`))

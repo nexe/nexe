@@ -58,7 +58,7 @@ export async function getUnBuiltReleases(options?: any) {
       platforms.forEach(platform => {
         architectures.forEach(arch => {
           if (arch === 'x86' && platform === 'mac') return
-          if (arch === 'arm71' && platform !== 'linux') return
+          if (arch === 'arm7l' && platform !== 'linux') return
           versions.push(getTarget({ platform, arch, version }))
         })
       })

@@ -1,5 +1,3 @@
 {
-    "recommendations": [
-      "esbenp.prettier-vscode"
-    ]
+    "recommendations": [ "eg2.tslint" ]
 }
