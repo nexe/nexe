@@ -3,15 +3,16 @@ import { Buffer } from 'buffer'
 import * as globs from 'globby'
 import { NexeCompiler } from '../compiler'
 
-export default async function resource(compiler: NexeCompiler, next: () => Promise<void>) {
+export default async function resource(compiler: NexeCompiler, next: () => Promise<any>) {
   const resources = compiler.resources
+  const { cwd } = compiler.options
 
   if (!compiler.options.resources.length) {
     return next()
   }
   const step = compiler.log.step('Bundling Resources...')
   let count = 0
-  await each(globs(compiler.options.resources), async file => {
+  await each(globs(compiler.options.resources, { cwd }), async file => {
     if (await isDirectoryAsync(file)) {
       return
     }
