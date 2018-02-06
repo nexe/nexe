@@ -54,7 +54,7 @@ if (Object.keys(manifest).length) {
   }
 
   const ownStat = function(path: string | Buffer) {
-    const key = resolve(path)
+    const key = resolve(path as string)
     if (directories[key]) {
       return createStat({ isDirectory, isFile: isNotFile })
     }

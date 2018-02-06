@@ -10,7 +10,7 @@ function createBundle(options: NexeOptions) {
   if (options.compress) {
     plugins.push(
       QuantumPlugin({
-        target: 'server',
+        target: 'server@esnext',
         uglify: true,
         bakeApiIntoBundle: options.name
       })
@@ -24,7 +24,7 @@ function createBundle(options: NexeOptions) {
     sourceMaps: false,
     writeBundles: false,
     output: '$name.js',
-    target: 'server',
+    target: 'server@esnext', //try not to transpile
     plugins
   })
   const input = relative(cwd, resolve(cwd, options.input)).replace(/\\/g, '/')
@@ -49,7 +49,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   }
 
   let producer = createBundle
-  if (typeof compiler.options.bundle === 'string') {
+  if (typeof bundle === 'string') {
     producer = require(resolve(cwd, bundle)).createBundle
   }
 

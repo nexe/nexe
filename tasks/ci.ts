@@ -5,9 +5,9 @@ const { env } = process
 
 export function triggerMacBuild(release: NexeTarget, branch: string) {
   assert.ok(env.CIRCLE_TOKEN)
-  const circle = `https://circleci.com/api/v1.1/project/github/nexe/nexe/tree/${
-    branch
-  }?circle-token=${env.CIRCLE_TOKEN}`
+  const circle = `https://circleci.com/api/v1.1/project/github/nexe/nexe/tree/${branch}?circle-token=${
+    env.CIRCLE_TOKEN
+  }`
   return got(circle, {
     json: true,
     body: {
