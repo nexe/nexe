@@ -144,7 +144,7 @@ compile({
     - Override in the env with `NEXE_TEMP`
     - default: `./.nexe` in the cwd
  - #### `ico: string`
-    - Path to a user provided icon to be used (Windows only).
+    - Path to a user provided icon to be used (Windows only). Requires `--build` to be set.
  - #### `rc: object`
     - Settings for patching the [node.rc](https://github.com/nodejs/node/blob/master/src/res/node.rc) configuration file (Windows only).
     - Example:
