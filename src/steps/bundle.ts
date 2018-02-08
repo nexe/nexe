@@ -10,7 +10,7 @@ function makeRelative(cwd: string, path: string) {
 
 let producer = async function(compiler: NexeCompiler) {
   const { cwd, input } = compiler.options
-  const { files } = await resolveFiles({ entries: [compiler.options.input], cwd })
+  const { files } = await resolveFiles({ entries: [compiler.options.input], cwd, strict: false })
   Object.keys(files).forEach(x => {
     const file = files[x]!
     if (file) {
