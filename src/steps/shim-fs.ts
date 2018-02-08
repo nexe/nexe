@@ -148,7 +148,7 @@ const nfs = {
 
   readFile: function readFile(file: any, options: any, callback: any) {
     setupManifest()
-    const entry = manifest[file]
+    const entry = manifest[file] || manifest[Path.resolve(file)]
     if (!entry || !isString(file)) {
       return originalReadFile.apply(fs, arguments)
     }
@@ -180,7 +180,7 @@ const nfs = {
   },
   createReadStream: function createReadStream(file: any, options: any) {
     setupManifest()
-    const entry = manifest[file]
+    const entry = manifest[file] || manifest[Path.resolve(file)]
     if (!entry || !isString(file)) {
       return originalCreateReadStream.apply(fs, arguments)
     }
@@ -198,8 +198,10 @@ const nfs = {
   },
   readFileSync: function readFileSync(file: any, options: any) {
     setupManifest()
-    const entry = manifest[file]
+    const entry = manifest[file] || manifest[Path.resolve(file)]
+    console.log('reading', file, 'entry', entry)
     if (!entry || !isString(file)) {
+      console.log('no entry')
       return originalReadFileSync.apply(fs, arguments)
     }
     const [offset, length] = entry
