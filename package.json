@@ -2,7 +2,11 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
+<<<<<<< HEAD
   "version": "2.0.0-rc.26",
+=======
+  "version": "2.0.0-next.2",
+>>>>>>> feat: new bundle strategy
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
