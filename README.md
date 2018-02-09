@@ -211,8 +211,6 @@ Any modifications made to `NexeFile#contents` will be maintained in the cache _w
 
 ## Native Modules
 
-A note about native modules, 
-
 TODO
 
 - [ ] Implement support for `node-pre-gyp#find`.
