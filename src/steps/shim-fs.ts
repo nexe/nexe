@@ -199,9 +199,7 @@ const nfs = {
   readFileSync: function readFileSync(file: any, options: any) {
     setupManifest()
     const entry = manifest[file] || manifest[Path.resolve(file)]
-    console.log('reading', file, 'entry', entry)
     if (!entry || !isString(file)) {
-      console.log('no entry')
       return originalReadFileSync.apply(fs, arguments)
     }
     const [offset, length] = entry
