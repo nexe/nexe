@@ -1,4 +1,6 @@
 language: node_js
+node_js:
+- '6'
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y g++-multilib
