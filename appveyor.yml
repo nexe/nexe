@@ -7,6 +7,7 @@ environment:
     secure: 3wuEGJsppSKFvdwhp3jprUA9Zkc3WINlc/9oFXjhAR6J05lYMXP7Fl7lXTKpkGZx
 install:
   - ps: Install-Product node 6
+  - npm i -g npm@latest
   - npm i
 build: off
 test: off
