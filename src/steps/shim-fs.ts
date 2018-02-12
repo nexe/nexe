@@ -1,6 +1,5 @@
 import { Stats } from 'fs'
 import { ok } from 'assert'
-import * as Path from 'path'
 
 const binary = (process as any).__nexe as NexeBinary
 ok(binary)
@@ -10,9 +9,13 @@ const isString = (x: any): x is string => typeof x === 'string' || x instanceof 
 const isNotFile = () => false
 const isNotDirectory = isNotFile
 const isFile = () => true
+const noop = () => {}
 const isDirectory = isFile
 
 const fs = require('fs')
+const path = require('path')
+
+const originalExistsSync = fs.existsSync
 const originalReadFile = fs.readFile
 const originalReadFileSync = fs.readFileSync
 const originalCreateReadStream = fs.createReadStream
@@ -23,6 +26,14 @@ const originalStat = fs.stat
 const originalRealpath = fs.realpath
 const originalRealpathSync = fs.realpathSync
 const resourceStart = binary.layout.resourceStart
+
+let log = (text: string) => {
+  if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
+    process.stderr.write('[nexe] - ' + text + '\n')
+  } else {
+    log = noop
+  }
+}
 
 const statTime = function() {
   const stat = binary.layout.stat
@@ -54,8 +65,8 @@ const createStat = function(directoryExtensions: any, fileExtensions?: any) {
   return Object.assign({}, binary.layout.stat, fileExtensions, { size }, statTime())
 }
 
-const ownStat = function(path: string) {
-  const key = Path.resolve(path)
+const ownStat = function(filepath: string) {
+  const key = path.resolve(filepath)
   if (directories[key]) {
     return createStat({ isDirectory, isFile: isNotFile })
   }
@@ -65,15 +76,15 @@ const ownStat = function(path: string) {
 }
 
 function makeLong(filepath: string) {
-  return (Path as any)._makeLong && (Path as any)._makeLong(filepath)
+  return (path as any)._makeLong && (path as any)._makeLong(filepath)
 }
 
 let setupManifest = () => {
   Object.keys(manifest).forEach(key => {
     const entry = manifest[key]
-    const absolutePath = Path.resolve(key)
+    const absolutePath = path.resolve(key)
     const longPath = makeLong(absolutePath)
-    const normalizedPath = Path.normalize(key)
+    const normalizedPath = path.normalize(key)
 
     if (!manifest[absolutePath]) {
       manifest[absolutePath] = entry
@@ -85,47 +96,54 @@ let setupManifest = () => {
       manifest[normalizedPath] = manifest[key]
     }
 
-    let currentDir = Path.dirname(absolutePath)
+    let currentDir = path.dirname(absolutePath)
     let prevDir = absolutePath
 
     while (currentDir !== prevDir) {
       directories[currentDir] = directories[currentDir] || {}
-      directories[currentDir][Path.basename(prevDir)] = true
+      directories[currentDir][path.basename(prevDir)] = true
       const longDir = makeLong(currentDir)
       if (longDir && !directories[longDir]) {
         directories[longDir] = directories[currentDir]
       }
       prevDir = currentDir
-      currentDir = Path.dirname(currentDir)
+      currentDir = path.dirname(currentDir)
     }
   })
-  setupManifest = () => {}
+  setupManifest = noop
 }
 
 //naive patches intended to work for most use cases
-const nfs = {
-  realpath: function realpath(path: any, options: any, cb: any): void {
-    setupManifest()
-    if (isString(path) && manifest[path]) {
-      return process.nextTick(() => cb(null, path))
+const nfs: any = {
+  existsSync: function existsSync(filepath: string) {
+    const key = path.resolve(filepath)
+    if (manifest[key] || directories[key]) {
+      return true
     }
-    return originalRealpath.call(fs, path, options, cb)
+    return originalExistsSync.apply(fs, arguments)
   },
-  realpathSync: function realpathSync(path: any, options: any) {
+  realpath: function realpath(filepath: any, options: any, cb: any): void {
     setupManifest()
-    if (isString(path) && manifest[path]) {
-      return path
+    if (isString(filepath) && manifest[filepath]) {
+      return process.nextTick(() => cb(null, filepath))
     }
-    return originalRealpathSync.call(fs, path, options)
+    return originalRealpath.call(fs, filepath, options, cb)
   },
-  readdir: function readdir(path: string | Buffer, options: any, callback: any) {
+  realpathSync: function realpathSync(filepath: any, options: any) {
     setupManifest()
-    path = path.toString()
+    if (isString(filepath) && manifest[filepath]) {
+      return filepath
+    }
+    return originalRealpathSync.call(fs, filepath, options)
+  },
+  readdir: function readdir(filepath: string | Buffer, options: any, callback: any) {
+    setupManifest()
+    filepath = filepath.toString()
     if ('function' === typeof options) {
       callback = options
       options = { encoding: 'utf8' }
     }
-    const dir = directories[Path.resolve(path)]
+    const dir = directories[path.resolve(filepath)]
     if (dir) {
       process.nextTick(() => {
         //todo merge with original?
@@ -136,10 +154,10 @@ const nfs = {
     }
   },
 
-  readdirSync: function readdirSync(path: string | Buffer, options: any) {
+  readdirSync: function readdirSync(filepath: string | Buffer, options: any) {
     setupManifest()
-    path = path.toString()
-    const dir = directories[Path.resolve(path)]
+    filepath = filepath.toString()
+    const dir = directories[path.resolve(filepath)]
     if (dir) {
       return Object.keys(dir)
     }
@@ -148,7 +166,7 @@ const nfs = {
 
   readFile: function readFile(file: any, options: any, callback: any) {
     setupManifest()
-    const entry = manifest[file] || manifest[Path.resolve(file)]
+    const entry = manifest[file] || manifest[path.resolve(file)]
     if (!entry || !isString(file)) {
       return originalReadFile.apply(fs, arguments)
     }
@@ -180,7 +198,7 @@ const nfs = {
   },
   createReadStream: function createReadStream(file: any, options: any) {
     setupManifest()
-    const entry = manifest[file] || manifest[Path.resolve(file)]
+    const entry = manifest[file] || manifest[path.resolve(file)]
     if (!entry || !isString(file)) {
       return originalCreateReadStream.apply(fs, arguments)
     }
@@ -198,7 +216,8 @@ const nfs = {
   },
   readFileSync: function readFileSync(file: any, options: any) {
     setupManifest()
-    const entry = manifest[file] || manifest[Path.resolve(file)]
+
+    const entry = manifest[file] || manifest[path.resolve(file)]
     if (!entry || !isString(file)) {
       return originalReadFileSync.apply(fs, arguments)
     }
@@ -211,15 +230,15 @@ const nfs = {
     fs.closeSync(fd)
     return encoding ? result.toString(encoding) : result
   },
-  statSync: function statSync(path: string | Buffer) {
-    const stat = isString(path) && ownStat(path)
+  statSync: function statSync(filepath: string | Buffer) {
+    const stat = isString(filepath) && ownStat(filepath)
     if (stat) {
       return stat
     }
     return originalStatSync.apply(fs, arguments)
   },
-  stat: function stat(path: string | Buffer, callback: any) {
-    const stat = isString(path) && ownStat(path)
+  stat: function stat(filepath: string | Buffer, callback: any) {
+    const stat = isString(filepath) && ownStat(filepath)
     if (stat) {
       process.nextTick(() => {
         callback(null, stat)
@@ -229,6 +248,16 @@ const nfs = {
     }
   }
 }
+
+if (typeof fs.exists === 'function') {
+  nfs.exists = function(filepath: string, cb: Function) {
+    cb = cb || noop
+    const exists = nfs.existsSync(filepath)
+    process.nextTick(() => cb(exists))
+  }
+}
+Object.assign(fs, nfs)
+
 const patches = (process as any).nexe.patches
 delete (process as any).nexe
 
@@ -236,22 +265,33 @@ patches.internalModuleReadFile = function(this: any, original: any, ...args: any
   const [filepath] = args
   setupManifest()
   if (manifest[filepath]) {
+    log('read     (hit)              ' + filepath)
     return nfs.readFileSync(filepath, 'utf-8')
   }
+  log('read          (miss)       ' + filepath)
   return original.call(this, ...args)
 }
 patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
   setupManifest()
   const [filepath] = args
   if (manifest[filepath]) {
+    log('stat     (hit)              ' + filepath + '   ' + 0)
     return 0
   }
   if (directories[filepath]) {
+    log('stat dir (hit)              ' + filepath + '   ' + 1)
     return 1
   }
-  return original.call(this, ...args)
+  const res = original.call(this, ...args)
+  if (res === 0) {
+    log('stat          (miss)        ' + filepath + '   ' + res)
+  } else if (res === 1) {
+    log('stat dir      (miss)        ' + filepath + '   ' + res)
+  } else {
+    log('stat                 (fail) ' + filepath + '   ' + res)
+  }
+  return res
 }
-Object.assign(fs, nfs)
 
 interface NexeBinary {
   resources: { [key: string]: number[] }
