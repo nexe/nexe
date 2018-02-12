@@ -35,6 +35,14 @@ const getKey = process.platform.startsWith('win')
     }
   : path.resolve
 
+let log = (text: string) => {
+  if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
+    process.stderr.write('[nexe] - ' + text + '\n')
+  } else {
+    log = noop
+  }
+}
+
 const statTime = function() {
   const stat = binary.layout.stat
   return {
@@ -256,6 +264,16 @@ const nfs: any = {
     }
   }
 }
+
+if (typeof fs.exists === 'function') {
+  nfs.exists = function(filepath: string, cb: Function) {
+    cb = cb || noop
+    const exists = nfs.existsSync(filepath)
+    process.nextTick(() => cb(exists))
+  }
+}
+Object.assign(fs, nfs)
+
 const patches = (process as any).nexe.patches
 delete (process as any).nexe
 
@@ -263,22 +281,33 @@ patches.internalModuleReadFile = function(this: any, original: any, ...args: any
   const [filepath] = args
   setupManifest()
   if (manifest[filepath]) {
+    log('read     (hit)              ' + filepath)
     return nfs.readFileSync(filepath, 'utf-8')
   }
+  log('read          (miss)       ' + filepath)
   return original.call(this, ...args)
 }
 patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
   setupManifest()
   const [filepath] = args
   if (manifest[filepath]) {
+    log('stat     (hit)              ' + filepath + '   ' + 0)
     return 0
   }
   if (directories[filepath]) {
+    log('stat dir (hit)              ' + filepath + '   ' + 1)
     return 1
   }
-  return original.call(this, ...args)
+  const res = original.call(this, ...args)
+  if (res === 0) {
+    log('stat          (miss)        ' + filepath + '   ' + res)
+  } else if (res === 1) {
+    log('stat dir      (miss)        ' + filepath + '   ' + res)
+  } else {
+    log('stat                 (fail) ' + filepath + '   ' + res)
+  }
+  return res
 }
-Object.assign(fs, nfs)
 
 if (typeof fs.exists === 'function') {
   nfs.exists = function(filepath: string, cb: Function) {
