@@ -7,11 +7,11 @@ environment:
     secure: 3wuEGJsppSKFvdwhp3jprUA9Zkc3WINlc/9oFXjhAR6J05lYMXP7Fl7lXTKpkGZx
 install:
   - ps: Install-Product node 6
-  - yarn
+  - npm i
 build: off
 test: off
 build_script:
-  - yarn run asset-compile
+  - npm run asset-compile
 artifacts:
   - path: .nexe\**\node.exe
 cache:

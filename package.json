@@ -12,7 +12,7 @@
     "asset-compile": "ts-node tasks/asset-compile",
     "test": "mocha",
     "lint": "tslint \"{src,plugins,tasks}/**/*.ts\" --fix",
-    "prepublishOnly": "npm run lint && npm run build && npm test",
+    "prepare": "npm run lint && npm run build && npm test",
     "prebuild": "rimraf lib",
     "build": "tsc --declaration",
     "postbuild": "ts-node tasks/post-build"
