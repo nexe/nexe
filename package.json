@@ -2,7 +2,7 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "2.0.0-next.2",
+  "version": "2.0.0-next.4",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
@@ -43,7 +43,7 @@
     "mkdirp": "^0.5.1",
     "ora": "^1.4.0",
     "pify": "^3.0.0",
-    "resolve-dependencies": "^0.2.1",
+    "resolve-dependencies": "^0.2.3",
     "rimraf": "^2.6.2"
   },
   "devDependencies": {
