@@ -13,10 +13,10 @@ install:
   - curl -L -o nasm.exe https://www.nasm.us/pub/nasm/releasebuilds/2.13.03/win64/nasm-2.13.03-installer-x64.exe
   - start /wait nasm.exe /S
   - ps: $env:path="C:\Program Files\nasm;$($env:path)"
-  - yarn
+  - npm i
 build: off
 test: off
 build_script:
-  - yarn run asset-compile
+  - npm run asset-compile
 artifacts:
   - path: $(HOMEPATH)\.nexe\**\node.exe
