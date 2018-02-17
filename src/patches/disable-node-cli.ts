@@ -12,7 +12,7 @@ export default async function disableNodeCli(compiler: NexeCompiler, next: () =>
     `${nodeccMarker} '-'`,
     // allow NODE_OPTIONS, introduced in 8.0
     parseInt(compiler.target.version.split('.')[0]) >= 8
-      ? `(${nodeccMarker} is_env ? '-' : ']')`
+      ? `(${nodeccMarker} (is_env ? '-' : ']'))`
       : `(${nodeccMarker} ']')`
   )
 
