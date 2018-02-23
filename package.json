@@ -46,8 +46,9 @@
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "ora": "^1.2.0",
-    "pifi": "1.0.0",
+    "pify": "^3.0.0",
     "rimraf": "^2.6.1",
+    "uglify-es": "^3.3.9",
     "uglify-js": "3.0.28"
   },
   "devDependencies": {
