@@ -4,8 +4,10 @@ import { isWindows, padRight } from './util'
 import { basename, extname, join, isAbsolute, relative, dirname, resolve } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL, homedir } from 'os'
-import c from 'chalk'
+import chalk from 'chalk'
+import { resolveFileName } from 'resolve-dependencies'
 const caw = require('caw')
+const c = process.platform === 'win32' ? chalk.constructor({ enabled: false }) : chalk
 
 export const version = '{{replace:0}}'
 
@@ -150,16 +152,6 @@ function extractCliMap(match: RegExp, options: any) {
     )
 }
 
-function tryResolveMainFileName(cwd: string) {
-  let filename
-  try {
-    const file = require.resolve(cwd)
-    filename = basename(file).replace(extname(file), '')
-  } catch (_) {}
-
-  return filename ? filename : 'nexe_' + Date.now()
-}
-
 function extractLogLevel(options: NexeOptions) {
   if (options.loglevel) return options.loglevel
   if (options.silent) return 'silent'
@@ -173,14 +165,11 @@ function isName(name: string) {
 
 function extractName(options: NexeOptions) {
   let name = options.name
+  //try and use the input filename as the output filename if its not index
   if (!isName(name) && typeof options.input === 'string') {
     name = basename(options.input).replace(extname(options.input), '')
   }
-
-  if (!isName(name)) {
-    name = tryResolveMainFileName(options.cwd)
-  }
-
+  //try and use the directory as the filename
   if (!isName(name) && basename(options.cwd)) {
     name = basename(options.cwd)
   }
@@ -189,26 +178,28 @@ function extractName(options: NexeOptions) {
 }
 
 function isEntryFile(filename?: string): filename is string {
-  return Boolean(
-    filename && !isAbsolute(filename) && filename !== 'node' && /\.(tsx?|jsx?)$/.test(filename)
-  )
+  return Boolean(filename && !isAbsolute(filename))
 }
 
 export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
+  let result = null
   if (input) {
-    return resolve(cwd, input)
+    result = resolveFileName(cwd, input, { silent: true })
   }
   if (isEntryFile(maybeEntry)) {
-    return resolve(cwd, maybeEntry)
+    result = resolveFileName(cwd, maybeEntry, { silent: true })
   }
   if (!process.stdin.isTTY) {
     return ''
   }
-  try {
-    return require.resolve(cwd)
-  } catch (e) {
-    throw new Error('No entry file found')
+
+  if (!result || !result.absPath) {
+    result = resolveFileName(cwd, '.', { silent: true })
   }
+
+  if (!result.absPath) throw new Error(`Entry file "${input}" not found!`)
+
+  return result.absPath
 }
 
 function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
