@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2.0.0-rc.26",
 =======
   "version": "2.0.0-next.2",
@@ -15,6 +16,9 @@
 =======
   "version": "2.0.0-next.5",
 >>>>>>> fix: bootstrap file path in node 4.x
+=======
+  "version": "2.0.0-next.6",
+>>>>>>> fix: bump resolve-dependencies and use expand option
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
