@@ -259,11 +259,9 @@ if (typeof fs.exists === 'function') {
 Object.assign(fs, nfs)
 
 const nexe    = (process as any).nexe
-let patches;
+let patches   = {}
 if(nexe) {
   patches     =  nexe.patches
-} else {
-  patches     = {}
 }
 delete (process as any).nexe
 
