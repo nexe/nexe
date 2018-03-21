@@ -258,7 +258,13 @@ if (typeof fs.exists === 'function') {
 }
 Object.assign(fs, nfs)
 
-const patches = (process as any).nexe.patches
+const nexe    = (process as any).nexe
+let patches;
+if(nexe) {
+  patches     =  nexe.patches
+} else {
+  patches     = {}
+}
 delete (process as any).nexe
 
 patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
