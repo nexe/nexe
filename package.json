@@ -43,7 +43,7 @@
     "mkdirp": "^0.5.1",
     "ora": "^2.0.0",
     "pify": "^3.0.0",
-    "resolve-dependencies": "^1.1.0",
+    "resolve-dependencies": "^1.1.4",
     "rimraf": "^2.6.2"
   },
   "devDependencies": {
