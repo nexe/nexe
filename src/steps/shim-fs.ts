@@ -3,29 +3,27 @@ import { ok } from 'assert'
 
 const binary = (process as any).__nexe as NexeBinary
 ok(binary)
-const manifest = binary.resources
-const directories: { [key: string]: { [key: string]: boolean } } = {}
-const isString = (x: any): x is string => typeof x === 'string' || x instanceof String
-const isNotFile = () => false
-const isNotDirectory = isNotFile
-const isFile = () => true
-const noop = () => {}
-const isDirectory = isFile
-
-const fs = require('fs')
-const path = require('path')
-
-const originalExistsSync = fs.existsSync
-const originalReadFile = fs.readFile
-const originalReadFileSync = fs.readFileSync
-const originalCreateReadStream = fs.createReadStream
-const originalReaddir = fs.readdir
-const originalReaddirSync = fs.readdirSync
-const originalStatSync = fs.statSync
-const originalStat = fs.stat
-const originalRealpath = fs.realpath
-const originalRealpathSync = fs.realpathSync
-const resourceStart = binary.layout.resourceStart
+const manifest = binary.resources,
+  directories: { [key: string]: { [key: string]: boolean } } = {},
+  isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
+  isNotFile = () => false,
+  isNotDirectory = isNotFile,
+  isFile = () => true,
+  noop = () => {},
+  isDirectory = isFile,
+  fs = require('fs'),
+  path = require('path'),
+  originalExistsSync = fs.existsSync,
+  originalReadFile = fs.readFile,
+  originalReadFileSync = fs.readFileSync,
+  originalCreateReadStream = fs.createReadStream,
+  originalReaddir = fs.readdir,
+  originalReaddirSync = fs.readdirSync,
+  originalStatSync = fs.statSync,
+  originalStat = fs.stat,
+  originalRealpath = fs.realpath,
+  originalRealpathSync = fs.realpathSync,
+  resourceStart = binary.layout.resourceStart
 
 let log = (text: string) => {
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
@@ -34,6 +32,16 @@ let log = (text: string) => {
     log = noop
   }
 }
+
+const getKey = process.platform.startsWith('win')
+  ? function getKey(filepath: string): string {
+      let key = path.resolve(filepath)
+      if (key.substr(1, 2) === ':\\') {
+        key = key[0].toUpperCase() + key.substr(1)
+      }
+      return key
+    }
+  : path.resolve
 
 const statTime = function() {
   const stat = binary.layout.stat
@@ -66,7 +74,7 @@ const createStat = function(directoryExtensions: any, fileExtensions?: any) {
 }
 
 const ownStat = function(filepath: string) {
-  const key = path.resolve(filepath)
+  const key = getKey(filepath)
   if (directories[key]) {
     return createStat({ isDirectory, isFile: isNotFile })
   }
@@ -80,11 +88,11 @@ function makeLong(filepath: string) {
 }
 
 let setupManifest = () => {
-  Object.keys(manifest).forEach(key => {
-    const entry = manifest[key]
-    const absolutePath = path.resolve(key)
+  Object.keys(manifest).forEach(filepath => {
+    const entry = manifest[filepath]
+    const absolutePath = getKey(filepath)
     const longPath = makeLong(absolutePath)
-    const normalizedPath = path.normalize(key)
+    const normalizedPath = path.normalize(filepath)
 
     if (!manifest[absolutePath]) {
       manifest[absolutePath] = entry
@@ -93,7 +101,7 @@ let setupManifest = () => {
       manifest[longPath] = entry
     }
     if (!manifest[normalizedPath]) {
-      manifest[normalizedPath] = manifest[key]
+      manifest[normalizedPath] = manifest[filepath]
     }
 
     let currentDir = path.dirname(absolutePath)
@@ -116,7 +124,7 @@ let setupManifest = () => {
 //naive patches intended to work for most use cases
 const nfs: any = {
   existsSync: function existsSync(filepath: string) {
-    const key = path.resolve(filepath)
+    const key = getKey(filepath)
     if (manifest[key] || directories[key]) {
       return true
     }
@@ -124,14 +132,16 @@ const nfs: any = {
   },
   realpath: function realpath(filepath: any, options: any, cb: any): void {
     setupManifest()
-    if (isString(filepath) && manifest[filepath]) {
+    const key = getKey(filepath)
+    if (isString(filepath) && (manifest[filepath] || manifest[key])) {
       return process.nextTick(() => cb(null, filepath))
     }
     return originalRealpath.call(fs, filepath, options, cb)
   },
   realpathSync: function realpathSync(filepath: any, options: any) {
     setupManifest()
-    if (isString(filepath) && manifest[filepath]) {
+    const key = getKey(filepath)
+    if (isString(filepath) && (manifest[filepath] || manifest[key])) {
       return filepath
     }
     return originalRealpathSync.call(fs, filepath, options)
@@ -143,7 +153,7 @@ const nfs: any = {
       callback = options
       options = { encoding: 'utf8' }
     }
-    const dir = directories[path.resolve(filepath)]
+    const dir = directories[getKey(filepath)]
     if (dir) {
       process.nextTick(() => {
         //todo merge with original?
@@ -157,17 +167,17 @@ const nfs: any = {
   readdirSync: function readdirSync(filepath: string | Buffer, options: any) {
     setupManifest()
     filepath = filepath.toString()
-    const dir = directories[path.resolve(filepath)]
+    const dir = directories[getKey(filepath)]
     if (dir) {
       return Object.keys(dir)
     }
     return originalReaddirSync.apply(fs, arguments)
   },
 
-  readFile: function readFile(file: any, options: any, callback: any) {
+  readFile: function readFile(filepath: any, options: any, callback: any) {
     setupManifest()
-    const entry = manifest[file] || manifest[path.resolve(file)]
-    if (!entry || !isString(file)) {
+    const entry = manifest[filepath] || manifest[getKey(filepath)]
+    if (!entry || !isString(filepath)) {
       return originalReadFile.apply(fs, arguments)
     }
     const [offset, length] = entry
@@ -196,10 +206,10 @@ const nfs: any = {
       })
     })
   },
-  createReadStream: function createReadStream(file: any, options: any) {
+  createReadStream: function createReadStream(filepath: any, options: any) {
     setupManifest()
-    const entry = manifest[file] || manifest[path.resolve(file)]
-    if (!entry || !isString(file)) {
+    const entry = manifest[filepath] || manifest[getKey(filepath)]
+    if (!entry || !isString(filepath)) {
       return originalCreateReadStream.apply(fs, arguments)
     }
     const [offset, length] = entry
@@ -214,11 +224,11 @@ const nfs: any = {
       })
     )
   },
-  readFileSync: function readFileSync(file: any, options: any) {
+  readFileSync: function readFileSync(filepath: any, options: any) {
     setupManifest()
 
-    const entry = manifest[file] || manifest[path.resolve(file)]
-    if (!entry || !isString(file)) {
+    const entry = manifest[filepath] || manifest[getKey(filepath)]
+    if (!entry || !isString(filepath)) {
       return originalReadFileSync.apply(fs, arguments)
     }
     const [offset, length] = entry
