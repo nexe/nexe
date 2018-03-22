@@ -25,6 +25,14 @@ const manifest = binary.resources,
   originalRealpathSync = fs.realpathSync,
   resourceStart = binary.layout.resourceStart
 
+let log = (text: string) => {
+  if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
+    process.stderr.write('[nexe] - ' + text + '\n')
+  } else {
+    log = noop
+  }
+}
+
 const getKey = process.platform.startsWith('win')
   ? function getKey(filepath: string): string {
       let key = path.resolve(filepath)
@@ -34,14 +42,6 @@ const getKey = process.platform.startsWith('win')
       return key
     }
   : path.resolve
-
-let log = (text: string) => {
-  if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
-    process.stderr.write('[nexe] - ' + text + '\n')
-  } else {
-    log = noop
-  }
-}
 
 const statTime = function() {
   const stat = binary.layout.stat
