@@ -269,6 +269,10 @@ if (typeof fs.exists === 'function') {
 Object.assign(fs, nfs)
 
 const patches = (process as any).nexe.patches
+if (!patches) {
+  throw new Error('Your cached build is out of date!\nUse --clean to get a new build.\n')
+}
+
 delete (process as any).nexe
 
 patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
