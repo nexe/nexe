@@ -186,8 +186,15 @@ export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
     return ''
   }
   let result = null
+  if (input && isAbsolute(input)) {
+    return input
+  }
   if (input) {
-    result = resolveFileName(cwd, input, { silent: true })
+    let prefix = ''
+    if (!input.startsWith('.')) {
+      prefix = './'
+    }
+    result = resolveFileName(cwd, prefix + input, { silent: true })
   }
   if (isEntryFile(maybeEntry)) {
     result = resolveFileName(cwd, maybeEntry, { silent: true })
