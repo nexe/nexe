@@ -14,6 +14,14 @@ describe('options', () => {
       const options = normalizeOptions()
       expect(options.input).to.equal(path.resolve('./index.js'))
     })
+    it('should resolve relative paths for input', () => {
+      const options = normalizeOptions({ input: 'test/fixture/entry.js' })
+      expect(options.input).to.equal(path.resolve('./test/fixture/entry.js'))
+    })
+    it('should accept a module entry as input', () => {
+      const options = normalizeOptions({ input: 'test/fixture' })
+      expect(options.input).to.equal(path.resolve('./test/fixture/entry.js'))
+    })
     it('should resolve pathed options against cwd', () => {
       const cwd = path.join(process.cwd(), 'test/fixture')
       const options = normalizeOptions({
