@@ -39,7 +39,6 @@ async function compile(
 
   if (error) {
     if (compiler.options.loglevel !== 'silent' && error) {
-      console.log(error)
       process.stderr.write(EOL + error.message + EOL)
     }
     compiler.quit()
