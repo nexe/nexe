@@ -8,16 +8,18 @@ function makeRelative(cwd: string, path: string) {
   return './' + relative(cwd, path)
 }
 
-let producer = async function(compiler: NexeCompiler) {
+let producer = async function(compiler: NexeCompiler): Promise<string> {
   const { cwd, input } = compiler.options
-  const { files } = await resolveFiles(compiler.options.input, { cwd, expand: true })
+  const { files, entries } = await resolveFiles(input, { cwd, expand: true })
+  const mainFileContents = (entries[input].contents as string) || ''
+
   Object.keys(files).forEach(filename => {
     const file = files[filename]!
     if (file && file.contents) {
       compiler.addResource(makeRelative(cwd, filename), Buffer.from(file.contents))
     }
   })
-  return Promise.resolve('require(' + JSON.stringify(makeRelative(cwd, input)) + ')')
+  return Promise.resolve(mainFileContents)
 }
 
 export default async function bundle(compiler: NexeCompiler, next: any) {
