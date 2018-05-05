@@ -31,7 +31,7 @@ interface NexeHeader {
 
 export class NexeCompiler<T extends NexeOptions = NexeOptions> {
   private start = Date.now()
-  private env = { ...process.env }
+  private env: any
   private compileStep: LogStep
   public log = new Logger(this.options.loglevel)
   public src: string
@@ -58,8 +58,13 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
     this.log.step('nexe ' + version, 'info')
     if (python) {
       if (isWindows) {
-        this.env.PATH = '"' + dequote(normalize(python)) + '";' + this.env.PATH
+        // Do a little shuffling to correctly set the PATH regardless of property name case sensitivity
+        const originalPath = process.env.PATH
+        process.env.PATH = dequote(normalize(python)) + ';' + originalPath
+        this.env = { ...process.env }
+        process.env.PATH = originalPath
       } else {
+        this.env = { ...process.env }
         this.env.PYTHON = python
       }
     }
