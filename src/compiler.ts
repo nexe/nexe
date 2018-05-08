@@ -1,4 +1,4 @@
-import { dirname, normalize, join } from 'path'
+import { delimiter, dirname, normalize, join } from 'path'
 import { Buffer } from 'buffer'
 import { createHash } from 'crypto'
 import { createReadStream } from 'fs'
@@ -60,8 +60,9 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       if (isWindows) {
         // Do a little shuffling to correctly set the PATH regardless of property name case sensitivity
         const originalPath = process.env.PATH
-        process.env.PATH = dequote(normalize(python)) + ';' + originalPath
+        delete process.env.PATH
         this.env = { ...process.env }
+        this.env.PATH = dequote(normalize(python)) + delimiter + originalPath
         process.env.PATH = originalPath
       } else {
         this.env = { ...process.env }
