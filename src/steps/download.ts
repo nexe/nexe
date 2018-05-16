@@ -28,7 +28,11 @@ function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options 
  * @param {*} next
  */
 export default async function downloadNode(compiler: NexeCompiler, next: () => Promise<void>) {
-  const { src, log, targets: [{ version }] } = compiler
+  const {
+    src,
+    log,
+    targets: [{ version }]
+  } = compiler
   const { sourceUrl, downloadOptions } = compiler.options
   const url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`
   const step = log.step(`Downloading Node.js source from: ${url}`)
