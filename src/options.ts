@@ -5,7 +5,7 @@ import { basename, extname, join, isAbsolute, relative, dirname, resolve } from 
 import { getTarget, NexeTarget } from './target'
 import { EOL, homedir } from 'os'
 import chalk from 'chalk'
-import { resolveFileName } from 'resolve-dependencies'
+import { resolveFileNameSync } from 'resolve-dependencies'
 const caw = require('caw')
 const c = process.platform === 'win32' ? chalk.constructor({ enabled: false }) : chalk
 
@@ -194,17 +194,17 @@ export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
     if (!input.startsWith('.')) {
       prefix = './'
     }
-    result = resolveFileName(cwd, prefix + input, { silent: true })
+    result = resolveFileNameSync(cwd, prefix + input)
   }
   if (isEntryFile(maybeEntry)) {
-    result = resolveFileName(cwd, maybeEntry, { silent: true })
+    result = resolveFileNameSync(cwd, maybeEntry)
   }
   if (!process.stdin.isTTY) {
     return ''
   }
 
   if (!result || !result.absPath) {
-    result = resolveFileName(cwd, '.', { silent: true })
+    result = resolveFileNameSync(cwd, '.')
   }
 
   if (!result.absPath) throw new Error(`Entry file "${input}" not found!`)
