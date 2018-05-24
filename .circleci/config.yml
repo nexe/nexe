@@ -2,8 +2,8 @@ version: 2
 
 jobs:
   test:
-    docker:
-    - image: node:8
+    macos:
+      xcode: "9.0"
     steps:
     - checkout
     - restore_cache:
