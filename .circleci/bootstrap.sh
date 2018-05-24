@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 echo "setting up node to use latest lts"
-curl -L https://git.io/n-install | bash
+npm install -g n
+n lts
 
-if ! yarn --version >/dev/null; then
-  npm install -g yarn
-fi
+# Install latest yarn version
+npm install -g yarn
 
 echo "using yarn $(yarn --version)"
 npm install -g ts-node
