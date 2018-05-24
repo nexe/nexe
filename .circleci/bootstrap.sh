@@ -17,3 +17,6 @@ npm install -g yarn
 echo "using yarn $(yarn --version)"
 npm install -g ts-node
 npm install -g typescript
+
+# Run yarn
+yarn
