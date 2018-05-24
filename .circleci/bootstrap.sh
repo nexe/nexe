@@ -5,3 +5,5 @@ if ! yarn --version >/dev/null; then
 fi
 
 echo "using yarn $(yarn --version)"
+npm install -g ts-node
+npm install -g typescript
