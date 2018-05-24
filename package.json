@@ -11,7 +11,7 @@
   "scripts": {
     "asset-compile": "ts-node tasks/asset-compile",
     "test": "mocha",
-    "fmt": "prettier --parser typescript --no-semi --print-width 100 --single-quote --write \"{src,plugins,tasks}/**/*.ts\"",
+    "fmt": "prettier --parser typescript --no-semi   --print-width 100 --single-quote --write \"{src,plugins,tasks}/**/*.ts\"",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
     "prebuild": "rimraf lib && npm run fmt",

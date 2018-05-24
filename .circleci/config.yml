@@ -1,0 +1,28 @@
+version: 2
+
+jobs:
+  test:
+    macos:
+      xcode: "9.0"
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - package-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
+        - package- # Fallback for the latest package.json cache
+    - run:
+        name: configure-yarn
+        command: .circleci/bootstrap.sh
+    - save_cache:
+        key: package-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }} 
+        paths:
+        - node_modules
+    - run:
+        name: test
+        command: .circleci/test.sh
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
