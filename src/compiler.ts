@@ -56,18 +56,18 @@ export class NexeCompiler<T extends NexeOptions = NexeOptions> {
       ? join(this.src, 'Release', 'node.exe')
       : join(this.src, 'out', 'Release', 'node')
     this.log.step('nexe ' + version, 'info')
-    if (python) {
-      if (isWindows) {
-        // Do a little shuffling to correctly set the PATH regardless of property name case sensitivity
-        const originalPath = process.env.PATH
-        delete process.env.PATH
-        this.env = { ...process.env }
-        this.env.PATH = dequote(normalize(python)) + delimiter + originalPath
-        process.env.PATH = originalPath
-      } else {
-        this.env = { ...process.env }
-        this.env.PYTHON = python
-      }
+
+    if (isWindows) {
+      const originalPath = process.env.PATH
+      delete process.env.PATH
+      this.env = { ...process.env }
+      this.env.PATH = python
+        ? (this.env.PATH = dequote(normalize(python)) + delimiter + originalPath)
+        : originalPath
+      process.env.PATH = originalPath
+    } else {
+      this.env = { ...process.env }
+      python && (this.env.PYTHON = python)
     }
   }
 
