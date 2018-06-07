@@ -1,6 +1,5 @@
 import { delimiter, dirname, normalize, join } from 'path'
 import { Buffer } from 'buffer'
-import { createHash } from 'crypto'
 import { createReadStream } from 'fs'
 import { Readable } from 'stream'
 import { spawn } from 'child_process'

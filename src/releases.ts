@@ -1,14 +1,5 @@
 import got = require('got')
-import download = require('download')
-import {
-  NodePlatform,
-  NodeArch,
-  platforms,
-  architectures,
-  NexeTarget,
-  getTarget,
-  targetsEqual
-} from './target'
+import { platforms, architectures, NexeTarget, getTarget, targetsEqual } from './target'
 export { NexeTarget }
 
 const versionsToSkip = [0, 1, 2, 3, 4, 5, 7, 9, 11]

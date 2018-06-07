@@ -1,7 +1,6 @@
 import { NexeCompiler } from '../compiler'
 import { readFileAsync, writeFileAsync } from '../util'
 import { resolve, relative } from 'path'
-import { NexeOptions } from '../options'
 import resolveFiles from 'resolve-dependencies'
 
 function makeRelative(cwd: string, path: string) {

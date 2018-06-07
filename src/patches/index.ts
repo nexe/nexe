@@ -5,7 +5,6 @@ import cli from './disable-node-cli'
 import flags from './flags'
 import ico from './ico'
 import rc from './node-rc'
-import { NexeCompiler, NexeOptions } from '../compiler'
 
 const patches = [gyp, bootNexe, buildFixes, cli, flags, ico, rc]
 

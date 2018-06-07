@@ -1,5 +1,4 @@
 import { readFileAsync, isDirectoryAsync, each } from '../util'
-import { Buffer } from 'buffer'
 import * as globs from 'globby'
 import { NexeCompiler } from '../compiler'
 

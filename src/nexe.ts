@@ -1,6 +1,5 @@
 import { EOL } from 'os'
-import { compose, Middleware } from 'app-builder'
-import { NexeTarget } from './target'
+import { compose } from 'app-builder'
 import { NexeCompiler } from './compiler'
 import { normalizeOptions, NexeOptions, NexePatch } from './options'
 import resource from './steps/resource'
@@ -18,7 +17,6 @@ async function compile(
 ) {
   const options = normalizeOptions(compilerOptions)
   const compiler = new NexeCompiler(options)
-  const build = options.build
 
   const nexe = compose(
     clean,
