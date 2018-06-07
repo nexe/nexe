@@ -48,6 +48,6 @@ const contentBuffer = Buffer.from(Array(contentSize))
 fs.readSync(fd, contentBuffer, 0, contentSize, contentStart)
 fs.closeSync(fd)
 const Module = require('module')
-process.mainModule = new Module(process.execPath, null)
-process.mainModule!.loaded = true
-;(process.mainModule as any)._compile(contentBuffer.toString(), process.execPath)
+const mod = new Module(process.execPath, null)
+mod.loaded = true
+mod._compile(contentBuffer.toString(), process.execPath)

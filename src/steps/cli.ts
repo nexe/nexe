@@ -1,7 +1,6 @@
 import { normalize, relative } from 'path'
-import { Readable } from 'stream'
 import { createWriteStream, chmodSync, statSync } from 'fs'
-import { readFileAsync, dequote, isWindows } from '../util'
+import { dequote } from '../util'
 import { NexeCompiler } from '../compiler'
 import { NexeTarget } from '../target'
 

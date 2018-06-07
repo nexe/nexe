@@ -3,7 +3,6 @@ import { pathExistsAsync } from '../util'
 import { LogStep } from '../logger'
 import { IncomingMessage } from 'http'
 import { NexeCompiler } from '../compiler'
-import { NexeTarget } from '../target'
 
 function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options = {}) {
   const setText = (p: number) => step.modify(`Downloading Node: ${p.toFixed()}%...`)

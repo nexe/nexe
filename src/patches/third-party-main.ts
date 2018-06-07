@@ -1,7 +1,4 @@
 import { NexeCompiler } from '../compiler'
-import { readFileSync } from 'fs'
-import { join } from 'path'
-import { wrap } from '../util'
 
 function semverGt(version: string, operand: string) {
   const [cMajor, cMinor, cPatch] = version.split('.').map(Number)
