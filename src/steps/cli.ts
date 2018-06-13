@@ -37,7 +37,7 @@ function getStdIn(stdin: NodeJS.ReadStream): Promise<string> {
 export default async function cli(compiler: NexeCompiler, next: () => Promise<void>) {
   const { log } = compiler
   let stdInUsed = false
-  if (!process.stdin.isTTY && compiler.options.enableStdIn) {
+  if (!process.stdin.isTTY && (compiler.options.enableStdIn || compiler.options.input === '')) {
     stdInUsed = true
     compiler.input = dequote(await getStdIn(process.stdin))
   }
