@@ -87,7 +87,7 @@ const alias = {
   'fake-argv': 'fakeArgv',
   'gh-token': 'ghToken'
 }
-const argv = parseArgv(process.argv, { alias, default: { ...defaults, enableStdIn: true } })
+const argv = parseArgv(process.argv, { alias, default: { ...defaults, enableStdIn: false } })
 const g = c.gray
 let help = `
 ${c.bold('nexe <entry-file> [options]')}
