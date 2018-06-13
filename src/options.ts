@@ -87,7 +87,7 @@ const alias = {
   'fake-argv': 'fakeArgv',
   'gh-token': 'ghToken'
 }
-const argv = parseArgv(process.argv, { alias, default: { ...defaults, enableStdIn: true } })
+const argv = parseArgv(process.argv, { alias, default: { ...defaults } })
 const g = c.gray
 let help = `
 ${c.bold('nexe <entry-file> [options]')}
@@ -193,6 +193,9 @@ function isEntryFile(filename?: string): filename is string {
 }
 
 export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
+  if (input === '-' || maybeEntry === '-') {
+    return ''
+  }
   if (input) {
     return resolve(cwd, input)
   }
@@ -209,6 +212,10 @@ export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
   }
 }
 
+function isCli(options?: Partial<NexeOptions>) {
+  return argv === options
+}
+
 function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   const options = Object.assign({}, defaults, input) as NexeOptions
   const opts = options as any
@@ -216,8 +223,9 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   options.temp = options.temp
     ? resolve(cwd, options.temp)
     : process.env.NEXE_TEMP || join(homedir(), '.nexe')
-  const maybeEntry = input === argv ? argv._[argv._.length - 1] : undefined
+  const maybeEntry = isCli(input) ? argv._[argv._.length - 1] : undefined
   options.input = resolveEntry(options.input, cwd, maybeEntry)
+  options.enableStdIn = isCli(input) && options.input === ''
   options.name = extractName(options)
   options.loglevel = extractLogLevel(options)
   options.flags = flatten(opts.flag, options.flags)
