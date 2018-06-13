@@ -35,7 +35,12 @@ export interface NexeOptions {
   patches: (string | NexePatch)[]
   plugins: (string | NexePatch)[]
   native: any
+  /**
+   * @deprecated
+   * Use mangle: false instead
+   */
   empty: boolean
+  mangle: boolean
   ghToken: string
   sourceUrl?: string
   enableStdIn?: boolean
@@ -109,6 +114,7 @@ ${c.bold('nexe <entry-file> [options]')}
   -f   --flag                       -- *v8 flags to include during compilation
   -c   --configure                  -- *arguments to the configure step
   -m   --make                       -- *arguments to the make/build step
+       --no-mangle                  -- used when generating base binaries, or when pathing _third_party_main manually.
        --snapshot                   -- path to a warmup snapshot
        --ico                        -- file name for alternate icon file (windows)
        --rc-*                       -- populate rc file options (windows)
@@ -177,6 +183,14 @@ function extractName(options: NexeOptions) {
   return name.replace(/\.exe$/, '')
 }
 
+function padRelative(input: string) {
+  let prefix = ''
+  if (!input.startsWith('.')) {
+    prefix = './'
+  }
+  return prefix + input
+}
+
 function isEntryFile(filename?: string): filename is string {
   return Boolean(filename && !isAbsolute(filename))
 }
@@ -190,23 +204,19 @@ export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
     return input
   }
   if (input) {
-    let prefix = ''
-    if (!input.startsWith('.')) {
-      prefix = './'
-    }
-    result = resolveFileNameSync(cwd, prefix + input)
+    const inputPath = padRelative(input)
+    result = resolveFileNameSync(cwd, inputPath)
   }
-  if (isEntryFile(maybeEntry)) {
-    result = resolveFileNameSync(cwd, maybeEntry)
+  if (result && !result.absPath && isEntryFile(maybeEntry)) {
+    const inputPath = padRelative(maybeEntry)
+    result = resolveFileNameSync(cwd, inputPath)
   }
   if (!process.stdin.isTTY) {
     return ''
   }
-
   if (!result || !result.absPath) {
     result = resolveFileNameSync(cwd, '.')
   }
-
   if (!result.absPath) throw new Error(`Entry file "${input}" not found!`)
 
   return result.absPath
@@ -269,6 +279,7 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
     return x
   }
 
+  options.mangle = 'mangle' in opts ? opts.mangle : !opts.empty
   options.plugins = flatten(opts.plugin, options.plugins).map(requireDefault)
   options.patches = flatten(opts.patch, options.patches).map(requireDefault)
 
