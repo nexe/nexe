@@ -238,7 +238,7 @@ export class NexeCompiler {
   }
 
   private _assembleDeliverable(binary: NodeJS.ReadableStream) {
-    if (this.options.empty) {
+    if (!this.options.mangle) {
       return binary
     }
     const artifact = new Readable({ read() {} })
