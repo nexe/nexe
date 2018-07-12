@@ -174,6 +174,7 @@ if (Object.keys(manifest).length) {
       return encoding ? result.toString(encoding) : result
     },
     statSync: function statSync(path: string | Buffer) {
+      setupManifest()
       const stat = ownStat(path)
       if (stat) {
         return stat
@@ -181,6 +182,7 @@ if (Object.keys(manifest).length) {
       return originalStatSync.apply(fs, arguments)
     },
     stat: function stat(path: string | Buffer, callback: any) {
+      setupManifest()
       const stat = ownStat(path)
       if (stat) {
         process.nextTick(() => {
