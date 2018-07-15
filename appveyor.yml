@@ -14,5 +14,3 @@ build_script:
   - yarn run asset-compile
 artifacts:
   - path: .nexe\**\node.exe
-cache:
-  - node_modules
