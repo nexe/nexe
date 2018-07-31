@@ -214,7 +214,7 @@ const nfs: any = {
       process.execPath,
       Object.assign({}, opts, {
         start: resourceOffset,
-        end: resourceOffset + length
+        end: resourceOffset + length - 1
       })
     )
   },
