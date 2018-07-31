@@ -57,7 +57,6 @@ async function build() {
       options = {
         empty: true,
         build: true,
-        verbose: isWindows,
         target,
         output
       }
