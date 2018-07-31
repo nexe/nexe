@@ -80,6 +80,10 @@ function makeLong(filepath: string) {
   return (path as any)._makeLong && (path as any)._makeLong(filepath)
 }
 
+function fileOpts(options: any) {
+  return !options ? {} : isString(options) ? { encoding: options } : options
+}
+
 let setupManifest = () => {
   Object.keys(manifest).forEach(filepath => {
     const entry = manifest[filepath]
@@ -176,7 +180,7 @@ const nfs: any = {
     }
     const [offset, length] = entry
     const resourceOffset = resourceStart + offset
-    const encoding = isString(options) ? options : null
+    const encoding = fileOpts(options).encoding
     callback = typeof options === 'function' ? options : callback
 
     fs.open(process.execPath, 'r', function(err: Error, fd: number) {
@@ -208,7 +212,7 @@ const nfs: any = {
     }
     const [offset, length] = entry
     const resourceOffset = resourceStart + offset
-    const opts = !options ? {} : isString(options) ? { encoding: options } : options
+    const opts = fileOpts(options)
 
     return fs.createReadStream(
       process.execPath,
@@ -227,7 +231,7 @@ const nfs: any = {
     }
     const [offset, length] = entry
     const resourceOffset = resourceStart + offset
-    const encoding = isString(options) ? options : null
+    const encoding = fileOpts(options).encoding
     const fd = fs.openSync(process.execPath, 'r')
     const result = Buffer.alloc(length)
     fs.readSync(fd, result, 0, length, resourceOffset)
