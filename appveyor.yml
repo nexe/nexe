@@ -7,6 +7,9 @@ environment:
     secure: 3wuEGJsppSKFvdwhp3jprUA9Zkc3WINlc/9oFXjhAR6J05lYMXP7Fl7lXTKpkGZx
 install:
   - ps: Install-Product node 8
+  - curl -L -o nasm.exe https://www.nasm.us/pub/nasm/releasebuilds/2.13.03/win64/nasm-2.13.03-installer-x64.exe
+  - start /wait nasm.exe /S
+  - ps: $env:path="C:\Program Files\nasm;$($env:path)"
   - yarn
 build: off
 test: off
