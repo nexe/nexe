@@ -45,7 +45,13 @@ export function triggerDockerBuild(release: NexeTarget, branch: string) {
 }
 
 export function triggerWindowsBuild(release: NexeTarget) {
-  const hasVersion = 'NEXE_VERSION' in env
-  env.NEXE_VERSION = hasVersion ? env.NEXE_VERSION!.trim() : release.toString()
+  const version = 'NEXE_VERSION' in env ? env.NEXE_VERSION!.trim() : release.version
+  if (version.startsWith('10.')) {
+    if ((env.APPVEYOR_BUILD_WORKER_IMAGE || '').includes('2017')) {
+      env.NEXE_VERSION = version
+    }
+  } else {
+    env.NEXE_VERSION = version
+  }
   return Promise.resolve()
 }

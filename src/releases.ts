@@ -34,7 +34,7 @@ async function getJson<T>(url: string, options?: any) {
 
 function isBuildableVersion(version: string) {
   const major = +version.split('.')[0]
-  return !~[0, 1, 2, 3, 4, 5, 7].indexOf(major) || version === '4.8.4'
+  return !~[0, 1, 2, 3, 4, 5, 7, 8, 10].indexOf(major) || version === '4.8.4'
 }
 
 export function getLatestGitRelease(options?: any) {

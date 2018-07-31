@@ -1,4 +1,6 @@
-image: Visual Studio 2017
+image:
+  - Visual Studio 2017
+  - Visual Studio 2015
 environment:
   CIRCLE_TOKEN:
     secure: TQKcepXmTzCNt4+tUBtYpwEQkdSPwFr9A8ugtoMhNbKu/SW1WM1EpjEu6kYXxpQ4
