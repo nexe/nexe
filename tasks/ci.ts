@@ -1,6 +1,7 @@
 import { NexeTarget } from '../lib/releases'
 import got = require('got')
 import * as assert from 'assert'
+import { getTarget } from '../lib/target';
 const { env } = process
 
 export function triggerMacBuild(release: NexeTarget, branch: string) {
@@ -46,7 +47,7 @@ export function triggerDockerBuild(release: NexeTarget, branch: string) {
 
 export function triggerWindowsBuild(release: NexeTarget) {
   const version = 'NEXE_VERSION' in env ? env.NEXE_VERSION!.trim() : release.toString()
-  if (version.startsWith('10.')) {
+  if (getTarget(version).version.startsWith('10.')) {
     if ((env.APPVEYOR_BUILD_WORKER_IMAGE || '').includes('2017')) {
       env.NEXE_VERSION = version
     }
