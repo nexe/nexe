@@ -19,4 +19,4 @@ test: off
 build_script:
   - yarn run asset-compile
 artifacts:
-  - path: .nexe\**\node.exe
+  - path: $(HOMEPATH)\.nexe\**\node.exe
