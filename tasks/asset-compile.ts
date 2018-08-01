@@ -49,9 +49,9 @@ async function build() {
     if (windowsBuild) {
       await ci.triggerWindowsBuild(windowsBuild)
     }
-  }
+  } 
 
-  if (env.NEXE_VERSION) {
+  if (env.NEXE_VERSION) {    
     const target = getTarget(env.NEXE_VERSION),
       output = isWindows ? './out.exe' : './out',
       options = {
@@ -60,7 +60,7 @@ async function build() {
         target,
         output
       }
-
+    console.log('Building: ', target)
     const stop = keepalive()
     if (target.platform === 'alpine') {
       await runAlpineBuild(target)
