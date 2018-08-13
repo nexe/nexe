@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target":"es5",
+    "skipLibCheck": true,
     "experimentalDecorators": true,
     "lib": ["es2017"],
     "module": "commonjs",

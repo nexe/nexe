@@ -4,9 +4,12 @@ import { wrap } from '../util'
 
 export default function(compiler: NexeCompiler, next: () => Promise<void>) {
   compiler.shims.push(
-    wrap(`process.__nexe=${JSON.stringify({ resources: compiler.resources.index })};`)
+    wrap(
+      `process.__nexe = ${JSON.stringify({ resources: compiler.resources.index })};\n` +
+        '{{replace:lib/bundle/fs/patch.js}}' +
+        '\nshimFs(process.__nexe, require("fs"))'
+    )
   )
-  compiler.shims.push(wrap('{{replace:lib/steps/shim-fs.js}}'))
   compiler.shims.push(
     wrap(`
     if (process.argv[1] && process.env.NODE_UNIQUE_ID) {

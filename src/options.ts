@@ -94,7 +94,6 @@ const alias = {
   'gh-token': 'ghToken'
 }
 const argv = parseArgv(process.argv, { alias, default: { ...defaults } })
-const g = c.gray
 let help = `
 ${c.bold('nexe <entry-file> [options]')}
 
@@ -207,7 +206,8 @@ export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
     const inputPath = padRelative(input)
     result = resolveFileNameSync(cwd, inputPath)
   }
-  if (result && !result.absPath && isEntryFile(maybeEntry)) {
+
+  if (isEntryFile(maybeEntry) && (!result || !result.absPath)) {
     const inputPath = padRelative(maybeEntry)
     result = resolveFileNameSync(cwd, inputPath)
   }

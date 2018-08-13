@@ -12,7 +12,7 @@ function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options 
       let current = 0
       res.on('data', data => {
         current += data.length
-        setText(current / total * 100)
+        setText((current / total) * 100)
         if (current === total) {
           step.log('Extracting Node...')
         }

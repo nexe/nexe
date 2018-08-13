@@ -1,8 +1,8 @@
 export type NodePlatform = 'windows' | 'mac' | 'alpine' | 'linux'
-export type NodeArch = 'x86' | 'x64' | 'arm7l' | 'arm6'
+export type NodeArch = 'x86' | 'x64' | 'arm7l' | 'arm6l' | 'arm64'
 
 const platforms: NodePlatform[] = ['windows', 'mac', 'alpine', 'linux'],
-  architectures: NodeArch[] = ['x86', 'x64', 'arm7l', 'arm6']
+  architectures: NodeArch[] = ['x86', 'x64', 'arm7l', 'arm6l', 'arm64']
 
 export { platforms, architectures }
 
@@ -12,7 +12,6 @@ export interface NexeTarget {
   arch: NodeArch | string
 }
 
-//TODO bsd
 const prettyPlatform: { [key: string]: NodePlatform } = {
   win32: 'windows',
   windows: 'windows',
@@ -27,7 +26,9 @@ const prettyPlatform: { [key: string]: NodePlatform } = {
 
 const prettyArch: { [key: string]: NodeArch } = {
   x86: 'x86',
-  arm6: 'arm6',
+  arm6: 'arm6l',
+  arm64: 'arm64',
+  arm6l: 'arm6l',
   arm: 'arm7l',
   arm7: 'arm7l',
   arm7l: 'arm7l',

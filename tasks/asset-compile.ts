@@ -3,15 +3,13 @@ import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import * as ci from './ci'
 import { runDockerBuild } from './docker'
 import { getTarget } from '../lib/target'
-import { pathExistsAsync, statAsync, readFileAsync, execFileAsync } from '../lib/util'
+import { pathExistsAsync, readFileAsync, execFileAsync } from '../lib/util'
 import got = require('got')
 
 const env = process.env,
   branchName = env.CIRCLE_BRANCH || env.APPVEYOR_REPO_BRANCH || env.TRAVIS_BRANCH || '',
   isScheduled = Boolean(env.APPVEYOR_SCHEDULED_BUILD || env.NEXE_TRIGGERED),
-  isLinux = Boolean(env.TRAVIS),
   isWindows = Boolean(env.APPVEYOR),
-  isMac = Boolean(env.CIRCLECI),
   isPullRequest =
     Boolean(env.CIRCLE_PR_NUMBER) ||
     Boolean(env.APPVEYOR_PULL_REQUEST_NUMBER) ||
@@ -49,9 +47,9 @@ async function build() {
     if (windowsBuild) {
       await ci.triggerWindowsBuild(windowsBuild)
     }
-  } 
+  }
 
-  if (env.NEXE_VERSION) {    
+  if (env.NEXE_VERSION) {
     const target = getTarget(env.NEXE_VERSION),
       output = isWindows ? './out.exe' : './out',
       options = {
@@ -62,7 +60,7 @@ async function build() {
       }
     console.log('Building: ', target)
     const stop = keepalive()
-    if (['arm71', 'alpine'].indexOf(target.platform)) {
+    if (['arm7l', 'arm6l', 'arm64', 'alpine'].indexOf(target.platform)) {
       await runDockerBuild(target)
     } else {
       await nexe.compile(options)

@@ -1,0 +1,11 @@
+{
+  "name": "nexe-bundle-fs",
+  "version": "1.0.0",
+  "description": "Set of fs patches for nexe bundles",
+  "main": "patch.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Caleb Boyd",
+  "license": "MIT"
+}

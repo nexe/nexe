@@ -1,7 +1,7 @@
 import { NexeTarget } from '../lib/releases'
 import got = require('got')
 import * as assert from 'assert'
-import { getTarget } from '../lib/target';
+import { getTarget } from '../lib/target'
 const { env } = process
 
 export function triggerMacBuild(release: NexeTarget, branch: string) {
