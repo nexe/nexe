@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync } from 'fs'
 
 /**
- * post build step to insert code files into code files.
+ * post build step to insert code files into code files (naively).
  * '{{replace:path/to/file}}' => "file contents"
  * And the package.json version.
  */
@@ -9,6 +9,8 @@ import { writeFileSync, readFileSync } from 'fs'
 inject('lib/patches/third-party-main.js')
 inject('lib/steps/shim.js')
 inject('lib/options.js', JSON.stringify(require('../package.json').version))
+
+cp('src/bundle/fs/package.json', 'lib/bundle/fs/package.json')
 
 function inject(filename: string, ...replacements: string[]) {
   let contents = readFileSync(filename, 'utf8')
@@ -25,4 +27,10 @@ function inject(filename: string, ...replacements: string[]) {
   })
   writeFileSync(filename, contents)
   console.log(`Wrote: ${filename}`)
+}
+
+function cp(from: string, to: string) {
+  const file = readFileSync(from)
+  writeFileSync(to, file)
+  console.log('Copied: ', from, 'To: ', to)
 }

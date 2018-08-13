@@ -210,7 +210,7 @@ export class NexeCompiler {
         let current = 0
         res.on('data', data => {
           current += data.length
-          this.compileStep!.modify(`Downloading...${(current / total * 100).toFixed()}%`)
+          this.compileStep!.modify(`Downloading...${((current / total) * 100).toFixed()}%`)
         })
       }
     )

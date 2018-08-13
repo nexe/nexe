@@ -1,4 +1,5 @@
 import { NexeCompiler } from '../compiler'
+import { parse } from 'cherow'
 
 function semverGt(version: string, operand: string) {
   const [cMajor, cMinor, cPatch] = version.split('.').map(Number)
@@ -11,6 +12,27 @@ function semverGt(version: string, operand: string) {
   )
 }
 
+function walkSome(node: any, visit: Function) {
+  if (!node || typeof node.type !== 'string' || node._visited) {
+    return false
+  }
+  visit(node)
+  node._visited = true
+  for (let childNode in node) {
+    const child = node[childNode]
+    if (Array.isArray(child)) {
+      for (let i = 0; i < child.length; i++) {
+        if (walkSome(child[i], visit)) {
+          return true
+        }
+      }
+    } else if (walkSome(child, visit)) {
+      return true
+    }
+  }
+  return false
+}
+
 export default async function main(compiler: NexeCompiler, next: () => Promise<void>) {
   let bootFile = 'lib/internal/bootstrap_node.js'
   const { version } = compiler.target
@@ -18,23 +40,31 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   if (version.startsWith('4.')) {
     bootFile = 'src/node.js'
   } else if (semverGt(version, '9.10.1')) {
-    bootFile = 'lib/internal/boostrap/node.js'
+    bootFile = 'lib/internal/bootstrap/node.js'
   }
 
   const file = await compiler.readFileAsync(bootFile),
-    matches = file.contents.match(/\(function.*/),
-    functionHeader = matches && matches[0]
+    ast = parse(file.contents, {
+      loc: true,
+      tolerant: true,
+      next: true,
+      globalReturn: true,
+      node: true,
+      skipShebang: true
+    }),
+    location = { start: { line: 0 } }
 
-  console.log('header', functionHeader)
+  walkSome(ast, (node: any) => {
+    if (!location.start.line && node.type === 'BlockStatement') {
+      //Find the first block statement and mark the location
+      Object.assign(location, node.loc)
+      return true
+    }
+  })
 
-  if (!functionHeader) {
-    throw new Error('Failed to find bootstrap header in node version: v' + version)
-  }
-
-  file.contents = file.contents.replace(
-    functionHeader,
-    functionHeader + '\n' + '{{replace:lib/patches/bootstrap.js}}'
-  )
+  const fileLines = file.contents.split('\n')
+  fileLines.splice(location.start.line, 0, '{{replace:lib/patches/bootstrap.js}}' + '\n')
+  file.contents = fileLines.join('\n')
 
   await compiler.setFileContentsAsync(
     'lib/_third_party_main.js',
