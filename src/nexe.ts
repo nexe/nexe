@@ -21,9 +21,9 @@ async function compile(
   const nexe = compose(
     clean,
     resource,
+    cli,
     bundle,
     shim,
-    cli,
     options.build ? [download, artifacts, ...patches, ...(options.patches as NexePatch[])] : [],
     options.plugins as NexePatch[]
   )

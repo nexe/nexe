@@ -1,0 +1,15 @@
+{
+  "name": "nexe-fs",
+  "version": "1.0.1",
+  "description": "Virtual File System used by nexe",
+  "main": "bundle.js",
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "author": "Caleb Boyd",
+  "dependencies": {
+    "multistream": "^2.1.1"
+  },
+  "license": "MIT"
+}
