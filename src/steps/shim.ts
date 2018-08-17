@@ -1,13 +1,12 @@
 import { NexeCompiler } from '../compiler'
-import { relative } from 'path'
 import { wrap } from '../util'
 
 export default function(compiler: NexeCompiler, next: () => Promise<void>) {
   compiler.shims.push(
     wrap(
-      `process.__nexe = ${JSON.stringify({ resources: compiler.resources.index })};\n` +
-        '{{replace:lib/bundle/fs/patch.js}}' +
-        '\nshimFs(process.__nexe, require("fs"))'
+      `process.__nexe = ${JSON.stringify(compiler.binaryConfiguration)};\n` +
+        '{{replace:lib/fs/patch.js}}' +
+        '\nshimFs(process.__nexe)'
     )
   )
   compiler.shims.push(
@@ -20,18 +19,13 @@ export default function(compiler: NexeCompiler, next: () => Promise<void>) {
   `)
   )
 
-  if (compiler.options.fakeArgv !== false) {
-    const nty = !process.stdin.isTTY
-    const input = nty
-      ? '[stdin]'
-      : JSON.stringify(relative(compiler.options.cwd, compiler.options.input))
-
-    compiler.shims.push(
-      wrap(`
-        var r = require('path').resolve; 
-        process.argv.splice(1,0, ${nty ? `'${input}'` : `r(${input})`});`)
-    )
-  }
+  compiler.shims.push(
+    wrap(`
+      if (!process.send) {
+        process.argv.splice(1,0, require.resolve("${compiler.entrypoint}"))  
+      }
+    `)
+  )
 
   return next()
 }

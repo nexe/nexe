@@ -10,7 +10,8 @@ inject('lib/patches/third-party-main.js')
 inject('lib/steps/shim.js')
 inject('lib/options.js', JSON.stringify(require('../package.json').version))
 
-cp('src/bundle/fs/package.json', 'lib/bundle/fs/package.json')
+cp('src/fs/package.json', 'lib/fs/package.json')
+cp('src/fs/README.md', 'lib/fs/README.md')
 
 function inject(filename: string, ...replacements: string[]) {
   let contents = readFileSync(filename, 'utf8')

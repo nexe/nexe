@@ -63,7 +63,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   })
 
   const fileLines = file.contents.split('\n')
-  fileLines.splice(location.start.line, 0, '{{replace:lib/patches/bootstrap.js}}' + '\n')
+  fileLines.splice(location.start.line, 0, '{{replace:lib/fs/bootstrap.js}}' + '\n')
   file.contents = fileLines.join('\n')
 
   await compiler.setFileContentsAsync(

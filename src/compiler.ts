@@ -1,7 +1,7 @@
 import { delimiter, dirname, normalize, join } from 'path'
 import { Buffer } from 'buffer'
 import { createReadStream } from 'fs'
-import { Readable } from 'stream'
+import { Readable, Stream } from 'stream'
 import { spawn } from 'child_process'
 import { Logger, LogStep } from './logger'
 import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows, bound } from './util'
@@ -10,6 +10,8 @@ import { NexeTarget } from './target'
 import download = require('download')
 import { getLatestGitRelease } from './releases'
 import { IncomingMessage } from 'http'
+import combineStreams = require('multistream')
+import { Bundle, toStream } from './fs/bundle'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -23,29 +25,23 @@ export interface NexeFile {
 
 export { NexeOptions }
 
-interface NexeHeader {
-  resources: { [key: string]: number[] }
-  version: string
-}
-
 export class NexeCompiler {
   private start = Date.now()
   private env = { ...process.env }
+  private bundle: Bundle
   private compileStep: LogStep | undefined
   public log = new Logger(this.options.loglevel)
   public src: string
   public files: NexeFile[] = []
   public shims: string[] = []
-  public input: string | undefined
+  public startup: string = ''
+  public entrypoint: string | undefined
   public bundledInput?: string
   public targets: NexeTarget[]
   public target: NexeTarget
-  public resources: { bundle: Buffer; index: { [key: string]: number[] } } = {
-    index: {},
-    bundle: Buffer.from('')
-  }
   public output = this.options.output
   private nodeSrcBinPath: string
+
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
     this.targets = options.targets as NexeTarget[]
@@ -55,7 +51,7 @@ export class NexeCompiler {
       ? join(this.src, 'Release', 'node.exe')
       : join(this.src, 'out', 'Release', 'node')
     this.log.step('nexe ' + version, 'info')
-
+    this.bundle = new Bundle(options)
     if (isWindows) {
       const originalPath = process.env.PATH
       delete process.env.PATH
@@ -71,10 +67,16 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(file: string, contents: Buffer) {
-    const { resources } = this
-    resources.index[file] = [resources.bundle.byteLength, contents.byteLength]
-    resources.bundle = Buffer.concat([resources.bundle, contents])
+  addResource(file: string, content?: Buffer | string) {
+    return this.bundle.addResource(file, content)
+  }
+
+  get binaryConfiguration() {
+    return { resources: this.bundle.index }
+  }
+
+  get resourceSize() {
+    return this.bundle.blobSize
   }
 
   @bound
@@ -234,27 +236,25 @@ export class NexeCompiler {
   }
 
   code() {
-    return [this.shims.join(''), this.input].join(';')
+    return [this.shims.join(''), this.startup].join(';')
   }
 
   private _assembleDeliverable(binary: NodeJS.ReadableStream) {
     if (!this.options.mangle) {
       return binary
     }
-    const artifact = new Readable({ read() {} })
-    binary.on('data', (chunk: Buffer) => {
-      artifact.push(chunk)
-    })
-    binary.on('close', () => {
-      const content = this.code()
-      artifact.push(content)
-      artifact.push(this.resources.bundle)
-      const lengths = Buffer.from(Array(16))
-      lengths.writeDoubleLE(Buffer.byteLength(content), 0)
-      lengths.writeDoubleLE(this.resources.bundle.byteLength, 8)
-      artifact.push(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths]))
-      artifact.push(null)
-    })
-    return artifact
+
+    const startup = this.code(),
+      codeSize = Buffer.byteLength(startup)
+
+    const lengths = Buffer.from(Array(16))
+    lengths.writeDoubleLE(codeSize, 0)
+    lengths.writeDoubleLE(this.bundle.blobSize, 8)
+    return combineStreams([
+      binary,
+      toStream(startup),
+      this.bundle.toStream(),
+      toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths]))
+    ])
   }
 }

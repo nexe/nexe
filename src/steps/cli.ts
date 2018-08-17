@@ -1,10 +1,11 @@
-import { normalize, relative } from 'path'
+import { normalize, relative, resolve } from 'path'
 import { createWriteStream, chmodSync, statSync } from 'fs'
 import { dequote } from '../util'
+import { Readable } from 'stream'
 import { NexeCompiler } from '../compiler'
 import { NexeTarget } from '../target'
 
-function getStdIn(stdin: NodeJS.ReadStream): Promise<string> {
+function getStdIn(stdin: Readable): Promise<string> {
   return new Promise(resolve => {
     let out = ''
     stdin
@@ -38,9 +39,13 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
   let stdInUsed = false
   if (!process.stdin.isTTY && compiler.options.enableStdIn) {
     stdInUsed = true
-    compiler.input = dequote(await getStdIn(process.stdin))
+    compiler.entrypoint = './__nexe_stdin.js'
+    const code = dequote(await getStdIn(process.stdin))
+    await compiler.addResource(resolve(compiler.options.cwd, compiler.entrypoint), code)
+  } else {
+    compiler.entrypoint = './' + relative(compiler.options.cwd, compiler.options.input)
   }
-
+  compiler.startup = ';require("module").runMain();'
   await next()
 
   const target = compiler.options.targets.shift() as NexeTarget

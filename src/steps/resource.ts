@@ -1,11 +1,9 @@
-import { readFileAsync, isDirectoryAsync, each } from '../util'
+import { isDirectoryAsync, each } from '../util'
 import * as globs from 'globby'
 import { NexeCompiler } from '../compiler'
 
 export default async function resource(compiler: NexeCompiler, next: () => Promise<any>) {
-  const resources = compiler.resources
   const { cwd } = compiler.options
-
   if (!compiler.options.resources.length) {
     return next()
   }
@@ -17,9 +15,8 @@ export default async function resource(compiler: NexeCompiler, next: () => Promi
     }
     count++
     step.log(`Including file: ${file}`)
-    const contents = await readFileAsync(file)
-    compiler.addResource(file, contents)
+    await compiler.addResource(file)
   })
-  step.log(`Included ${count} file(s). ${(resources.bundle.byteLength / 1e6).toFixed(3)} MB`)
+  step.log(`Included ${count} file(s). ${(compiler.resourceSize / 1e6).toFixed(3)} MB`)
   return next()
 }

@@ -13,16 +13,24 @@ export interface NexeBinary {
 }
 
 let originalFsMethods: any = null
+let nexeBinary: NexeBinary | null = null
 
-function restoreFs(fs: any) {
-  if (!originalFsMethods) {
-    return
+function restoreFs(fs: any = require('fs')): NexeBinary | false {
+  if (!nexeBinary) {
+    return false
   }
+  const source = nexeBinary
   Object.assign(fs, originalFsMethods)
+  nexeBinary = originalFsMethods = null
+  return source
 }
 
 function shimFs(binary: NexeBinary, fs: any = require('fs')) {
+  if (originalFsMethods !== null) {
+    return
+  }
   originalFsMethods = Object.assign({}, fs)
+  nexeBinary = binary
   const { blobPath, resources: manifest } = binary
   const { resourceStart, stat } = binary.layout
   const directories: { [key: string]: { [key: string]: boolean } } = {},
@@ -325,6 +333,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       process.nextTick(() => cb(exists))
     }
   }
+  Object.assign(fs, nfs)
+  return true
 }
 
-export { shimFs as applyFsPatch, restoreFs }
+export { shimFs, restoreFs }
