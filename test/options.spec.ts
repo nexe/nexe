@@ -49,8 +49,8 @@ describe('options', () => {
       expect(options.output).to.equal(path.resolve(`./entry${ext}`))
     })
     it('should default to the folder/project name if filename is index', () => {
-      const options = normalizeOptions()
-      expect(options.output).to.equal(path.resolve(`./nexe${ext}`))
+      const options = normalizeOptions({ cwd: './test/fixture2' })
+      expect(options.output).to.equal(path.resolve(`./test/fixture2/fixture2${ext}`))
     })
   })
 })
