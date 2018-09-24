@@ -6,12 +6,13 @@ import { writeFileSync, readFileSync } from 'fs'
  * And the package.json version.
  */
 //inject('plugins/nexe-daemon/lib/index.js')
+cp('src/fs/package.json', 'lib/fs/package.json')
+cp('src/fs/bootstrap.js', 'lib/fs/bootstrap.js')
+cp('src/fs/README.md', 'lib/fs/README.md')
+
 inject('lib/patches/third-party-main.js')
 inject('lib/steps/shim.js')
 inject('lib/options.js', JSON.stringify(require('../package.json').version))
-
-cp('src/fs/package.json', 'lib/fs/package.json')
-cp('src/fs/README.md', 'lib/fs/README.md')
 
 function inject(filename: string, ...replacements: string[]) {
   let contents = readFileSync(filename, 'utf8')
