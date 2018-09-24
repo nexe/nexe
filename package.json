@@ -2,7 +2,7 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "2.0.0-next.14",
+  "version": "3.0.0-beta.0",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
@@ -40,7 +40,7 @@
     "cherow": "^1.6.8",
     "download": "^7.1.0",
     "globby": "^8.0.1",
-    "got": "^9.2.1",
+    "got": "^9.2.2",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "multistream": "^2.1.1",
@@ -50,10 +50,10 @@
     "rimraf": "^2.6.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.4",
+    "@types/chai": "^4.1.5",
     "@types/execa": "^0.9.0",
     "@types/globby": "^8.0.0",
-    "@types/got": "^8.3.3",
+    "@types/got": "^8.3.4",
     "@types/minimist": "^1.2.0",
     "@types/mkdirp": "^0.5.2",
     "@types/mocha": "^5.2.5",
@@ -65,11 +65,11 @@
     "chai": "^4.1.2",
     "execa": "^1.0.0",
     "mocha": "^5.2.0",
-    "prettier": "^1.14.2",
+    "prettier": "^1.14.3",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
-    "tslint-plugin-prettier": "^1.3.0",
+    "tslint-plugin-prettier": "^2.0.0",
     "typescript": "^3.0.3"
   }
 }
