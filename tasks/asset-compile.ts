@@ -60,7 +60,7 @@ async function build() {
       }
     console.log('Building: ', target)
     const stop = keepalive()
-    if (['arm7l', 'arm6l', 'arm64', 'alpine'].indexOf(target.platform)) {
+    if (['arm7l', 'arm6l', 'arm64', 'alpine'].includes(target.platform)) {
       await runDockerBuild(target)
     } else {
       await nexe.compile(options)
