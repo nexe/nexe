@@ -5,7 +5,7 @@ environment:
   CIRCLE_TOKEN:
     secure: TQKcepXmTzCNt4+tUBtYpwEQkdSPwFr9A8ugtoMhNbKu/SW1WM1EpjEu6kYXxpQ4
   TRAVIS_TOKEN:
-    secure: tR7HXYv3x97q90uvPrjUxKZh7R1+uqKct0HdEcqTbsg=
+    secure: 6ni/E6Rbmv6cFWW7QNLkpQY2fVpT7wr7y12GEtektN0=
   GITHUB_TOKEN:
     secure: 3wuEGJsppSKFvdwhp3jprUA9Zkc3WINlc/9oFXjhAR6J05lYMXP7Fl7lXTKpkGZx
 install:
@@ -20,3 +20,4 @@ build_script:
   - npm run asset-compile
 artifacts:
   - path: $(HOMEPATH)\.nexe\**\node.exe
+
