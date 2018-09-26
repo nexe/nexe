@@ -51,7 +51,8 @@ export async function runDockerBuild(target: NexeTarget) {
     output.push(await execa.shell(`docker cp nexe:/out out`))
     output.push(await execa.shell(`docker rm nexe`))
   } catch (e) {
-    console.log('Error running docker', e)
+    console.log('Error running docker')
+    appendFileSync(outFilename, e.message)
   } finally {
     output.forEach((x: any) => {
       appendFileSync(outFilename, x.stderr)
