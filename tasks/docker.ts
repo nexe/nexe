@@ -1,6 +1,5 @@
 import { NexeTarget, architectures } from '../lib/target'
 import { writeFileAsync, readFileAsync } from '../lib/util'
-import { spawn } from 'child_process'
 import got = require('got')
 import execa = require('execa')
 import { appendFileSync } from 'fs'
@@ -22,7 +21,7 @@ RUN curl -sSL https://nodejs.org/dist/v\${NODE_VERSION}/node-v\${NODE_VERSION}.t
 
 RUN rm /nexe_temp/\${NODE_VERSION}/out/Release/node && \
   npm install -g nexe@\${NEXE_VERSION} && \
-  nexe --build --empty --temp /nexe_temp -c="--fully-static" -o out
+  nexe --build --empty --temp /nexe_temp -c="--fully-static" -o out --enableStdIn=false
 `.trim()
 }
 
