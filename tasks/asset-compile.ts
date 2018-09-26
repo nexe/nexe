@@ -74,9 +74,8 @@ async function build() {
         query: { name: target.toString() },
         body: await readFileAsync(output),
         headers: {
-          Authorization: 'token ' + env.GITHUB_TOKEN,
-          'Content-Type': 'application/octet-stream',
-          'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
+          ...headers,
+          'Content-Type': 'application/octet-stream'
         }
       })
       console.log(target + ' uploaded.')
