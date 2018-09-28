@@ -42,7 +42,7 @@ export class Bundle {
 
   async addResource(absoluteFileName: string, content?: Buffer | string) {
     let length = 0
-    if (content) {
+    if (content !== undefined) {
       length = Buffer.byteLength(content)
     } else {
       const stats = await stat(absoluteFileName)
