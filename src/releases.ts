@@ -25,8 +25,8 @@ async function getJson<T>(url: string, options?: any) {
 }
 
 function isBuildableVersion(version: string) {
-  const major = +version.split('.')[0]
-  return !~versionsToSkip.indexOf(major) || version === '4.8.4'
+  const major = Number(version.split('.')[0])
+  return !versionsToSkip.includes(major) || version === '4.8.4'
 }
 
 export function getLatestGitRelease(options?: any) {
