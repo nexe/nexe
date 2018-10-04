@@ -40,7 +40,7 @@ For more CLI options see: `nexe --help`
 
 ### Examples
 
-- `nexe server.js -r public/**/*.html`
+- `nexe server.js -r "public/**/*.html"`
 - `nexe my-bundle.js --no-bundle -o app.exe`
 - `nexe --build`
 - `nexe -t x86-8.0.0`
