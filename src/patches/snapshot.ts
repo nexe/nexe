@@ -14,7 +14,7 @@ export default async function(compiler: NexeCompiler, next: () => Promise<void>)
     `def configure_v8(o):\n  o['variables']['embed_script'] = r'${resolve(
       cwd,
       snapshot
-    )}'\n  o['variables']['warmup_script'] = r'${resolve(warmup || snapshot)}'`
+    )}'\n  o['variables']['warmup_script'] = r'${resolve(cwd, warmup || snapshot)}'`
   )
 
   return next()
