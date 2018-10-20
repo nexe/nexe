@@ -4,7 +4,15 @@ import { createReadStream } from 'fs'
 import { Readable, Stream } from 'stream'
 import { spawn } from 'child_process'
 import { Logger, LogStep } from './logger'
-import { readFileAsync, writeFileAsync, pathExistsAsync, dequote, isWindows, bound } from './util'
+import {
+  readFileAsync,
+  writeFileAsync,
+  pathExistsAsync,
+  dequote,
+  isWindows,
+  bound,
+  semverGt
+} from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
 import download = require('download')
@@ -26,20 +34,60 @@ export interface NexeFile {
 export { NexeOptions }
 
 export class NexeCompiler {
+  /**
+   * Epoch of when compilation started
+   */
   private start = Date.now()
+  /**
+   * Copy of process.env
+   */
   private env = { ...process.env }
+  /**
+   * Virtual FileSystem
+   */
   private bundle: Bundle
+
   private compileStep: LogStep | undefined
   public log = new Logger(this.options.loglevel)
+  /**
+   * Root directory for the source of the current build
+   */
   public src: string
+  /**
+   * In memory files that are being manipulated by the compiler
+   */
   public files: NexeFile[] = []
+  /**
+   * Standalone pieces of code run before the application entrypoint
+   */
   public shims: string[] = []
+  /**
+   * The last shim (defaults to "require('module').runMain()")
+   */
   public startup: string = ''
+  /**
+   * The main entrypoint filename for your application - eg. node mainFile.js
+   */
   public entrypoint: string | undefined
-  public bundledInput?: string
+  /**
+   * Not used
+   */
   public targets: NexeTarget[]
+  /**
+   * Current target of the compiler
+   */
   public target: NexeTarget
+  /**
+   * Output filename (-o myapp.exe)
+   */
   public output = this.options.output
+  /**
+   * Path to the configure script
+   */
+  public configureScript: string
+  /**
+   * The file path of node binary
+   */
   private nodeSrcBinPath: string
 
   constructor(public options: NexeOptions) {
@@ -47,6 +95,7 @@ export class NexeCompiler {
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
     this.src = join(this.options.temp, this.target.version)
+    this.configureScript = configure + (semverGt(this.target.version, '10.10.0') ? '.py' : '')
     this.nodeSrcBinPath = isWindows
       ? join(this.src, 'Release', 'node.exe')
       : join(this.src, 'out', 'Release', 'node')
@@ -166,7 +215,7 @@ export class NexeCompiler {
 
   private _configureAsync() {
     return this._runBuildCommandAsync(this.env.PYTHON || 'python', [
-      configure,
+      this.configureScript,
       ...this.options.configure
     ])
   }

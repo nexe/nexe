@@ -1,16 +1,6 @@
 import { NexeCompiler } from '../compiler'
 import { parse } from 'cherow'
-
-function semverGt(version: string, operand: string) {
-  const [cMajor, cMinor, cPatch] = version.split('.').map(Number)
-  const [major, minor, patch] = operand.split('.').map(Number)
-
-  return (
-    cMajor > major ||
-    (cMajor === major && cMinor > minor) ||
-    (cMajor === major && cMinor === minor && cPatch > patch)
-  )
-}
+import { semverGt } from '../util'
 
 function walkSome(node: any, visit: Function) {
   if (!node || typeof node.type !== 'string' || node._visited) {

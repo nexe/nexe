@@ -1,19 +1,20 @@
-import * as path from 'path'
+import { resolve } from 'path'
 import { NexeCompiler } from '../compiler'
 
-export default async function snapshot(compiler: NexeCompiler, next: () => Promise<void>) {
-  const snapshotFile = compiler.options.snapshot
-  const warmupScript = compiler.options.warmup
+export default async function(compiler: NexeCompiler, next: () => Promise<void>) {
+  const { snapshot, warmup, cwd } = compiler.options
 
-  if (!snapshotFile) {
+  if (!snapshot) {
     return next()
   }
 
   await compiler.replaceInFileAsync(
-    'configure',
+    compiler.configureScript,
     'def configure_v8(o):',
-    `def configure_v8(o):\n  o['variables']['embed_script'] = r'${path.resolve(snapshotFile)}'\n  o['variables']['warmup_script'] = r'${path.resolve(warmupScript ||
-      snapshotFile)}'`
+    `def configure_v8(o):\n  o['variables']['embed_script'] = r'${resolve(
+      cwd,
+      snapshot
+    )}'\n  o['variables']['warmup_script'] = r'${resolve(warmup || snapshot)}'`
   )
 
   return next()

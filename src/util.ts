@@ -81,9 +81,21 @@ function isDirectoryAsync(path: string) {
     .catch(falseOnEnoent)
 }
 
+function semverGt(version: string, operand: string) {
+  const [cMajor, cMinor, cPatch] = version.split('.').map(Number)
+  const [major, minor, patch] = operand.split('.').map(Number)
+
+  return (
+    cMajor > major ||
+    (cMajor === major && cMinor > minor) ||
+    (cMajor === major && cMinor === minor && cPatch > patch)
+  )
+}
+
 export {
   dequote,
   padRight,
+  semverGt,
   bound,
   isWindows,
   rimrafAsync,
