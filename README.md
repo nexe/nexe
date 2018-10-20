@@ -130,10 +130,11 @@ compile({
     - Example: `['--with-dtrace', '--dest-cpu=x64']`
     - default: `[]`
  - #### `make: string[]`
-    - Array of arguments for the node build make step, on windows this step recieves options for vcBuild.bat
-    - default: `[]` or `['nosign', 'release']` for non windows systems
+    - Array of arguments for the node build make step
+    - default: `[]`
  - #### `vcBuild: string[]`
-    - Alias for `make` option
+    - Options for windows build
+    - default: `['nosign', 'release']`
  - #### `snapshot: string`
     - path to a file to be used as the warmup snapshot for the build
     - default: `null`

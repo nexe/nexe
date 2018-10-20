@@ -244,7 +244,7 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
     options.targets.push(getTarget())
   }
   options.ghToken = options.ghToken || process.env.GITHUB_TOKEN || ''
-  options.make = flatten(options.vcBuild, options.make)
+  options.make = flatten(isWindows ? options.vcBuild : options.make)
   options.configure = flatten(options.configure)
   options.resources = flatten(opts.resource, options.resources)
 
