@@ -8,6 +8,7 @@ import {
   readFileAsync,
   writeFileAsync,
   pathExistsAsync,
+  statAsync,
   dequote,
   isWindows,
   bound,
@@ -268,6 +269,28 @@ export class NexeCompiler {
     return createReadStream(filename)
   }
 
+  private async _shouldCompileBinaryAsync() {
+    const build = this.options.build
+    const binaryLocation = this.getNodeExecutableLocation()
+
+    if (!(await pathExistsAsync(binaryLocation))) {
+      return true
+    }
+
+    const snapshot = this.options.snapshot
+
+    if (build && snapshot != null && (await pathExistsAsync(snapshot))) {
+      const snapshotLastModified = (await statAsync(snapshot)).mtimeMs
+      const binaryLastModified = (await statAsync(binaryLocation)).mtimeMs
+
+      // if build was requested and there's a snapshot to embed in the binary,
+      // we need to rebuild if the snapshot was just modified.
+      return snapshotLastModified > binaryLastModified
+    }
+
+    return false
+  }
+
   async compileAsync(target: NexeTarget) {
     const step = (this.compileStep = this.log.step('Compiling result'))
     const build = this.options.build
@@ -277,11 +300,11 @@ export class NexeCompiler {
       step.modify('Fetching prebuilt binary')
       binary = await this._fetchPrebuiltBinaryAsync(target)
     }
-    if (!binary) {
+    if (await this._shouldCompileBinaryAsync()) {
       binary = await this._buildAsync()
       step.log('Node binary compiled')
     }
-    return this._assembleDeliverable(binary)
+    return this._assembleDeliverable(binary!)
   }
 
   code() {
