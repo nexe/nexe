@@ -22,7 +22,7 @@ export default function(compiler: NexeCompiler, next: () => Promise<void>) {
   compiler.shims.push(
     wrap(`
       if (!process.send) {
-        process.argv.splice(1,0, require.resolve("${compiler.entrypoint}"))  
+        process.argv.splice(1,0, require.resolve(${JSON.stringify(compiler.entrypoint)}))  
       }
     `)
   )
