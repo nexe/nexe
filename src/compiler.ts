@@ -269,20 +269,20 @@ export class NexeCompiler {
     return createReadStream(filename)
   }
 
-  private async _shouldCompileBinaryAsync() {
-    const build = this.options.build
-    const binaryLocation = this.getNodeExecutableLocation()
+  private async _shouldCompileBinaryAsync(
+    binary: NodeJS.ReadableStream | null,
+    location: string | undefined
+  ) {
+    //TODO combine make/configure/vcBuild/and modified times of included files
+    const { snapshot, build } = this.options
 
-    if (!(await pathExistsAsync(binaryLocation))) {
+    if (!binary) {
       return true
     }
 
-    const snapshot = this.options.snapshot
-
     if (build && snapshot != null && (await pathExistsAsync(snapshot))) {
       const snapshotLastModified = (await statAsync(snapshot)).mtimeMs
-      const binaryLastModified = (await statAsync(binaryLocation)).mtimeMs
-
+      const binaryLastModified = (await statAsync(location)).mtimeMs
       // if build was requested and there's a snapshot to embed in the binary,
       // we need to rebuild if the snapshot was just modified.
       return snapshotLastModified > binaryLastModified
@@ -300,7 +300,7 @@ export class NexeCompiler {
       step.modify('Fetching prebuilt binary')
       binary = await this._fetchPrebuiltBinaryAsync(target)
     }
-    if (await this._shouldCompileBinaryAsync()) {
+    if (await this._shouldCompileBinaryAsync(binary, location)) {
       binary = await this._buildAsync()
       step.log('Node binary compiled')
     }
