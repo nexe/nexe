@@ -78,8 +78,7 @@ async function build() {
           'Content-Type': 'application/octet-stream'
         }
       }).catch(reason => {
-        console.log(reason)
-        console.log(reason && reason.body)
+        console.log(reason && reason.response && reason.response.body)
         throw reason
       })
       console.log(target + ' uploaded.')
