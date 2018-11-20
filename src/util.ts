@@ -80,11 +80,15 @@ function isDirectoryAsync(path: string) {
     .then(x => x.isDirectory())
     .catch(falseOnEnoent)
 }
-
+/**
+ * @param version See if this version is greather than the second one
+ * @param operand Version to compare against
+ */
 function semverGt(version: string, operand: string) {
   const [cMajor, cMinor, cPatch] = version.split('.').map(Number)
-  const [major, minor, patch] = operand.split('.').map(Number)
-
+  let [major, minor, patch] = operand.split('.').map(Number)
+  if (!minor) minor = 0
+  if (!patch) patch = 0
   return (
     cMajor > major ||
     (cMajor === major && cMinor > minor) ||
