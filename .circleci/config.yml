@@ -8,13 +8,13 @@ jobs:
     - checkout
     - restore_cache:
         keys:
-        - package-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
+        - package-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
         - package- # Fallback for the latest package.json cache
     - run:
         name: setup
         command: .circleci/setup.sh
     - save_cache:
-        key: package-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }} 
+        key: package-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }} 
         paths:
         - node_modules
     - run:
