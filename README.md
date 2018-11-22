@@ -7,7 +7,6 @@
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/dt/nexe.svg" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/v/nexe.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
-  <a href="https://gitter.im/nexe/nexe?utm_source=badge&utm_medium=badge"><img src="https://badges.gitter.im/nexe/nexe.svg"></a>
 </p>
 
 <p align="center"><code>npm i nexe -g</code></p>
@@ -43,7 +42,6 @@ For more CLI options see: `nexe --help`
 ### Examples
 
 - `nexe server.js -r "public/**/*.html"`
-- `nexe my-bundle.js --no-bundle -o app.exe`
 - `nexe --build`
 - `nexe -t x86-8.0.0`
 
@@ -90,14 +88,14 @@ compile({
     - Output executable file path
     - default: same as `name` with an OS specific extension.
  - #### `target: string | object`
-    - An object or string describing platform-arch-version. e.g. `'windows-ia32-6.10.3'`
+    - An object or string describing platform-arch-version. e.g. `'windows-ia32-10.13.0'`
       - each segment is optional, and will be merged with the current environment
       - Examples: ([full list](https://github.com/nexe/nexe/releases))
-        - `'win32-x86-8.6.0`
+        - `'win32-x86-10.13.0`
         - `{ platform: 'alpine' }`
-        - `darwin-8.6.0`
+        - `darwin-10.13.0`
         - `linux-x64`
-        - `macos-8.4.0`
+        - `macos-10.13.0`
 
         See [test/target.spec.ts](test/target.spec.ts)
     - If the [`build`](#build-boolean) flag is set, the platform portion of the target is ignored.
@@ -145,12 +143,12 @@ compile({
  - #### `temp: string`
     - Path to use for storing nexe's build files
     - Override in the env with `NEXE_TEMP`
-    - default: `./.nexe` in the cwd
+    - default: `~/.nexe`
  - #### `ico: string`
     - Path to a user provided icon to be used (Windows only). Requires `--build` to be set.
  - #### `rc: object`
     - Settings for patching the [node.rc](https://github.com/nodejs/node/blob/master/src/res/node.rc) configuration file (Windows only).
-    - Example:
+    - Example (keys may vary depending ont the version. Reference the file linked above):
       ```javascript
         {
           CompanyName: "ACME Corp",

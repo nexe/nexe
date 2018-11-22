@@ -5,4 +5,4 @@ export NVS_HOME="$HOME/.nvs"
 
 set -e -x
 
-yarn run asset-compile
+npm run asset-compile

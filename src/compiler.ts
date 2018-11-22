@@ -26,6 +26,8 @@ const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
 const configure = isWindows ? 'configure' : './configure'
 
+type StringReplacer = (match: string) => string
+
 export interface NexeFile {
   filename: string
   absPath: string
@@ -155,9 +157,9 @@ export class NexeCompiler {
   }
 
   @bound
-  async replaceInFileAsync(file: string, replace: string | RegExp, value: string) {
+  async replaceInFileAsync(file: string, replace: string | RegExp, value: string | StringReplacer) {
     const entry = await this.readFileAsync(file)
-    entry.contents = entry.contents.replace(replace, value)
+    entry.contents = entry.contents.replace(replace, value as any)
   }
 
   @bound
