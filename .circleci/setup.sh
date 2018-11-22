@@ -7,4 +7,4 @@ git clone --depth=1 https://github.com/jasongin/nvs "$NVS_HOME"
 nvs add lts && nvs link lts nvs use default
 node -v
 npm -v
-npm ci
+npm i
