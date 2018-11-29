@@ -45,7 +45,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   const { files, warnings } = await resolveFiles(input, { cwd, expand: true, loadContent: false })
 
-  if (warnings.length) {
+  if (warnings.filter(x => !x.startsWith("Can't resolve")).length) {
     throw new Error('Parsing Error:\n' + warnings.join('\n'))
   }
 
