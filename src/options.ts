@@ -1,6 +1,6 @@
 import * as parseArgv from 'minimist'
 import { NexeCompiler } from './compiler'
-import { isWindows } from './util'
+import { isWindows, STDIN_FLAG } from './util'
 import { basename, extname, join, isAbsolute, resolve } from 'path'
 import { getTarget, NexeTarget } from './target'
 import { EOL, homedir } from 'os'
@@ -194,11 +194,16 @@ function isEntryFile(filename?: string): filename is string {
   return Boolean(filename && !isAbsolute(filename))
 }
 
-export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
-  if (input === '-' || maybeEntry === '-') {
-    return ''
-  }
+export function resolveEntry(
+  input: string,
+  cwd: string,
+  maybeEntry: string | undefined,
+  bundle: boolean | string
+) {
   let result = null
+  if (input === '-' || maybeEntry === '-') {
+    return STDIN_FLAG
+  }
   if (input && isAbsolute(input)) {
     return input
   }
@@ -206,19 +211,19 @@ export function resolveEntry(input: string, cwd: string, maybeEntry?: string) {
     const inputPath = padRelative(input)
     result = resolveFileNameSync(cwd, inputPath)
   }
-
   if (isEntryFile(maybeEntry) && (!result || !result.absPath)) {
     const inputPath = padRelative(maybeEntry)
     result = resolveFileNameSync(cwd, inputPath)
   }
-  if (!process.stdin.isTTY) {
-    return ''
+  if (!process.stdin.isTTY && (!result || !result.absPath) && bundle === defaults.bundle) {
+    return STDIN_FLAG
   }
   if (!result || !result.absPath) {
     result = resolveFileNameSync(cwd, '.')
   }
-  if (!result.absPath) throw new Error(`Entry file "${input}" not found!`)
-
+  if (!result.absPath) {
+    throw new Error(`Entry file "${input}" not found!`)
+  }
   return result.absPath
 }
 
@@ -234,8 +239,8 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
     ? resolve(cwd, options.temp)
     : process.env.NEXE_TEMP || join(homedir(), '.nexe')
   const maybeEntry = isCli(input) ? argv._[argv._.length - 1] : undefined
-  options.input = resolveEntry(options.input, cwd, maybeEntry)
-  options.enableStdIn = isCli(input) && options.input === ''
+  options.input = resolveEntry(options.input, cwd, maybeEntry, options.bundle)
+  options.enableStdIn = isCli(input) && options.input === STDIN_FLAG
   options.name = extractName(options)
   options.loglevel = extractLogLevel(options)
   options.flags = flatten(opts.flag, options.flags)

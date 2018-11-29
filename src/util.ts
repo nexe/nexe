@@ -4,6 +4,7 @@ import pify = require('pify')
 import rimraf = require('rimraf')
 
 const rimrafAsync = pify(rimraf)
+export const STDIN_FLAG = '[stdin]'
 
 export async function each<T>(
   list: T[] | Promise<T[]>,

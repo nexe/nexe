@@ -36,10 +36,10 @@ async function compile(
   }
 
   if (error) {
+    compiler.quit(error)
     if (compiler.options.loglevel !== 'silent' && error) {
       process.stderr.write(EOL + error.message + EOL)
     }
-    compiler.quit()
     if (callback) return callback(error)
     return Promise.reject(error)
   }

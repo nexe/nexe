@@ -1,7 +1,6 @@
 import { delimiter, dirname, normalize, join } from 'path'
 import { Buffer } from 'buffer'
 import { createReadStream } from 'fs'
-import { Readable, Stream } from 'stream'
 import { spawn } from 'child_process'
 import { Logger, LogStep } from './logger'
 import {
@@ -84,6 +83,10 @@ export class NexeCompiler {
    * Output filename (-o myapp.exe)
    */
   public output = this.options.output
+  /**
+   * Flag to indicate whether or notstdin was used for input
+   */
+  public stdinUsed = false
   /**
    * Path to the configure script
    */
@@ -168,9 +171,9 @@ export class NexeCompiler {
     entry.contents = contents
   }
 
-  quit() {
+  quit(error?: any) {
     const time = Date.now() - this.start
-    this.log.write(`Finished in ${time / 1000}s`)
+    this.log.write(`Finished in ${time / 1000}s`, error ? 'red' : 'green')
     return this.log.flush()
   }
 
