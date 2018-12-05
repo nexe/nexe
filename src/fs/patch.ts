@@ -42,12 +42,9 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     isDirectory = isFile,
     path = require('path')
 
-  let log = (text: string) => {
-    if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
-      process.stderr.write('[nexe] - ' + text + '\n')
-    } else {
-      log = noop
-    }
+  let log = (text: string) => true
+  if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
+    log = (text: string) => process.stderr.write('[nexe] - ' + text + '\n')
   }
 
   const getKey = process.platform.startsWith('win')
