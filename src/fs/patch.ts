@@ -179,7 +179,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
           callback(null, Object.keys(dir))
         })
       } else {
-        return originalFsMethods.readdir.apply(fs, arguments)
+        return originalFsMethods.readdir.call(fs, filepath, options, callback)
       }
     },
 
