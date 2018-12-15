@@ -34,6 +34,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   const { blobPath, resources: manifest } = binary
   const { resourceStart, stat } = binary.layout
   const directories: { [key: string]: { [key: string]: boolean } } = {},
+    notAFile = '!@#$%^&*',
+    isWin = process.platform.startsWith('win'),
     isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
     isNotFile = () => false,
     isNotDirectory = isNotFile,
@@ -47,15 +49,20 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     log = (text: string) => process.stderr.write('[nexe] - ' + text + '\n')
   }
 
-  const getKey = process.platform.startsWith('win')
-    ? function getKey(filepath: string): string {
-        let key = path.resolve(filepath)
-        if (key.substr(1, 2) === ':\\') {
-          key = key[0].toUpperCase() + key.substr(1)
-        }
-        return key
-      }
-    : path.resolve
+  const getKey = function getKey(filepath: string | Buffer | null): string {
+    if (Buffer.isBuffer(filepath)) {
+      filepath = filepath.toString()
+    }
+    if (!isString(filepath)) {
+      return notAFile
+    }
+    let key = path.resolve(filepath)
+
+    if (isWin && key.substr(1, 2) === ':\\') {
+      key = key[0].toUpperCase() + key.substr(1)
+    }
+    return key
+  }
 
   const statTime = function() {
     return {
@@ -86,7 +93,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     return Object.assign({}, binary.layout.stat, fileExtensions, { size }, statTime())
   }
 
-  const ownStat = function(filepath: string) {
+  const ownStat = function(filepath: any) {
     setupManifest()
     const key = getKey(filepath)
     if (directories[key]) {
@@ -136,6 +143,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
         currentDir = path.dirname(currentDir)
       }
     })
+    ;(manifest[notAFile] as any) = false
+    ;(directories[notAFile] as any) = false
     setupManifest = noop
   }
 
@@ -160,32 +169,26 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     realpathSync: function realpathSync(filepath: any, options: any) {
       setupManifest()
       const key = getKey(filepath)
-      if (isString(filepath) && (manifest[filepath] || manifest[key])) {
+      if (manifest[key]) {
         return filepath
       }
       return originalFsMethods.realpathSync.call(fs, filepath, options)
     },
     readdir: function readdir(filepath: string | Buffer, options: any, callback: any) {
       setupManifest()
-      filepath = filepath.toString()
-      if ('function' === typeof options) {
-        callback = options
-        options = { encoding: 'utf8' }
-      }
       const dir = directories[getKey(filepath)]
       if (dir) {
-        process.nextTick(() => {
-          //todo merge with original?
-          callback(null, Object.keys(dir))
-        })
+        if ('function' === typeof options) {
+          callback = options
+          options = { encoding: 'utf8' }
+        }
+        process.nextTick(() => callback(null, Object.keys(dir)))
       } else {
         return originalFsMethods.readdir.apply(fs, arguments)
       }
     },
-
     readdirSync: function readdirSync(filepath: string | Buffer, options: any) {
       setupManifest()
-      filepath = filepath.toString()
       const dir = directories[getKey(filepath)]
       if (dir) {
         return Object.keys(dir)
@@ -195,8 +198,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
     readFile: function readFile(filepath: any, options: any, callback: any) {
       setupManifest()
-      const entry = manifest[filepath] || manifest[getKey(filepath)]
-      if (!entry || !isString(filepath)) {
+      const entry = manifest[getKey(filepath)]
+      if (!entry) {
         return originalFsMethods.readFile.apply(fs, arguments)
       }
       const [offset, length] = entry
@@ -227,8 +230,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     },
     createReadStream: function createReadStream(filepath: any, options: any) {
       setupManifest()
-      const entry = manifest[filepath] || manifest[getKey(filepath)]
-      if (!entry || !isString(filepath)) {
+      const entry = manifest[getKey(filepath)]
+      if (!entry) {
         return originalFsMethods.createReadStream.apply(fs, arguments)
       }
       const [offset, length] = entry
@@ -245,9 +248,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     },
     readFileSync: function readFileSync(filepath: any, options: any) {
       setupManifest()
-
-      const entry = manifest[filepath] || manifest[getKey(filepath)]
-      if (!entry || !isString(filepath)) {
+      const entry = manifest[getKey(filepath)]
+      if (!entry) {
         return originalFsMethods.readFileSync.apply(fs, arguments)
       }
       const [offset, length] = entry
@@ -260,14 +262,14 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       return encoding ? result.toString(encoding) : result
     },
     statSync: function statSync(filepath: string | Buffer) {
-      const stat = isString(filepath) && ownStat(filepath)
+      const stat = ownStat(filepath)
       if (stat) {
         return stat
       }
       return originalFsMethods.statSync.apply(fs, arguments)
     },
     stat: function stat(filepath: string | Buffer, callback: any) {
-      const stat = isString(filepath) && ownStat(filepath)
+      const stat = ownStat(filepath)
       if (stat) {
         process.nextTick(() => {
           callback(null, stat)
