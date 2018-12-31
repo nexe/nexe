@@ -1,6 +1,6 @@
 import { delimiter, dirname, normalize, join } from 'path'
 import { Buffer } from 'buffer'
-import { createReadStream } from 'fs'
+import { createReadStream, ReadStream } from 'fs'
 import { spawn } from 'child_process'
 import { Logger, LogStep } from './logger'
 import {
@@ -40,17 +40,16 @@ export class NexeCompiler {
    * Epoch of when compilation started
    */
   private start = Date.now()
+  private compileStep: LogStep | undefined
+  public log = new Logger(this.options.loglevel)
   /**
    * Copy of process.env
    */
-  private env = { ...process.env }
+  public env = { ...process.env }
   /**
    * Virtual FileSystem
    */
-  private bundle: Bundle
-
-  private compileStep: LogStep | undefined
-  public log = new Logger(this.options.loglevel)
+  public bundle: Bundle
   /**
    * Root directory for the source of the current build
    */
@@ -94,7 +93,7 @@ export class NexeCompiler {
   /**
    * The file path of node binary
    */
-  private nodeSrcBinPath: string
+  public nodeSrcBinPath: string
 
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
@@ -226,7 +225,7 @@ export class NexeCompiler {
     ])
   }
 
-  private async _buildAsync() {
+  public async build(): Promise<ReadStream> {
     this.compileStep!.log(
       `Configuring node build${
         this.options.configure.length ? ': ' + this.options.configure : '...'
@@ -306,7 +305,7 @@ export class NexeCompiler {
       binary = await this._fetchPrebuiltBinaryAsync(target)
     }
     if (await this._shouldCompileBinaryAsync(binary, location)) {
-      binary = await this._buildAsync()
+      binary = await this.build()
       step.log('Node binary compiled')
     }
     return this._assembleDeliverable(binary!)
