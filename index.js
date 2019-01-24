@@ -10,7 +10,20 @@ if (require.main === module) {
     process.stderr.write(showHelp ? options.help : options.version + eol)
   } else {
     const nexe = require('./lib/nexe')
-    nexe.compile(argv).catch(() => {
+    nexe.compile(argv).catch((error) => {
+      const NexeError = require('./lib/compiler').NexeError
+      const chalk = require('chalk')
+      const isSilent = Boolean(argv.silent === true || argv.loglevel === 'silent')
+      if (!isSilent) {
+        if (error instanceof NexeError) {
+          process.stderr.write(eol + chalk.red('Error: ') + error.message + eol
+            + eol + 'See nexe -h for usage..' + eol + eol
+          )
+        } else {
+          process.stderr.write(error.stack + eol)
+        }
+      }
+
       process.exit(1)
     })
   }

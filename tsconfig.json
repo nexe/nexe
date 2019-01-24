@@ -3,7 +3,7 @@
     "target":"es5",
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "lib": ["es2017"],
+    "lib": ["es2018"],
     "module": "commonjs",
     "outDir": "./lib",
     "strict": true

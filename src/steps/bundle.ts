@@ -1,4 +1,4 @@
-import { NexeCompiler } from '../compiler'
+import { NexeCompiler, NexeError } from '../compiler'
 import { resolve, relative } from 'path'
 import { each } from '@calebboyd/semaphore'
 import resolveFiles from 'resolve-dependencies'
@@ -48,7 +48,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   if (
     warnings.filter(x => x.startsWith('Error parsing file') && !x.includes('node_modules')).length
   ) {
-    throw new Error('Parsing Error:\n' + warnings.join('\n'))
+    throw new NexeError('Parsing Error:\n' + warnings.join('\n'))
   }
 
   await each(Object.keys(files), (filename: string) => compiler.addResource(filename), {

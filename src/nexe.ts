@@ -1,6 +1,6 @@
 import { EOL } from 'os'
 import { compose } from 'app-builder'
-import { NexeCompiler } from './compiler'
+import { NexeCompiler, NexeError } from './compiler'
 import { normalizeOptions, NexeOptions, NexePatch } from './options'
 import resource from './steps/resource'
 import clean from './steps/clean'
@@ -15,31 +15,28 @@ async function compile(
   compilerOptions?: Partial<NexeOptions>,
   callback?: (err: Error | null) => void
 ) {
-  const options = normalizeOptions(compilerOptions)
-  const compiler = new NexeCompiler(options)
+  let error = null,
+    options: NexeOptions | null = null,
+    compiler: NexeCompiler | null = null
 
-  const nexe = compose(
-    clean,
-    resource,
-    cli,
-    bundle,
-    shim,
-    options.build ? [download, artifacts, ...patches, ...(options.patches as NexePatch[])] : [],
-    options.plugins as NexePatch[]
-  )
-
-  let error = null
   try {
-    await nexe(compiler)
+    options = normalizeOptions(compilerOptions)
+    compiler = new NexeCompiler(options)
+    await compose(
+      clean,
+      resource,
+      cli,
+      bundle,
+      shim,
+      options.build ? [download, artifacts, ...patches, ...(options.patches as NexePatch[])] : [],
+      options.plugins as NexePatch[]
+    )(compiler)
   } catch (e) {
     error = e
   }
 
   if (error) {
-    compiler.quit(error)
-    if (compiler.options.loglevel !== 'silent' && error) {
-      process.stderr.write(EOL + error.message + EOL)
-    }
+    compiler && compiler.quit(error)
     if (callback) return callback(error)
     return Promise.reject(error)
   }

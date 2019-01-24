@@ -35,6 +35,13 @@ export interface NexeFile {
 
 export { NexeOptions }
 
+export class NexeError extends Error {
+  constructor(m: string) {
+    super(m)
+    Object.setPrototypeOf(this, NexeError.prototype)
+  }
+}
+
 export class NexeCompiler {
   /**
    * Epoch of when compilation started
@@ -178,7 +185,7 @@ export class NexeCompiler {
 
   assertBuild() {
     if (!this.options.build) {
-      throw new Error('This feature is only available with `--build`')
+      throw new NexeError('This feature is only available with `--build`')
     }
   }
 
@@ -211,7 +218,7 @@ export class NexeCompiler {
           }
           if (code != 0) {
             const error = `${command} ${args.join(' ')} exited with code: ${code}`
-            reject(new Error(error))
+            reject(new NexeError(error))
           }
           resolve()
         })
@@ -255,7 +262,7 @@ export class NexeCompiler {
     const asset = githubRelease.assets.find(x => x.name === assetName)
 
     if (!asset) {
-      throw new Error(`${assetName} not available, create it using the --build flag`)
+      throw new NexeError(`${assetName} not available, create it using the --build flag`)
     }
     const filename = this.getNodeExecutableLocation(target)
 

@@ -1,5 +1,5 @@
 import * as parseArgv from 'minimist'
-import { NexeCompiler } from './compiler'
+import { NexeCompiler, NexeError } from './compiler'
 import { isWindows, STDIN_FLAG } from './util'
 import { basename, extname, join, isAbsolute, resolve } from 'path'
 import { getTarget, NexeTarget } from './target'
@@ -222,7 +222,7 @@ export function resolveEntry(
     result = resolveFileNameSync(cwd, '.')
   }
   if (!result.absPath) {
-    throw new Error(`Entry file "${input}" not found!`)
+    throw new NexeError(`Entry file "${input || ''}" not found!`)
   }
   return result.absPath
 }
