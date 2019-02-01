@@ -2,7 +2,7 @@ import * as nexe from '../lib/nexe'
 import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import * as ci from './ci'
 import { runDockerBuild } from './docker'
-import { getTarget } from '../lib/target'
+import { getTarget, targetsEqual } from '../lib/target'
 import { pathExistsAsync, readFileAsync, execFileAsync } from '../lib/util'
 import got = require('got')
 
@@ -70,6 +70,11 @@ async function build() {
     if (await pathExistsAsync(output)) {
       await assertNexeBinary(output)
       const gitRelease = await getLatestGitRelease({ headers })
+      const unbuiltReleases = await getUnBuiltReleases({ headers })
+      if (!unbuiltReleases.some(x => targetsEqual(x, target))) {
+        console.log(`${target} already uploaded.`)
+        return
+      }
       await got(gitRelease.upload_url.split('{')[0], {
         query: { name: target.toString() },
         body: await readFileAsync(output),
