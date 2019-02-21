@@ -87,10 +87,16 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
   const createStat = function(directoryExtensions: any, fileExtensions?: any) {
     if (!fileExtensions) {
-      return Object.assign({}, binary.layout.stat, directoryExtensions, { size: 0 }, statTime())
+      return Object.assign(
+        new fs.Stats(),
+        binary.layout.stat,
+        directoryExtensions,
+        { size: 0 },
+        statTime()
+      )
     }
     const size = directoryExtensions[1]
-    return Object.assign({}, binary.layout.stat, fileExtensions, { size }, statTime())
+    return Object.assign(new fs.Stats(), binary.layout.stat, fileExtensions, { size }, statTime())
   }
 
   const ownStat = function(filepath: any) {
