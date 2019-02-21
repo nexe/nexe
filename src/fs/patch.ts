@@ -87,9 +87,13 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
   const createStat = function(directoryExtensions: any, fileExtensions?: any) {
     if (!fileExtensions) {
+      var mode = binary.layout.stat.mode
+      mode |= fs.constants.S_IFDIR
+      mode &= ~fs.constants.S_IFREG
       return Object.assign(
         new fs.Stats(),
         binary.layout.stat,
+        { mode },
         directoryExtensions,
         { size: 0 },
         statTime()
