@@ -99,7 +99,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       return createStat({ mode, size: 0 })
     }
     if (manifest[key]) {
-      return createStat({ size: manifest[key] })
+      return createStat({ size: manifest[key][1] })
     }
   }
 
