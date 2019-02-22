@@ -85,22 +85,21 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     }
   }
 
-  const createStat = function(directoryExtensions: any, fileExtensions?: any) {
-    if (!fileExtensions) {
-      return Object.assign({}, binary.layout.stat, directoryExtensions, { size: 0 }, statTime())
-    }
-    const size = directoryExtensions[1]
-    return Object.assign({}, binary.layout.stat, fileExtensions, { size }, statTime())
+  const createStat = function(extensions: any) {
+    return Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
   }
 
   const ownStat = function(filepath: any) {
     setupManifest()
     const key = getKey(filepath)
     if (directories[key]) {
-      return createStat({ isDirectory, isFile: isNotFile })
+      let mode = binary.layout.stat.mode
+      mode |= fs.constants.S_IFDIR
+      mode &= ~fs.constants.S_IFREG
+      return createStat({ mode, size: 0 })
     }
     if (manifest[key]) {
-      return createStat(manifest[key], { isFile, isDirectory: isNotDirectory })
+      return createStat({ size: manifest[key] })
     }
   }
 
