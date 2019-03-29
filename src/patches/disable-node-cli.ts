@@ -6,7 +6,13 @@ export default async function disableNodeCli(compiler: NexeCompiler, next: () =>
     return next()
   }
 
-  if (semverGt(compiler.target.version, '10.9')) {
+  if (semverGt(compiler.target.version, '11.6.0')) {
+    await compiler.replaceInFileAsync(
+      'src/node.cc',
+      /(?<!int )ProcessGlobalArgs\(/g,
+      '0;//ProcessGlobalArgs('
+    )
+  } else if (semverGt(compiler.target.version, '10.9')) {
     await compiler.replaceInFileAsync('src/node.cc', /(?<!void )ProcessArgv\(/g, '//ProcessArgv(')
   } else if (semverGt(compiler.target.version, '9.999')) {
     await compiler.replaceInFileAsync(
