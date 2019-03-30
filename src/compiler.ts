@@ -247,39 +247,6 @@ export class NexeCompiler {
     return createReadStream(this.getNodeExecutableLocation())
   }
 
-  private async _fetchPrebuiltBinaryAsync(target: NexeTarget) {
-    let downloadOptions = this.options.downloadOptions
-
-    if (this.options.ghToken) {
-      downloadOptions = Object.assign({}, downloadOptions)
-      downloadOptions.headers = Object.assign({}, downloadOptions.headers, {
-        Authorization: 'token ' + this.options.ghToken
-      })
-    }
-
-    const githubRelease = await getLatestGitRelease(downloadOptions)
-    const assetName = target.toString()
-    const asset = githubRelease.assets.find(x => x.name === assetName)
-
-    if (!asset) {
-      throw new NexeError(`${assetName} not available, create it using the --build flag`)
-    }
-    const filename = this.getNodeExecutableLocation(target)
-
-    await download(asset.browser_download_url, dirname(filename), this.options.downloadOptions).on(
-      'response',
-      (res: IncomingMessage) => {
-        const total = +res.headers['content-length']!
-        let current = 0
-        res.on('data', data => {
-          current += data.length
-          this.compileStep!.modify(`Downloading...${((current / total) * 100).toFixed()}%`)
-        })
-      }
-    )
-    return createReadStream(filename)
-  }
-
   private async _shouldCompileBinaryAsync(
     binary: NodeJS.ReadableStream | null,
     location: string | undefined
@@ -307,10 +274,7 @@ export class NexeCompiler {
     const build = this.options.build
     const location = this.getNodeExecutableLocation(build ? undefined : target)
     let binary = (await pathExistsAsync(location)) ? createReadStream(location) : null
-    if (!build && !binary) {
-      step.modify('Fetching prebuilt binary')
-      binary = await this._fetchPrebuiltBinaryAsync(target)
-    }
+
     if (await this._shouldCompileBinaryAsync(binary, location)) {
       binary = await this.build()
       step.log('Node binary compiled')

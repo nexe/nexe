@@ -4,6 +4,5 @@ end_of_line = lf
 charset = utf-8
 indent_style = space
 indent_size = 2
-#https://github.com/Microsoft/vscode/issues/23983#event-1087502108
-#trim_trailing_whitespace = true
+trim_trailing_whitespace = true
 insert_final_newline = true

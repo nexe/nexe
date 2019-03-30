@@ -28,7 +28,8 @@ async function compile(
       cli,
       bundle,
       shim,
-      options.build ? [download, artifacts, ...patches, ...(options.patches as NexePatch[])] : [],
+      download,
+      options.build ? [artifacts, ...patches, ...(options.patches as NexePatch[])] : [],
       options.plugins as NexePatch[]
     )(compiler)
   } catch (e) {

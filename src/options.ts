@@ -165,7 +165,7 @@ function extractLogLevel(options: NexeOptions) {
 }
 
 function isName(name: string) {
-  return name && name !== 'index'
+  return name && name !== 'index' && name !== STDIN_FLAG
 }
 
 function extractName(options: NexeOptions) {
