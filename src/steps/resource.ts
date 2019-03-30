@@ -1,5 +1,5 @@
 import { isDirectoryAsync, each } from '../util'
-import * as globs from 'globby'
+import globs from 'globby'
 import { NexeCompiler } from '../compiler'
 
 export default async function resource(compiler: NexeCompiler, next: () => Promise<any>) {

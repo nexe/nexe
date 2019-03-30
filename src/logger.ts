@@ -1,5 +1,5 @@
-import colors = require('chalk')
-import ora = require('ora')
+import colors from 'chalk'
+import ora from 'ora'
 
 const frameLength = 120
 

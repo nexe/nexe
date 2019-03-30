@@ -23,7 +23,7 @@ function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options 
     .then(() => step.log(`Node source extracted to: ${dest}`))
 }
 
-async function fetchPrebuiltBinary (compiler: NexeCompiler, step: any) {
+async function fetchPrebuiltBinary(compiler: NexeCompiler, step: any) {
   let downloadOptions = compiler.options.downloadOptions
   const target = compiler.target
 
@@ -43,17 +43,18 @@ async function fetchPrebuiltBinary (compiler: NexeCompiler, step: any) {
   }
   const filename = compiler.getNodeExecutableLocation(target)
 
-  await download(asset.browser_download_url, dirname(filename), compiler.options.downloadOptions).on(
-    'response',
-    (res: IncomingMessage) => {
-      const total = +res.headers['content-length']!
-      let current = 0
-      res.on('data', data => {
-        current += data.length
-        step!.modify(`Downloading...${((current / total) * 100).toFixed()}%`)
-      })
-    }
-  )
+  await download(
+    asset.browser_download_url,
+    dirname(filename),
+    compiler.options.downloadOptions
+  ).on('response', (res: IncomingMessage) => {
+    const total = +res.headers['content-length']!
+    let current = 0
+    res.on('data', data => {
+      current += data.length
+      step!.modify(`Downloading...${((current / total) * 100).toFixed()}%`)
+    })
+  })
 }
 
 /**
@@ -62,17 +63,13 @@ async function fetchPrebuiltBinary (compiler: NexeCompiler, step: any) {
  * @param {*} next
  */
 export default async function downloadNode(compiler: NexeCompiler, next: () => Promise<void>) {
-  const {
-    src,
-    log,
-    target
-  } = compiler,
-  { version } = target,
-  { sourceUrl, downloadOptions, build } = compiler.options,
-  url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`
-  const step = log.step(`Downloading ${build ? '' : 'pre-built '}Node.js${
-    build ? `source from: ${url}` : ''
-  }`)
+  const { src, log, target } = compiler,
+    { version } = target,
+    { sourceUrl, downloadOptions, build } = compiler.options,
+    url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`
+  const step = log.step(
+    `Downloading ${build ? '' : 'pre-built '}Node.js${build ? `source from: ${url}` : ''}`
+  )
   const exeLocation = compiler.getNodeExecutableLocation(build ? undefined : target)
   const downloadExists = await pathExistsAsync(build ? src : exeLocation)
 
