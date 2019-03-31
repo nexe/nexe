@@ -43,7 +43,11 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     return next()
   }
 
-  const { files, warnings } = await resolveFiles(input, { cwd, expand: true, loadContent: false })
+  const { files, warnings } = await resolveFiles(
+    input,
+    ...Object.keys(compiler.bundle.index).filter(x => x.endsWith('.js')),
+    { cwd, expand: true, loadContent: false }
+  )
 
   if (
     warnings.filter(x => x.startsWith('Error parsing file') && !x.includes('node_modules')).length
