@@ -1,17 +1,22 @@
 const fs = require('fs'),
   fd = fs.openSync(process.execPath, 'r'),
-  stat = fs.statSync(process.execPath),
-  footer = Buffer.alloc(32, 0)
+  stat = fs.statSync(process.execPath)
 
-fs.readSync(fd, footer, 0, 32, stat.size - 32)
-
-if (!footer.slice(0, 16).equals(Buffer.from('<nexe~~sentinel>'))) {
+// need to find the real nexe footer for validation, but the
+// signing process adds extra bytes to the end of the file
+const tailSize = Math.min(stat.size, 16000)
+const tailBuf = Buffer.from(Array(tailSize))
+fs.readSync(fd, tailBuf, 0, tailSize, stat.size - tailSize)
+const footerPos = tailBuf.indexOf('<nexe~~sentinel>')
+if (footerPos == -1) {
   throw 'Invalid Nexe binary'
 }
 
+const footer = tailBuf.slice(footerPos, footerPos + 32)
+
 const contentSize = footer.readDoubleLE(16),
   resourceSize = footer.readDoubleLE(24),
-  contentStart = stat.size - 32 - resourceSize - contentSize,
+  contentStart = stat.size - tailSize + footerPos - resourceSize - contentSize,
   resourceStart = contentStart + contentSize
 
 Object.defineProperty(
