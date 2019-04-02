@@ -1,17 +1,20 @@
 const fs = require('fs'),
   fd = fs.openSync(process.execPath, 'r'),
   stat = fs.statSync(process.execPath),
-  footer = Buffer.alloc(32, 0)
+  tailSize = Math.min(stat.size, 16000),
+  tailWindow = Buffer.from(Array(tailSize))
 
-fs.readSync(fd, footer, 0, 32, stat.size - 32)
+fs.readSync(fd, tailWindow, 0, tailSize, stat.size - tailSize)
 
-if (!footer.slice(0, 16).equals(Buffer.from('<nexe~~sentinel>'))) {
+const footerPosition = tailWindow.indexOf('<nexe~~sentinel>')
+if (footerPosition == -1) {
   throw 'Invalid Nexe binary'
 }
 
-const contentSize = footer.readDoubleLE(16),
+const footer = tailWindow.slice(footerPosition, footerPosition + 32),
+  contentSize = footer.readDoubleLE(16),
   resourceSize = footer.readDoubleLE(24),
-  contentStart = stat.size - 32 - resourceSize - contentSize,
+  contentStart = stat.size - tailSize + footerPosition - resourceSize - contentSize,
   resourceStart = contentStart + contentSize
 
 Object.defineProperty(
