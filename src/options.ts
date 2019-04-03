@@ -49,7 +49,6 @@ export interface NexeOptions {
   ico?: string
   debugBundle?: boolean
   warmup?: string
-  compress?: boolean
   clean?: boolean
   /**
    * Api Only
@@ -66,7 +65,6 @@ const defaults = {
   targets: [],
   vcBuild: isWindows ? ['nosign', 'release'] : [],
   enableNodeCli: false,
-  compress: false,
   build: false,
   bundle: true,
   patches: [],
