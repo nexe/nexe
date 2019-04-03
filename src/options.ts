@@ -21,6 +21,7 @@ export interface NexeOptions {
   output: string
   targets: (string | NexeTarget)[]
   name: string
+  asset: string
   cwd: string
   flags: string[]
   configure: string[]
@@ -35,11 +36,6 @@ export interface NexeOptions {
   patches: (string | NexePatch)[]
   plugins: (string | NexePatch)[]
   native: any
-  /**
-   * @deprecated
-   * Use mangle: false instead
-   */
-  empty: boolean
   mangle: boolean
   ghToken: string
   sourceUrl?: string
@@ -65,6 +61,7 @@ const defaults = {
   flags: [],
   cwd: process.cwd(),
   configure: [],
+  mangle: true,
   make: [],
   targets: [],
   vcBuild: isWindows ? ['nosign', 'release'] : [],
@@ -104,6 +101,7 @@ ${c.bold('nexe <entry-file> [options]')}
   -t   --target                     -- node version description
   -n   --name                       -- main app module name
   -r   --resource                   -- *embed files (glob) within the binary
+  -a   --asset                      -- alternate asset path, file or url pointing to a base (nexe) binary
        --plugin                     -- extend nexe runtime behavior
 
    ${c.underline.bold('Building from source:')}
@@ -113,7 +111,8 @@ ${c.bold('nexe <entry-file> [options]')}
   -f   --flag                       -- *v8 flags to include during compilation
   -c   --configure                  -- *arguments to the configure step
   -m   --make                       -- *arguments to the make/build step
-       --no-mangle                  -- used when generating base binaries, or when pathing _third_party_main manually.
+       --patch                      -- module with middelware default export for adding a build patch
+       --no-mangle                  -- used when generating base binaries, or when patching _third_party_main manually.
        --snapshot                   -- path to a warmup snapshot
        --ico                        -- file name for alternate icon file (windows)
        --rc-*                       -- populate rc file options (windows)
@@ -268,6 +267,21 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
       : `${options.output || options.name}`
   options.output = resolve(cwd, options.output)
 
+  const requireDefault = (x: string) => {
+    if (typeof x === 'string') {
+      return require(x).default
+    }
+    return x
+  }
+
+  options.mangle = 'mangle' in opts ? opts.mangle : true
+  options.plugins = flatten(opts.plugin, options.plugins).map(requireDefault)
+  options.patches = flatten(opts.patch, options.patches).map(requireDefault)
+
+  if ((!options.mangle && !options.bundle) || options.patches.length) {
+    options.build = true
+  }
+
   if (options.build) {
     const { arch } = options.targets[0] as NexeTarget
     if (isWindows) {
@@ -276,17 +290,6 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
       options.configure = Array.from(new Set(options.configure.concat([`--dest-cpu=${arch}`])))
     }
   }
-
-  const requireDefault = (x: string) => {
-    if (typeof x === 'string') {
-      return require(x).default
-    }
-    return x
-  }
-
-  options.mangle = 'mangle' in opts ? opts.mangle : !opts.empty
-  options.plugins = flatten(opts.plugin, options.plugins).map(requireDefault)
-  options.patches = flatten(opts.patch, options.patches).map(requireDefault)
 
   Object.keys(alias)
     .filter(k => k !== 'rc')

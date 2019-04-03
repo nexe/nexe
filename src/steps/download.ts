@@ -23,12 +23,11 @@ function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options 
 }
 
 async function fetchPrebuiltBinary(compiler: NexeCompiler, step: any) {
-  const target = compiler.target,
-    asset = 'https://github.com/nexe/nexe/releases/download/v3.0.0/' + target.toString(),
+  const { target, remoteAsset } = compiler,
     filename = compiler.getNodeExecutableLocation(target)
 
   try {
-    await download(asset, dirname(filename), compiler.options.downloadOptions).on(
+    await download(remoteAsset, dirname(filename), compiler.options.downloadOptions).on(
       'response',
       (res: IncomingMessage) => {
         const total = +res.headers['content-length']!
@@ -41,7 +40,7 @@ async function fetchPrebuiltBinary(compiler: NexeCompiler, step: any) {
     )
   } catch (e) {
     if (e.statusCode === 404) {
-      throw new NexeError(`${asset} not available, create it using the --build flag`)
+      throw new NexeError(`${remoteAsset} is not available, create it using the --build flag`)
     } else {
       throw new NexeError('Error downloading prebuilt binary: ' + e)
     }
@@ -57,12 +56,12 @@ export default async function downloadNode(compiler: NexeCompiler, next: () => P
   const { src, log, target } = compiler,
     { version } = target,
     { sourceUrl, downloadOptions, build } = compiler.options,
-    url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`
-  const step = log.step(
-    `Downloading ${build ? '' : 'pre-built '}Node.js${build ? `source from: ${url}` : ''}`
-  )
-  const exeLocation = compiler.getNodeExecutableLocation(build ? undefined : target)
-  const downloadExists = await pathExistsAsync(build ? src : exeLocation)
+    url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`,
+    step = log.step(
+      `Downloading ${build ? '' : 'pre-built '}Node.js${build ? `source from: ${url}` : ''}`
+    ),
+    exeLocation = compiler.getNodeExecutableLocation(build ? undefined : target),
+    downloadExists = await pathExistsAsync(build ? src : exeLocation)
 
   if (downloadExists) {
     step.log('Already downloaded...')

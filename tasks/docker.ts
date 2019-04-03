@@ -9,7 +9,7 @@ function alpine(target: NexeTarget) {
 FROM ${target.arch === 'x64' ? '' : 'i386/'}alpine:3.4
 RUN apk add --no-cache curl make gcc g++ binutils-gold python linux-headers paxctl libgcc libstdc++ git vim tar gzip wget
 ENV NODE_VERSION=${target.version}
-ENV NEXE_VERSION=beta
+ENV NEXE_VERSION=latest
 WORKDIR /
 
 RUN curl -sSL https://nodejs.org/dist/v\${NODE_VERSION}/node-v\${NODE_VERSION}.tar.gz | tar -xz && \
@@ -21,18 +21,18 @@ RUN curl -sSL https://nodejs.org/dist/v\${NODE_VERSION}/node-v\${NODE_VERSION}.t
 
 RUN rm /nexe_temp/\${NODE_VERSION}/out/Release/node && \
   npm install -g nexe@\${NEXE_VERSION} && \
-  nexe --build --empty --temp /nexe_temp -c="--fully-static" -o out --enableStdIn=false
+  nexe --build --no-mangle --temp /nexe_temp -c="--fully-static" -o out --enableStdIn=false
 `.trim()
 }
 
 function arm(target: NexeTarget) {
   return `
 FROM hypriot/rpi-node
-ENV NEXE_VERSION=beta
+ENV NEXE_VERSION=latest
 WORKDIR /
 
 RUN yarn global add nexe@\${NEXE_VERSION} && \
-  nexe --build --empty -o out -t ${target.version}
+  nexe --build --no-mangle -o out -t ${target.version}
 `.trim()
 }
 

@@ -115,6 +115,9 @@ compile({
     - default: process.cwd()
  - #### `build: boolean`
     - Build node from source, passing this flag tells nexe to download and build from source. Subsequently using this flag will cause nexe to use the previously built binary. To rebuild, first add [`--clean`](#clean-boolean)
+ - #### `asset: string`
+    - Provide a pre-built nexe binary asset, this can either be an http or https URL or a file path.
+    - default: `null`
  - #### `python: string`
     - On Linux this is the path pointing to your python2 executable
     - On Windows this is the directory where `python` can be accessed
@@ -166,7 +169,7 @@ compile({
       variable will still be processed. NODE_OPTIONS support can be disabled with the `--without-node-options` configure flag.
     - default: `false`
   - #### `fakeArgv: boolean`
-    - fake the entry point file name (`process.argv[1]`). If nexe was used with stdin this will be `'[stdin]'`. 
+    - fake the entry point file name (`process.argv[1]`). If nexe was used with stdin this will be `'[stdin]'`.
  - #### `ghToken: string`
     - Provide a Github Token for accessing nexe releases
     - This is usually needed in CI environments

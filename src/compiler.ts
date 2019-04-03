@@ -1,4 +1,4 @@
-import { delimiter, dirname, normalize, join } from 'path'
+import { delimiter, resolve, normalize, join } from 'path'
 import { Buffer } from 'buffer'
 import { createReadStream, ReadStream } from 'fs'
 import { spawn } from 'child_process'
@@ -15,9 +15,6 @@ import {
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
-import download = require('download')
-import { getLatestGitRelease } from './releases'
-import { IncomingMessage } from 'http'
 import combineStreams = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
 
@@ -101,11 +98,22 @@ export class NexeCompiler {
    * The file path of node binary
    */
   public nodeSrcBinPath: string
+  /**
+   * Remote asset path if available
+   */
+  public remoteAsset: string
 
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
+    //SOMEDAY iterate over multiple targets with `--outDir`
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
+    if (options.asset && options.asset.startsWith('http')) {
+      this.remoteAsset = options.asset
+    } else {
+      this.remoteAsset =
+        'https://github.com/nexe/nexe/releases/download/v3.0.0/' + this.target.toString()
+    }
     this.src = join(this.options.temp, this.target.version)
     this.configureScript = configure + (semverGt(this.target.version, '10.10.0') ? '.py' : '')
     this.nodeSrcBinPath = isWindows
@@ -190,6 +198,9 @@ export class NexeCompiler {
   }
 
   public getNodeExecutableLocation(target?: NexeTarget) {
+    if (this.options.asset && !this.options.asset.startsWith('http')) {
+      return resolve(this.options.cwd, this.options.asset)
+    }
     if (target) {
       return join(this.options.temp, target.toString())
     }
@@ -251,7 +262,7 @@ export class NexeCompiler {
     binary: NodeJS.ReadableStream | null,
     location: string | undefined
   ) {
-    //TODO combine make/configure/vcBuild/and modified times of included files
+    //SOMEDAY combine make/configure/vcBuild/and modified times of included files
     const { snapshot, build } = this.options
 
     if (!binary) {
@@ -261,8 +272,6 @@ export class NexeCompiler {
     if (build && snapshot != null && (await pathExistsAsync(snapshot))) {
       const snapshotLastModified = (await statAsync(snapshot)).mtimeMs
       const binaryLastModified = (await statAsync(location)).mtimeMs
-      // if build was requested and there's a snapshot to embed in the binary,
-      // we need to rebuild if the snapshot was just modified.
       return snapshotLastModified > binaryLastModified
     }
 
