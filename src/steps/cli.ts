@@ -41,7 +41,11 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
           chmodSync(output, mode.toString(8).slice(-3))
           step.log(
             `Entry: '${
-              compiler.stdinUsed ? (compiler.options.mangle ? STDIN_FLAG : '[none]') : inputFileLogOutput
+              compiler.stdinUsed
+                ? compiler.options.mangle
+                  ? STDIN_FLAG
+                  : '[none]'
+                : inputFileLogOutput
             }' written to: ${outputFileLogOutput}`
           )
           resolve(compiler.quit())
