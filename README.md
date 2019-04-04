@@ -113,6 +113,10 @@ compile({
  - #### `cwd: string`
     - Directory nexe will operate on as though it is the cwd
     - default: process.cwd()
+ - #### `mangle: boolean`
+    - If set to false, nexe will not include the virtual filesystem (your application and resources) on the output.
+    - This will cause the output to error as an "Invalid Binary" unless a userland patch alters the contents of lib/_third_party_main.js in the nodejs source.
+    - default: true
  - #### `build: boolean`
     - Build node from source, passing this flag tells nexe to download and build from source. Subsequently using this flag will cause nexe to use the previously built binary. To rebuild, first add [`--clean`](#clean-boolean)
  - #### `asset: string`
