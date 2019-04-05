@@ -37,11 +37,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     notAFile = '!@#$%^&*',
     isWin = process.platform.startsWith('win'),
     isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
-    isNotFile = () => false,
-    isNotDirectory = isNotFile,
-    isFile = () => true,
     noop = () => {},
-    isDirectory = isFile,
     path = require('path')
 
   let log = (text: string) => true
