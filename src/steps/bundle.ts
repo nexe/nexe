@@ -1,7 +1,7 @@
 import { NexeCompiler, NexeError } from '../compiler'
 import { resolve, relative } from 'path'
 import { each } from '@calebboyd/semaphore'
-import resolveFiles from 'resolve-dependencies'
+import resolveFiles, { resolveFileNameSync } from 'resolve-dependencies'
 import { dequote, STDIN_FLAG } from '../util'
 import { Readable } from 'stream'
 
@@ -16,12 +16,13 @@ function getStdIn(stdin: Readable): Promise<string> {
           out += current
         }
       })
-      .on('end', () => resolve(out))
+      .on('end', () => resolve(out.trim()))
   })
 }
 
 export default async function bundle(compiler: NexeCompiler, next: any) {
-  const { bundle, cwd, input } = compiler.options
+  const { bundle, cwd, input: inputPath } = compiler.options
+  let input = inputPath
   compiler.entrypoint = './' + relative(cwd, input)
   compiler.startup = ';require("module").runMain();'
 
@@ -35,12 +36,19 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     code = await require(bundle).createBundle(compiler.options)
   }
 
-  if (input === STDIN_FLAG) {
+  if (input === STDIN_FLAG && (code = code || dequote(await getStdIn(process.stdin)))) {
     compiler.stdinUsed = true
     compiler.entrypoint = './__nexe_stdin.js'
-    code = code || dequote(await getStdIn(process.stdin))
     await compiler.addResource(resolve(cwd, compiler.entrypoint), code)
     return next()
+  }
+
+  if (input === STDIN_FLAG) {
+    const maybeInput = resolveFileNameSync(cwd, '.')
+    if (!maybeInput) {
+      throw new NexeError('No valid input detected')
+    }
+    input = maybeInput.absPath
   }
 
   const { files, warnings } = await resolveFiles(
