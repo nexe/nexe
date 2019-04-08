@@ -31,14 +31,15 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
   originalFsMethods = Object.assign({}, fs)
   nexeBinary = binary
-  const { blobPath, resources: manifest } = binary
-  const { resourceStart, stat } = binary.layout
-  const directories: { [key: string]: { [key: string]: boolean } } = {},
+  const { blobPath, resources: manifest } = binary,
+    { resourceStart, stat } = binary.layout,
+    directories: { [key: string]: { [key: string]: boolean } } = {},
     notAFile = '!@#$%^&*',
     isWin = process.platform.startsWith('win'),
     isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
     noop = () => {},
-    path = require('path')
+    path = require('path'),
+    baseDir = path.dirname(process.execPath)
 
   let log = (text: string) => true
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
@@ -52,7 +53,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     if (!isString(filepath)) {
       return notAFile
     }
-    let key = path.resolve(filepath)
+    let key = path.resolve(baseDir, filepath)
 
     if (isWin && key.substr(1, 2) === ':\\') {
       key = key[0].toUpperCase() + key.substr(1)
