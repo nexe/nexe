@@ -45,10 +45,11 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   if (input === STDIN_FLAG) {
     const maybeInput = resolveFileNameSync(cwd, '.')
-    if (!maybeInput) {
+    if (!maybeInput || !maybeInput.absPath) {
       throw new NexeError('No valid input detected')
     }
     input = maybeInput.absPath
+    compiler.entrypoint = './' + relative(cwd, input)
   }
 
   const { files, warnings } = await resolveFiles(

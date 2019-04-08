@@ -1,4 +1,4 @@
-import { dirname, normalize, relative } from 'path'
+import { dirname, normalize, relative, resolve } from 'path'
 import { createWriteStream, chmodSync, statSync } from 'fs'
 import { NexeCompiler } from '../compiler'
 import { NexeTarget } from '../target'
@@ -24,18 +24,21 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
 
   mkdirp.sync(dirname(output))
 
-  return new Promise((resolve, reject) => {
+  return new Promise((res, rej) => {
     const step = log.step('Writing result to file')
     deliverable
       .pipe(createWriteStream(output))
-      .on('error', reject)
+      .on('error', rej)
       .once('close', (e: Error) => {
         if (e) {
-          reject(e)
+          rej(e)
         } else if (compiler.output) {
           const output = compiler.output,
             mode = statSync(output).mode | 0o111,
-            inputFileLogOutput = relative(process.cwd(), compiler.options.input),
+            inputFileLogOutput = relative(
+              process.cwd(),
+              resolve(compiler.options.cwd, compiler.entrypoint || compiler.options.input)
+            ),
             outputFileLogOutput = relative(process.cwd(), output)
 
           chmodSync(output, mode.toString(8).slice(-3))
@@ -48,7 +51,7 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
                 : inputFileLogOutput
             }' written to: ${outputFileLogOutput}`
           )
-          resolve(compiler.quit())
+          res(compiler.quit())
         }
       })
   })
