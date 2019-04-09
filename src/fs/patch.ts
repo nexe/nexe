@@ -13,24 +13,13 @@ export interface NexeBinary {
 }
 
 let originalFsMethods: any = null
-let nexeBinary: NexeBinary | null = null
-
-function restoreFs(fs: any = require('fs')): NexeBinary | false {
-  if (!nexeBinary) {
-    return false
-  }
-  const source = nexeBinary
-  Object.assign(fs, originalFsMethods)
-  nexeBinary = originalFsMethods = null
-  return source
-}
+let lazyRestoreFs = () => {}
 
 function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   if (originalFsMethods !== null) {
     return
   }
   originalFsMethods = Object.assign({}, fs)
-  nexeBinary = binary
   const { blobPath, resources: manifest } = binary,
     { resourceStart, stat } = binary.layout,
     directories: { [key: string]: { [key: string]: boolean } } = {},
@@ -41,7 +30,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     path = require('path'),
     baseDir = path.dirname(process.execPath)
 
-  let log = (text: string) => true
+  let log = (_: string) => true
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
     log = (text: string) => process.stderr.write('[nexe] - ' + text + '\n')
   }
@@ -330,7 +319,18 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     }
   }
   Object.assign(fs, nfs)
+
+  lazyRestoreFs = () => {
+    Object.keys(nfs).forEach(key => {
+      fs[key] = originalFsMethods[key]
+    })
+    lazyRestoreFs = () => {}
+  }
   return true
+}
+
+function restoreFs() {
+  lazyRestoreFs()
 }
 
 export { shimFs, restoreFs }
