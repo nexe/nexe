@@ -23,6 +23,7 @@ export interface NexeOptions {
   name: string
   asset: string
   cwd: string
+  fs: boolean | string[]
   flags: string[]
   configure: string[]
   vcBuild: string[]
@@ -59,6 +60,7 @@ export interface NexeOptions {
 const defaults = {
   flags: [],
   cwd: process.cwd(),
+  fs: true,
   configure: [],
   mangle: true,
   make: [],
