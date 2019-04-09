@@ -9,7 +9,7 @@ export default async function(compiler: NexeCompiler, next: () => Promise<void>)
     return next()
   }
 
-  const variablePrefix = semverGt(compiler.target.version, '11.0.0') ? 'v8_' : '';
+  const variablePrefix = semverGt(compiler.target.version, '11.0.0') ? 'v8_' : ''
 
   await compiler.replaceInFileAsync(
     compiler.configureScript,
@@ -17,7 +17,10 @@ export default async function(compiler: NexeCompiler, next: () => Promise<void>)
     `def configure_v8(o):\n  o['variables']['${variablePrefix}embed_script'] = r'${resolve(
       cwd,
       snapshot
-    )}'\n  o['variables']['${variablePrefix}warmup_script'] = r'${resolve(cwd, warmup || snapshot)}'`
+    )}'\n  o['variables']['${variablePrefix}warmup_script'] = r'${resolve(
+      cwd,
+      warmup || snapshot
+    )}'`
   )
 
   return next()
