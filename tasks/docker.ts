@@ -20,8 +20,9 @@ RUN curl -sSL https://nodejs.org/dist/v\${NODE_VERSION}/node-v\${NODE_VERSION}.t
   paxctl -cm /usr/bin/node
 
 RUN rm /nexe_temp/\${NODE_VERSION}/out/Release/node && \
-  npm install -g nexe@\${NEXE_VERSION} && \
-  nexe --build --no-mangle --temp /nexe_temp -c="--fully-static" -o out --enableStdIn=false
+  npm install -g nexe@\${NEXE_VERSION}
+RUN echo "console.log('hello world')" >> index.js && \
+  nexe --build --no-mangle --temp /nexe_temp -c="--fully-static" -o out
 `.trim()
 }
 
