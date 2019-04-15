@@ -318,6 +318,40 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       process.nextTick(() => cb(exists))
     }
   }
+
+  if (typeof fs.copyFile === 'function') {
+    nfs.copyFile = function(filepath: string, dest: Function, flags: number, callback: Function) {
+      setupManifest()
+      const entry = manifest[getKey(filepath)]
+      if (!entry) {
+        return originalFsMethods.copyFile.apply(fs, arguments)
+      }
+      if (typeof flags === 'function') {
+        callback = flags
+        flags = 0
+      }
+      nfs.readFile(filepath, (err: any, buffer: any) => {
+        if (err) {
+          return callback(err)
+        }
+        originalFsMethods.writeFile(dest, buffer, (err: any) => {
+          if (err) {
+            return callback(err)
+          }
+          callback(null)
+        })
+      })
+    }
+    nfs.copyFileSync = function(filepath: string, dest: string) {
+      setupManifest()
+      const entry = manifest[getKey(filepath)]
+      if (!entry) {
+        return originalFsMethods.copyFileSync.apply(fs, arguments)
+      }
+      return originalFsMethods.writeFileSync(dest, nfs.readFileSync(filepath))
+    }
+  }
+
   Object.assign(fs, nfs)
 
   lazyRestoreFs = () => {
