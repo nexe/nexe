@@ -51,7 +51,8 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
                 : inputFileLogOutput
             }' written to: ${outputFileLogOutput}`
           )
-          res(compiler.quit())
+          compiler.quit()
+          res(output)
         }
       })
   })

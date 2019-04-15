@@ -9,6 +9,7 @@
     "Caleb Boyd <caleb.boyd@hotmail.com>"
   ],
   "scripts": {
+    "ci:build": "ts-node tasks/build",
     "asset-compile": "ts-node tasks/asset-compile",
     "test": "mocha",
     "lint": "tslint \"{src,plugins,tasks}/**/*.ts\" --fix",
