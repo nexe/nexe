@@ -6,8 +6,8 @@ import { dequote, STDIN_FLAG } from '../util'
 import { Readable } from 'stream'
 
 function getStdIn(stdin: Readable): Promise<string> {
+  let out = ''
   return new Promise(resolve => {
-    let out = ''
     stdin
       .setEncoding('utf8')
       .on('readable', () => {
@@ -17,6 +17,11 @@ function getStdIn(stdin: Readable): Promise<string> {
         }
       })
       .on('end', () => resolve(out.trim()))
+    setTimeout(() => {
+      if (!out.trim()) {
+        resolve(out.trim())
+      }
+    }, 1000)
   })
 }
 

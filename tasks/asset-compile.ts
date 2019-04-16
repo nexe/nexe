@@ -1,3 +1,4 @@
+const huh = require('wtfnode')
 import * as nexe from '../lib/nexe'
 import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import * as ci from './ci'
@@ -87,6 +88,7 @@ async function build() {
         throw reason
       })
       console.log(target + ' uploaded.')
+      huh.dump()
     }
   }
 }

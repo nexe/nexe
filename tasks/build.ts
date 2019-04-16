@@ -2,12 +2,14 @@ import * as nexe from '../lib/nexe'
 import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import { runDockerBuild } from './docker'
 import { getTarget, targetsEqual, NexeTarget } from '../lib/target'
-import { pathExistsAsync, readFileAsync, execFileAsync } from '../lib/util'
+import { pathExistsAsync, readFileAsync, execFileAsync, semverGt } from '../lib/util'
 import got = require('got')
 
 const env = process.env,
   isPullRequest = env.BUILD_REASON === 'PullRequest',
   isWindows = process.platform === 'win32',
+  isLinux = process.platform === 'linux',
+  buildHost = env.AGENT_JOBNAME || (isWindows && 'windows_2017_2015') || '',
   isMac = process.platform === 'darwin',
   headers = {
     Authorization: 'token ' + env.GITHUB_TOKEN,
@@ -24,39 +26,49 @@ if (require.main === module) {
 }
 
 async function build() {
-  if (isPullRequest) {
-    return
-  }
   const releases = await getUnBuiltReleases({ headers })
   if (!releases.length) {
     return
   }
   const windowsBuild = releases.find(x => x.platform === 'windows'),
     macBuild = releases.find(x => x.platform === 'mac'),
-    linuxOrAlpine = releases.find(x => x.platform === 'linux' || x.platform === 'alpine')
+    linux = releases.find(x => x.platform === 'linux'),
+    alpine = releases.find(x => x.platform === 'alpine')
 
   let target: NexeTarget | undefined
 
   if (env.NEXE_VERSION) target = getTarget(env.NEXE_VERSION)
   else if (isWindows) target = windowsBuild
   else if (isMac) target = macBuild
-  else target = linuxOrAlpine
+  else if (isLinux) target = linux
+  if (buildHost === 'alpine') target = alpine
 
   if (!target) {
     return console.log('Nothing to build...')
   }
 
-  const output = process.platform === 'win32' ? './out.exe' : './out',
+  if (isWindows && buildHost.includes('2017') && !semverGt(target.version, '9.99.99')) {
+    return console.log(`Not building ${target} on this host...`)
+  }
+  if (isWindows && buildHost.includes('2015') && semverGt(target.version, '9.99.99')) {
+    return console.log(`Not building ${target} on this host...`)
+  }
+
+  const output = isWindows ? './out.exe' : './out',
     options = {
       mangle: false,
       build: true,
+      verbose: Boolean(env.NEXE_VERBOSE!),
       target,
       output
     }
-  console.log('Building: ', target)
+  console.log('Building: ' + target + ' on ' + buildHost)
   const stop = keepalive()
 
-  if (['arm7l', 'arm6l', 'arm64', 'alpine'].includes(target.platform)) {
+  if (
+    [/*'arm7l', 'arm6l', 'arm64', */ 'alpine'].includes(target.platform) &&
+    buildHost === 'alpine'
+  ) {
     await runDockerBuild(target)
   } else {
     await nexe.compile(options)
