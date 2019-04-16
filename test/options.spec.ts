@@ -10,9 +10,13 @@ describe('options', () => {
       const options = normalizeOptions()
       expect(options.cwd).to.equal(process.cwd())
     })
-    it('should use the main module in a package directory', () => {
+    it('should use the main module in a package directory (if not in a TTY)', () => {
       const options = normalizeOptions()
-      expect(options.input).to.equal(path.resolve('./index.js'))
+      if (!process.stdin.isTTY) {
+        expect(options.input).to.equal('[stdin]')
+      } else {
+        expect(options.input).to.equal(path.resolve('./index.js'))
+      }
     })
     it('should resolve relative paths for input', () => {
       const options = normalizeOptions({ input: 'test/fixture/entry.js' })
