@@ -35,7 +35,7 @@ async function build() {
     macBuild = releases.find(x => x.platform === 'mac'),
     linuxOrAlpine = releases.find(x => x.platform === 'linux' || x.platform === 'alpine')
 
-  let target: NexeTarget
+  let target: NexeTarget | undefined
 
   if (env.NEXE_VERSION) target = getTarget(env.NEXE_VERSION)
   else if (isWindows) target = windowsBuild
@@ -66,7 +66,7 @@ async function build() {
     await assertNexeBinary(output)
     const gitRelease = await getLatestGitRelease({ headers }),
       unbuiltReleases = await getUnBuiltReleases({ headers })
-    if (!unbuiltReleases.some(x => targetsEqual(x, target))) {
+    if (!unbuiltReleases.some(x => targetsEqual(x, target!))) {
       console.log(`${target} already uploaded.`)
       return
     }
