@@ -1,9 +1,7 @@
 <p align="center"><img src="https://cloud.githubusercontent.com/assets/2391349/23598327/a17bb68a-01ee-11e7-8f55-88a5fc96e997.png" /></p>
 
 <p align="center">
-  <a href="https://circleci.com/gh/nexe/nexe"><img src="https://img.shields.io/circleci/project/github/nexe/nexe/master.svg" alt="Mac Build Status"></a>
-  <a href="https://travis-ci.org/nexe/nexe/builds"><img src="https://img.shields.io/travis/nexe/nexe/master.svg" alt="Linux Build Status"></a>
-  <a href="https://ci.appveyor.com/project/calebboyd/nexe/history"><img src="https://img.shields.io/appveyor/ci/calebboyd/nexe/master.svg" alt="Windows Build Status"></a>
+  <a href="https://dev.azure.com/nexe-ci/Nexe/_build?definitionId=1"><img src="https://img.shields.io/azure-devops/build/nexe-ci/nexe/1/master.svg" alt="Build Status"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/dt/nexe.svg" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/v/nexe.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
