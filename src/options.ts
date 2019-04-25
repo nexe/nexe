@@ -111,7 +111,7 @@ ${c.bold('nexe <entry-file> [options]')}
   -f   --flag                       -- *v8 flags to include during compilation
   -c   --configure                  -- *arguments to the configure step
   -m   --make                       -- *arguments to the make/build step
-       --patch                      -- module with middelware default export for adding a build patch
+       --patch                      -- module with middleware default export for adding a build patch
        --no-mangle                  -- used when generating base binaries, or when patching _third_party_main manually.
        --snapshot                   -- path to a warmup snapshot
        --ico                        -- file name for alternate icon file (windows)
