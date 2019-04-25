@@ -17,10 +17,12 @@ jobs:
     vmImage: $(imageName)
   steps:
   - task: UsePythonVersion@0
+    displayName: Setup Python
     inputs:
       versionSpec: '2.7'
       architecture: 'x64'
   - task: NodeTool@0
+    displayName: Install Node
     inputs:
       versionSpec: '10.x'
   - script: sudo apt-get install -y libc6-dev-i386 gcc-multilib g++-multilib
@@ -29,13 +31,11 @@ jobs:
   - script: choco install visualcpp-build-tools --version 14.0.25420.1 -fy && npm config set msvs_version 2015
     condition: startsWith(variables['Agent.JobName'], 'windows_2015')
     displayName: Install Windows Build Dependencies
-  - script: choco install nasm -fy --dir nasm && cd nasm && dir
+  - script: choco install nasm -fy
+    displayName: Install Windows Assembler (NASM)
     condition: startsWith(variables['Agent.JobName'], 'windows')
-    displayName: Install Windows Assembler
-  - script: echo '##vso[task.prependpath]%AGENT_BUILDDIRECTORY%\nasm' && nasm -v
-    condition: startsWith(variables['Agent.JobName'], 'windows')
-    displayName: Add Windows Assembler to PATH
   - script: npm install && npm run ci:build
-    displayName: Install dependencies and build base binaries...
+    displayName: Build Nexe
     env:
       GITHUB_TOKEN: $(PersonalGithubToken)
+      NEXE_VERBOSE: $(NEXE_VERBOSE)

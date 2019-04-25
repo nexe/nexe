@@ -1,3 +1,4 @@
+const huh = require('wtfnode')
 import * as nexe from '../lib/nexe'
 import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import { runDockerBuild } from './docker'
@@ -94,6 +95,7 @@ async function build() {
       throw reason
     })
     console.log(target + ' uploaded.')
+    huh.dump()
   }
 }
 

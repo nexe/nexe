@@ -237,6 +237,9 @@ export class NexeCompiler {
   }
 
   private _configureAsync() {
+    if (isWindows && semverGt(this.target.version, '11.999')) {
+      return Promise.resolve()
+    }
     return this._runBuildCommandAsync(this.env.PYTHON || 'python', [
       this.configureScript,
       ...this.options.configure

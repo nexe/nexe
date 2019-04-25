@@ -10,7 +10,6 @@
   ],
   "scripts": {
     "ci:build": "ts-node tasks/build",
-    "asset-compile": "ts-node tasks/asset-compile",
     "test": "mocha",
     "lint": "tslint \"{src,plugins,tasks}/**/*.ts\" --fix",
     "prepare": "npm run lint && npm run build && npm test",
