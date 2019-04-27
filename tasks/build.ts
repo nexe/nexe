@@ -1,5 +1,6 @@
 const huh = require('wtfnode')
 import * as nexe from '../lib/nexe'
+import { closeSync } from 'fs'
 import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import { runDockerBuild } from './docker'
 import { getTarget, targetsEqual, NexeTarget } from '../lib/target'
@@ -95,7 +96,7 @@ async function build() {
       throw reason
     })
     console.log(target + ' uploaded.')
-    huh.dump()
+    process.exit(0)
   }
 }
 
