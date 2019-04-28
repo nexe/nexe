@@ -320,7 +320,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   if (typeof fs.copyFile === 'function') {
-    nfs.copyFile = function(filepath: string, dest: Function, flags: number, callback: Function) {
+    nfs.copyFile = function(filepath: string, dest: string, flags: number, callback: Function) {
       setupManifest()
       const entry = manifest[getKey(filepath)]
       if (!entry) {
