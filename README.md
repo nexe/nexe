@@ -153,7 +153,7 @@ compile({
     - Path to a user provided icon to be used (Windows only). Requires `--build` to be set.
  - #### `rc: object`
     - Settings for patching the [node.rc](https://github.com/nodejs/node/blob/master/src/res/node.rc) configuration file (Windows only).
-    - Example (keys may vary depending ont the version. Reference the file linked above):
+    - Example (keys may vary depending on the version. Reference the file linked above):
       ```javascript
         {
           CompanyName: "ACME Corp",
