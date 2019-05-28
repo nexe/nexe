@@ -35,6 +35,13 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     log = (text: string) => process.stderr.write('[nexe] - ' + text + '\n')
   }
 
+  const winPath = (key: string) => {
+    if (isWin && key.substr(1, 2) === ':\\') {
+      key = key[0].toUpperCase() + key.substr(1)
+    }
+    return key
+  }
+
   const getKey = function getKey(filepath: string | Buffer | null): string {
     if (Buffer.isBuffer(filepath)) {
       filepath = filepath.toString()
@@ -44,10 +51,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     }
     let key = path.resolve(baseDir, filepath)
 
-    if (isWin && key.substr(1, 2) === ':\\') {
-      key = key[0].toUpperCase() + key.substr(1)
-    }
-    return key
+    return winPath(key)
   }
 
   const statTime = function() {
@@ -102,7 +106,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       const entry = manifest[filepath]
       const absolutePath = getKey(filepath)
       const longPath = makeLong(absolutePath)
-      const normalizedPath = path.normalize(filepath)
+      const normalizedPath = winPath(path.normalize(filepath))
 
       if (!manifest[absolutePath]) {
         manifest[absolutePath] = entry

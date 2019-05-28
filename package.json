@@ -2,7 +2,7 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
@@ -46,7 +46,7 @@
     "multistream": "^2.1.1",
     "ora": "^3.4.0",
     "pify": "^4.0.1",
-    "resolve-dependencies": "^2.2.2",
+    "resolve-dependencies": "^2.2.3",
     "rimraf": "^2.6.3"
   },
   "devDependencies": {
@@ -66,8 +66,8 @@
     "chai": "^4.2.0",
     "execa": "^1.0.0",
     "mocha": "^6.1.4",
-    "prettier": "^1.17.0",
-    "ts-node": "^8.1.0",
+    "prettier": "^1.17.1",
+    "ts-node": "^8.2.0",
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
