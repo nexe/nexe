@@ -196,19 +196,19 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       const encoding = fileOpts(options).encoding
       callback = typeof options === 'function' ? options : callback
 
-      fs.open(blobPath, 'r', function(err: Error, fd: number) {
+      originalFsMethods.open(blobPath, 'r', function(err: Error, fd: number) {
         if (err) return callback(err, null)
-        fs.read(fd, Buffer.alloc(length), 0, length, resourceOffset, function(
+        originalFsMethods.read(fd, Buffer.alloc(length), 0, length, resourceOffset, function(
           error: Error,
           bytesRead: number,
           result: Buffer
         ) {
           if (error) {
-            return fs.close(fd, function() {
+            return originalFsMethods.close(fd, function() {
               callback(error, null)
             })
           }
-          fs.close(fd, function(err: Error) {
+          originalFsMethods.close(fd, function(err: Error) {
             if (err) {
               return callback(err, result)
             }
@@ -227,7 +227,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       const resourceOffset = resourceStart + offset
       const opts = fileOpts(options)
 
-      return fs.createReadStream(
+      return originalFsMethods.createReadStream(
         blobPath,
         Object.assign({}, opts, {
           start: resourceOffset,
@@ -244,10 +244,10 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       const [offset, length] = entry
       const resourceOffset = resourceStart + offset
       const encoding = fileOpts(options).encoding
-      const fd = fs.openSync(process.execPath, 'r')
+      const fd = originalFsMethods.openSync(process.execPath, 'r')
       const result = Buffer.alloc(length)
-      fs.readSync(fd, result, 0, length, resourceOffset)
-      fs.closeSync(fd)
+      originalFsMethods.readSync(fd, result, 0, length, resourceOffset)
+      originalFsMethods.closeSync(fd)
       return encoding ? result.toString(encoding) : result
     },
     statSync: function statSync(filepath: string | Buffer) {
