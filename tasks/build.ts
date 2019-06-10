@@ -41,7 +41,7 @@ async function build() {
   else if (isWindows) target = windowsBuild
   else if (isMac) target = macBuild
   else if (isLinux) target = linux
-  if (buildHost === 'alpine') target = alpine
+  if (buildHost.includes('alpine')) target = alpine
 
   if (!target) {
     return console.log('Nothing to build...')
@@ -67,7 +67,7 @@ async function build() {
 
   if (
     [/*'arm7l', 'arm6l', 'arm64', */ 'alpine'].includes(target.platform) &&
-    buildHost === 'alpine'
+    buildHost.includes('alpine')
   ) {
     await runDockerBuild(target)
   } else {

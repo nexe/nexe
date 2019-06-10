@@ -25,15 +25,15 @@ jobs:
     displayName: Install Node
     inputs:
       versionSpec: '10.x'
-  - script: sudo apt-get install -y libc6-dev-i386 gcc-multilib g++-multilib
-    condition: eq(variables['Agent.JobName'], 'linux')
+  - script: sudo apt-get update && sudo apt-get install -y libc6-dev-i386 gcc-multilib g++-multilib
+    condition: contains(variables['Agent.JobName'], 'linux')
     displayName: Install Linux Build Dependencies
   - script: choco install visualcpp-build-tools --version 14.0.25420.1 -fy && npm config set msvs_version 2015
-    condition: startsWith(variables['Agent.JobName'], 'windows_2015')
+    condition: contains(variables['Agent.JobName'], 'windows_2015')
     displayName: Install Windows Build Dependencies
   - script: choco install nasm -fy
     displayName: Install Windows Assembler (NASM)
-    condition: startsWith(variables['Agent.JobName'], 'windows')
+    condition: contains(variables['Agent.JobName'], 'windows')
   - script: npm install && npm run ci:build
     displayName: Build Nexe
     env:
