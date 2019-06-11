@@ -80,7 +80,7 @@ const alias = {
   b: 'build',
   n: 'name',
   r: 'resource',
-  a: 'resource',
+  a: 'asset',
   p: 'python',
   f: 'flag',
   c: 'configure',
