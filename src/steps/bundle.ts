@@ -2,7 +2,7 @@ import { NexeCompiler, NexeError } from '../compiler'
 import { resolve, relative } from 'path'
 import { each } from '@calebboyd/semaphore'
 import resolveFiles, { resolveFileNameSync } from 'resolve-dependencies'
-import { dequote, STDIN_FLAG } from '../util'
+import { dequote, STDIN_FLAG, semverGt } from '../util'
 import { Readable } from 'stream'
 
 function getStdIn(stdin: Readable): Promise<string> {
@@ -29,7 +29,12 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   const { bundle, cwd, input: inputPath } = compiler.options
   let input = inputPath
   compiler.entrypoint = './' + relative(cwd, input)
-  compiler.startup = ';require("module").runMain();'
+
+  if (semverGt(compiler.target.version, '11.99')) {
+    compiler.startup = ''
+  } else {
+    compiler.startup = ';require("module").runMain();'
+  }
 
   if (!bundle) {
     await compiler.addResource(resolve(cwd, input))

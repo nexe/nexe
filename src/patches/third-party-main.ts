@@ -1,6 +1,6 @@
 import { NexeCompiler } from '../compiler'
 import { parse } from 'cherow'
-import { semverGt } from '../util'
+import { wrap, semverGt } from '../util'
 
 function walkSome(node: any, visit: Function) {
   if (!node || typeof node.type !== 'string' || node._visited) {
@@ -29,6 +29,8 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
 
   if (version.startsWith('4.')) {
     bootFile = 'src/node.js'
+  } else if (semverGt(version, '11.99')) {
+    bootFile = 'lib/internal/bootstrap/pre_execution.js'
   } else if (semverGt(version, '9.10.1')) {
     bootFile = 'lib/internal/bootstrap/node.js'
   }
@@ -56,9 +58,23 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   fileLines.splice(location.start.line, 0, '{{replace:lib/fs/bootstrap.js}}' + '\n')
   file.contents = fileLines.join('\n')
 
-  await compiler.setFileContentsAsync(
-    'lib/_third_party_main.js',
-    '{{replace:lib/patches/boot-nexe.js}}'
-  )
+  if (semverGt(version, '11.99')) {
+    await compiler.replaceInFileAsync(
+      bootFile,
+      'initializePolicy();',
+      'initializePolicy();\n' + wrap('{{replace:lib/patches/boot-nexe.js}}')
+    )
+    await compiler.replaceInFileAsync(
+      'src/node.cc',
+      'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {',
+      'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {\n' +
+        '  return StartExecution(env, "internal/main/run_main_module");\n'
+    )
+  } else {
+    await compiler.setFileContentsAsync(
+      'lib/_third_party_main.js',
+      '{{replace:lib/patches/boot-nexe.js}}'
+    )
+  }
   return next()
 }
