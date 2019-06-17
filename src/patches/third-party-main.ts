@@ -55,7 +55,13 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   })
 
   const fileLines = file.contents.split('\n')
-  fileLines.splice(location.start.line, 0, '{{replace:lib/fs/bootstrap.js}}' + '\n')
+  fileLines.splice(
+    location.start.line,
+    0,
+    '{{replace:lib/fs/bootstrap.js}}' +
+      '\n' +
+      (semverGt(version, '11.99') ? 'expandArgv1 = false;\n' : '')
+  )
   file.contents = fileLines.join('\n')
 
   if (semverGt(version, '11.99')) {
