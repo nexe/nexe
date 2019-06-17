@@ -80,6 +80,7 @@ async function build() {
       unbuiltReleases = await getUnBuiltReleases({ headers })
     if (!unbuiltReleases.some(x => targetsEqual(x, target!))) {
       console.log(`${target} already uploaded.`)
+      process.exit(0)
       return
     }
     await got(gitRelease.upload_url.split('{')[0], {
