@@ -1,6 +1,6 @@
 jobs:
 - job: BaseBuild
-  timeoutInMinutes: 0
+  timeoutInMinutes: 120
   strategy:
     matrix:
       linux:
