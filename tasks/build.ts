@@ -4,6 +4,7 @@ import { runDockerBuild } from './docker'
 import { getTarget, targetsEqual, NexeTarget } from '../lib/target'
 import { pathExistsAsync, readFileAsync, execFileAsync, semverGt } from '../lib/util'
 import got = require('got')
+import { cpus } from 'os';
 
 const env = process.env,
   isPullRequest = env.BUILD_REASON === 'PullRequest',
@@ -60,6 +61,7 @@ async function build() {
       build: true,
       verbose: Boolean(env.NEXE_VERBOSE!),
       target,
+      make: ['-j' + cpus().length],
       output
     }
   console.log('Building: ' + target + ' on ' + buildHost)

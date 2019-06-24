@@ -1,12 +1,18 @@
 schedules:
-- cron: "0 13 * * *"
+- cron: "0 8 * * *"
   displayName: "Daily Build 1"
   always: true
   branches:
     include:
       - master
-- cron: "0 19 * * *"
+- cron: "0 13 * * *"
   displayName: "Daily Build 2"
+  always: true
+  branches:
+    include:
+      - master
+- cron: "0 19 * * *"
+  displayName: "Daily Build 3"
   always: true
   branches:
     include:
