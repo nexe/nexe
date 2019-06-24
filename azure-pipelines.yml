@@ -13,7 +13,7 @@ schedules:
       - master
 jobs:
 - job: BaseBuild
-  timeoutInMinutes: 120
+  timeoutInMinutes: 180
   strategy:
     matrix:
       linux:
