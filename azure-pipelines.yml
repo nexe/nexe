@@ -1,3 +1,16 @@
+schedules:
+- cron: "0 13 * * *"
+  displayName: "Daily Build 1"
+  always: true
+  branches:
+    include:
+      - master
+- cron: "0 19 * * *"
+  displayName: "Daily Build 2"
+  always: true
+  branches:
+    include:
+      - master
 jobs:
 - job: BaseBuild
   timeoutInMinutes: 120
