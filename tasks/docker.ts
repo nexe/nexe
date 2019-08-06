@@ -46,10 +46,10 @@ export async function runDockerBuild(target: NexeTarget) {
   let output: any = []
 
   try {
-    output.push(await execa.shell(`docker build -t nexe-docker .`))
-    output.push(await execa.shell(`docker run -d --name nexe nexe-docker sh`))
-    output.push(await execa.shell(`docker cp nexe:/out out`))
-    output.push(await execa.shell(`docker rm nexe`))
+    output.push(await execa(`docker build -t nexe-docker .`, { shell: true }))
+    output.push(await execa(`docker run -d --name nexe nexe-docker sh`, { shell: true }))
+    output.push(await execa(`docker cp nexe:/out out`, { shell: true }))
+    output.push(await execa(`docker rm nexe`, { shell: true }))
   } catch (e) {
     console.log('Error running docker')
     appendFileSync(outFilename, e.message)
