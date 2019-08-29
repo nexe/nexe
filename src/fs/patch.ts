@@ -75,21 +75,34 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     }
   }
 
-  const createStat = function(extensions: any) {
-    return Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
+  let BigInt: Function
+  try {
+    BigInt = eval('BigInt')
+  } catch (ignored) {}
+
+  const createStat = function(extensions: any, options: any) {
+    const stat = Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
+    if (options && options.bigint && BigInt) {
+      for (const k in stat) {
+        if (Object.prototype.hasOwnProperty.call(stat, k) && typeof stat[k] === 'number') {
+          stat[k] = BigInt(stat[k])
+        }
+      }
+    }
+    return stat
   }
 
-  const ownStat = function(filepath: any) {
+  const ownStat = function(filepath: any, options: any) {
     setupManifest()
     const key = getKey(filepath)
     if (directories[key]) {
       let mode = binary.layout.stat.mode
       mode |= fs.constants.S_IFDIR
       mode &= ~fs.constants.S_IFREG
-      return createStat({ mode, size: 0 })
+      return createStat({ mode, size: 0 }, options)
     }
     if (manifest[key]) {
-      return createStat({ size: manifest[key][1] })
+      return createStat({ size: manifest[key][1] }, options)
     }
   }
 
@@ -250,15 +263,21 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       originalFsMethods.closeSync(fd)
       return encoding ? result.toString(encoding) : result
     },
-    statSync: function statSync(filepath: string | Buffer) {
-      const stat = ownStat(filepath)
+    statSync: function statSync(filepath: string | Buffer, options: any) {
+      const stat = ownStat(filepath, options)
       if (stat) {
         return stat
       }
       return originalFsMethods.statSync.apply(fs, arguments)
     },
-    stat: function stat(filepath: string | Buffer, callback: any) {
-      const stat = ownStat(filepath)
+    stat: function stat(filepath: string | Buffer, options: any, callback: any) {
+      let stat: any
+      if (typeof options === 'function') {
+        callback = options
+        stat = ownStat(filepath, null)
+      } else {
+        stat = ownStat(filepath, options)
+      }
       if (stat) {
         process.nextTick(() => {
           callback(null, stat)
