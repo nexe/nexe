@@ -14,9 +14,12 @@ function makeRelative(cwd: string, path: string) {
 }
 
 export function toStream(content: Buffer | string) {
-  const readable = new Readable({ read() {} })
-  readable.push(content)
-  readable.push(null)
+  const readable = new Readable({
+    read() {
+      this.push(content)
+      this.push(null)
+    }
+  })
   return readable
 }
 

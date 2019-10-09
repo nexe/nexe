@@ -2,7 +2,7 @@
   "name": "nexe",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "4.0.0-beta.2",
+  "version": "4.0.0-beta.3",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
@@ -43,18 +43,18 @@
     "got": "^9.6.0",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
-    "multistream": "^3.0.0",
+    "multistream": "^4.0.0",
     "ora": "^3.4.0",
     "pify": "^4.0.1",
     "resolve-dependencies": "^3.0.2",
-    "rimraf": "^2.6.3"
+    "rimraf": "^3.0.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.7",
+    "@types/chai": "^4.2.3",
     "@types/download": "^6.2.4",
     "@types/execa": "^2.0.0",
     "@types/globby": "^9.1.0",
-    "@types/got": "^9.6.5",
+    "@types/got": "^9.6.7",
     "@types/minimist": "^1.2.0",
     "@types/mkdirp": "^0.5.2",
     "@types/mocha": "^5.2.7",
@@ -62,15 +62,15 @@
     "@types/ora": "^3.2.0",
     "@types/pify": "3.0.2",
     "@types/rimraf": "2.0.2",
-    "@types/semver": "^6.0.1",
+    "@types/semver": "^6.0.2",
     "chai": "^4.2.0",
-    "execa": "^2.0.3",
-    "mocha": "^6.2.0",
+    "execa": "^2.1.0",
+    "mocha": "^6.2.1",
     "prettier": "^1.18.2",
-    "ts-node": "^8.3.0",
-    "tslint": "^5.18.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.5.3"
+    "typescript": "^3.6.3"
   }
 }

@@ -15,7 +15,7 @@ import {
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
-import combineStreams = require('multistream')
+import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
@@ -136,8 +136,8 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(file: string, content?: Buffer | string) {
-    return this.bundle.addResource(file, content)
+  addResource(absoluteFileName: string, content?: Buffer | string) {
+    return this.bundle.addResource(absoluteFileName, content)
   }
 
   get binaryConfiguration() {
@@ -309,7 +309,7 @@ export class NexeCompiler {
     const lengths = Buffer.from(Array(16))
     lengths.writeDoubleLE(codeSize, 0)
     lengths.writeDoubleLE(this.bundle.blobSize, 8)
-    return combineStreams([
+    return new (MultiStream as any)([
       binary,
       toStream(startup),
       this.bundle.toStream(),

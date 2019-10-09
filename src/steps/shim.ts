@@ -1,7 +1,9 @@
 import { NexeCompiler } from '../compiler'
 import { wrap } from '../util'
 
-export default function(compiler: NexeCompiler, next: () => Promise<void>) {
+export default async function(compiler: NexeCompiler, next: () => Promise<void>) {
+  await next()
+
   compiler.shims.push(
     wrap(
       `process.__nexe = ${JSON.stringify(compiler.binaryConfiguration)};\n` +
@@ -32,6 +34,4 @@ export default function(compiler: NexeCompiler, next: () => Promise<void>) {
       }
     `)
   )
-
-  return next()
 }
