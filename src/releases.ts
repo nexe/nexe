@@ -2,7 +2,7 @@ import got = require('got')
 import { platforms, architectures, NexeTarget, getTarget, targetsEqual } from './target'
 export { NexeTarget }
 
-const versionsToSkip = [0, 1, 2, 3, 4, 5, 7, 9, 11]
+const versionsToSkip = [0, 1, 2, 3, 4, 5, 7, 9, 11, 13, 15, 17, 19, 21, 22]
 export interface GitAsset {
   name: string
   url: string
@@ -25,8 +25,13 @@ async function getJson<T>(url: string, options?: any) {
 }
 
 function isBuildableVersion(version: string) {
-  const major = Number(version.split('.')[0])
-  return !versionsToSkip.includes(major) || version === '4.8.4'
+  if (version === '12.11.0') {
+    return false
+  }
+  if (version === '4.9.1') {
+    return true
+  }
+  return !versionsToSkip.includes(Number(version.split('.')[0]))
 }
 
 export function getLatestGitRelease(options?: any) {
