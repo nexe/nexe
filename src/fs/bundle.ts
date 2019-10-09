@@ -1,7 +1,7 @@
 import { stat as getStat, Stats, createReadStream } from 'fs'
 import { relative } from 'path'
 import { Readable } from 'stream'
-import combineStreams = require('multistream')
+import MultiStream = require('multistream')
 
 const stat = (file: string): Promise<Stats> => {
   return new Promise((resolve, reject) => {
@@ -61,7 +61,7 @@ export class Bundle {
   }
 
   toStream() {
-    return combineStreams(this.streams)
+    return new (MultiStream as any)(this.streams)
   }
 
   toJSON() {
