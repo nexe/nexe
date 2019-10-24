@@ -31,8 +31,17 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     baseDir = path.dirname(process.execPath)
 
   let log = (_: string) => true
+  let loggedManifest = false
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
-    log = (text: string) => process.stderr.write('[nexe] - ' + text + '\n')
+    log = (text: string) => {
+      setupManifest()
+      if (!loggedManifest) {
+        process.stderr.write('[nexe] - MANIFEST' + JSON.stringify(manifest, null, 4) + '\n')
+        process.stderr.write('[nexe] - DIRECTORIES' + JSON.stringify(directories, null, 4) + '\n')
+        loggedManifest = true
+      }
+      return process.stderr.write('[nexe] - ' + text + '\n')
+    }
   }
 
   const winPath = (key: string) => {
