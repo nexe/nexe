@@ -15,6 +15,12 @@ export interface NexeBinary {
 let originalFsMethods: any = null
 let lazyRestoreFs = () => {}
 
+// optional Win32 file namespace prefix followed by drive letter and colon
+const windowsFullPathRegex = /^(\\{2}\?\\)?([a-zA-Z]):/
+
+const upcaseDriveLetter = (s: string): string =>
+  s.replace(windowsFullPathRegex, (_match, ns, drive) => `${ns || ''}${drive.toUpperCase()}:`)
+
 function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   if (originalFsMethods !== null) {
     return
@@ -28,7 +34,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
     noop = () => {},
     path = require('path'),
-    baseDir = path.dirname(process.execPath)
+    winPath: (key: string) => string = isWin ? upcaseDriveLetter : s => s,
+    baseDir = winPath(path.dirname(process.execPath))
 
   let log = (_: string) => true
   let loggedManifest = false
@@ -42,13 +49,6 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       }
       return process.stderr.write('[nexe] - ' + text + '\n')
     }
-  }
-
-  const winPath = (key: string) => {
-    if (isWin && key.substr(1, 2) === ':\\') {
-      key = key[0].toUpperCase() + key.substr(1)
-    }
-    return key
   }
 
   const getKey = function getKey(filepath: string | Buffer | null): string {
@@ -308,8 +308,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   const patches = (process as any).nexe.patches || {}
   delete (process as any).nexe
   patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
-    const [filepath] = args
     setupManifest()
+    const filepath = getKey(args[0])
     if (manifest[filepath]) {
       log('read     (hit)              ' + filepath)
       return nfs.readFileSync(filepath, 'utf-8')
@@ -320,7 +320,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   patches.internalModuleReadJSON = patches.internalModuleReadFile
   patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
     setupManifest()
-    const [filepath] = args
+    const filepath = getKey(args[0])
     if (manifest[filepath]) {
       log('stat     (hit)              ' + filepath + '   ' + 0)
       return 0
