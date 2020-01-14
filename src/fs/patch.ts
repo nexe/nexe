@@ -157,7 +157,6 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     ;(manifest[notAFile] as any) = false
     ;(directories[notAFile] as any) = false
     setupManifest = noop
-    console.log('setupManifest: %o', manifest)
   }
 
   //naive patches intended to work for most use cases
@@ -210,10 +209,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
     readFile: function readFile(filepath: any, options: any, callback: any) {
       setupManifest()
-      console.log('readFile: %o', { filepath, options })
       const entry = manifest[getKey(filepath)]
       if (!entry) {
-        console.log('readFile calling original: %o with %o', originalFsMethods.readFile, arguments)
         return originalFsMethods.readFile.apply(fs, arguments)
       }
       const [offset, length] = entry
@@ -222,14 +219,12 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       callback = typeof options === 'function' ? options : callback
 
       originalFsMethods.open(blobPath, 'r', function(err: Error, fd: number) {
-        console.log('readFile open callback: %o', { err, fd })
         if (err) return callback(err, null)
         originalFsMethods.read(fd, Buffer.alloc(length), 0, length, resourceOffset, function(
           error: Error,
           bytesRead: number,
           result: Buffer
         ) {
-          console.log('readFile read callback: %o', { error, bytesRead, result })
           if (error) {
             return originalFsMethods.close(fd, function() {
               callback(error, null)
