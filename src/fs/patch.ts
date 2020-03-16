@@ -35,7 +35,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     noop = () => {},
     path = require('path'),
     winPath: (key: string) => string = isWin ? upcaseDriveLetter : s => s,
-    baseDir = winPath(path.dirname(process.execPath))
+    baseDir = winPath('/snapshot')
 
   let log = (_: string) => true
   let loggedManifest = false
@@ -52,6 +52,17 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   const getKey = function getKey(filepath: string | Buffer | null): string {
+    if (Buffer.isBuffer(filepath)) {
+      filepath = filepath.toString()
+    }
+    if (!isString(filepath)) {
+      return notAFile
+    }
+    let key = path.resolve(filepath)
+
+    return winPath(key)
+  }
+  const getKeyFromManifest = function getKey(filepath: string | Buffer | null): string {
     if (Buffer.isBuffer(filepath)) {
       filepath = filepath.toString()
     }
@@ -126,7 +137,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   let setupManifest = () => {
     Object.keys(manifest).forEach(filepath => {
       const entry = manifest[filepath]
-      const absolutePath = getKey(filepath)
+      const absolutePath = getKeyFromManifest(filepath)
       const longPath = makeLong(absolutePath)
       const normalizedPath = winPath(path.normalize(filepath))
 

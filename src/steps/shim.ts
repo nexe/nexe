@@ -27,9 +27,7 @@ export default async function(compiler: NexeCompiler, next: () => Promise<void>)
     wrap(`
       if (!process.send) {
         const path = require('path')
-        const entry = path.resolve(path.dirname(process.execPath),${JSON.stringify(
-          compiler.entrypoint
-        )})
+        const entry = path.resolve('/snapshot',${JSON.stringify(compiler.entrypoint)})
         process.argv.splice(1,0, entry)
       }
     `)
