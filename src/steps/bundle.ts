@@ -49,7 +49,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   if (input === STDIN_FLAG && (code = code || dequote(await getStdIn(process.stdin)))) {
     compiler.stdinUsed = true
     compiler.entrypoint = './__nexe_stdin.js'
-    await compiler.addResource(resolve(cwd, compiler.entrypoint), code)
+    await compiler.addResource(resolve(cwd, compiler.entrypoint), Buffer.from(code, 'utf8'))
     return next()
   }
 
@@ -64,7 +64,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   const { files, warnings } = await resolveFiles(
     input,
-    ...Object.keys(compiler.bundle.index).filter(x => x.endsWith('.js')),
+    ...[...compiler.bundle.files.keys()].filter(x => x.endsWith('.js')),
     { cwd, expand: 'variable', loadContent: false }
   )
 

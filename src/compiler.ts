@@ -1,6 +1,6 @@
 import { delimiter, resolve, normalize, join } from 'path'
 import { Buffer } from 'buffer'
-import { createReadStream, ReadStream } from 'fs'
+import { createReadStream, ReadStream, mkdtempSync, statSync } from 'fs'
 import { spawn } from 'child_process'
 import { Logger, LogStep } from './logger'
 import {
@@ -17,6 +17,7 @@ import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
 import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
+import { NexeHeader } from './fs/patch'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -115,12 +116,17 @@ export class NexeCompiler {
         'https://github.com/nexe/nexe/releases/download/v3.0.0/' + this.target.toString()
     }
     this.src = join(this.options.temp, this.target.version)
+    const tempZipDir = mkdtempSync(join(this.options.temp, 'zip'))
+    const tempZip = join(tempZipDir, 'bundle.zip')
     this.configureScript = configure + (semverGt(this.target.version, '10.10.0') ? '.py' : '')
     this.nodeSrcBinPath = isWindows
       ? join(this.src, 'Release', 'node.exe')
       : join(this.src, 'out', 'Release', 'node')
     this.log.step('nexe ' + version, 'info')
-    this.bundle = new Bundle(options)
+    this.bundle = new Bundle({
+      cwd: options.cwd,
+      tempZip
+    })
     if (isWindows) {
       const originalPath = process.env.PATH
       delete process.env.PATH
@@ -136,16 +142,17 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer | string) {
+  addResource(absoluteFileName: string, content?: Buffer) {
     return this.bundle.addResource(absoluteFileName, content)
   }
 
-  get binaryConfiguration() {
-    return { resources: this.bundle.index }
+  @bound
+  addDirectoryResource(absoluteFileName: string) {
+    return this.bundle.addDirectoryResource(absoluteFileName)
   }
 
-  get resourceSize() {
-    return this.bundle.blobSize
+  get binaryConfiguration(): Partial<NexeHeader> {
+    return {}
   }
 
   @bound
@@ -291,6 +298,7 @@ export class NexeCompiler {
       binary = await this.build()
       step.log('Node binary compiled')
     }
+    this.bundle.writeZip()
     return this._assembleDeliverable(binary!)
   }
 
@@ -306,13 +314,15 @@ export class NexeCompiler {
     const startup = this.code(),
       codeSize = Buffer.byteLength(startup)
 
+    const zipStat = statSync(this.bundle.tempZip)
+
     const lengths = Buffer.from(Array(16))
     lengths.writeDoubleLE(codeSize, 0)
-    lengths.writeDoubleLE(this.bundle.blobSize, 8)
+    lengths.writeDoubleLE(zipStat.size, 8)
     return new (MultiStream as any)([
       binary,
       toStream(startup),
-      this.bundle.toStream(),
+      createReadStream(this.bundle.tempZip),
       toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths]))
     ])
   }

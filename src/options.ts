@@ -145,15 +145,12 @@ function flatten(...args: any[]): string[] {
 function extractCliMap(match: RegExp, options: any) {
   return Object.keys(options)
     .filter(x => match.test(x))
-    .reduce(
-      (map: any, option: any) => {
-        const key = option.split('-')[1]
-        map[key] = options[option]
-        delete options[option]
-        return map
-      },
-      {} as any
-    )
+    .reduce((map: any, option: any) => {
+      const key = option.split('-')[1]
+      map[key] = options[option]
+      delete options[option]
+      return map
+    }, {} as any)
 }
 
 function extractLogLevel(options: NexeOptions) {
