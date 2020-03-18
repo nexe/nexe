@@ -49,9 +49,11 @@ Object.defineProperty(
 )
 
 const contentBuffer = Buffer.from(Array(contentSize)),
+  // @ts-ignore
   Module = require('module')
 
 fs.readSync(fd, contentBuffer, 0, contentSize, contentStart)
 fs.closeSync(fd)
 
+// @ts-ignore
 new Module(process.execPath, null)._compile(contentBuffer.toString(), process.execPath)

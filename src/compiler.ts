@@ -125,7 +125,8 @@ export class NexeCompiler {
     this.log.step('nexe ' + version, 'info')
     this.bundle = new Bundle({
       cwd: options.cwd,
-      tempZip
+      tempZip,
+      log: this.log
     })
     if (isWindows) {
       const originalPath = process.env.PATH
@@ -289,7 +290,7 @@ export class NexeCompiler {
   }
 
   async compileAsync(target: NexeTarget) {
-    const step = (this.compileStep = this.log.step('Compiling result'))
+    const step = (this.compileStep = this.log.step('Compiling result...'))
     const build = this.options.build
     const location = this.getNodeExecutableLocation(build ? undefined : target)
     let binary = (await pathExistsAsync(location)) ? createReadStream(location) : null

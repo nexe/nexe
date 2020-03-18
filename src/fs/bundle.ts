@@ -4,6 +4,8 @@ import { relative, resolve, dirname } from 'path'
 import { Readable } from 'stream'
 import { getLibzipSync } from '@yarnpkg/libzip'
 import { ZipFS, npath, PosixFS, extendFs } from '@yarnpkg/fslib'
+import mkdirp = require('mkdirp')
+import { Logger } from '../logger'
 
 const stat = (file: string): Promise<Stats> => {
   return new Promise((resolve, reject) => {
@@ -31,6 +33,7 @@ export type FileMap = { [absPath: string]: File | null }
 export interface BundleOptions {
   cwd?: string
   tempZip: string
+  log: Logger
 }
 
 export class Bundle {
@@ -67,7 +70,9 @@ export class Bundle {
     for (const relPath of this.directories) {
       // TODO windows support
       const destPath = resolve('/', relPath)
-      zipFs.mkdirpSync(destPath)
+      mkdirp.sync(destPath, {
+        fs: zipFs
+      })
     }
     for (const [relPath, content] of this.files) {
       const srcPath = resolve(this.cwd, relPath)
@@ -75,7 +80,9 @@ export class Bundle {
       const destPath = resolve('/', relPath)
       const destDirPath = dirname(destPath)
       const _content = content ?? readFileSync(srcPath)
-      zipFs.mkdirpSync(destDirPath)
+      mkdirp.sync(destDirPath, {
+        fs: zipFs
+      })
       zipFs.writeFileSync(destPath, _content)
     }
 

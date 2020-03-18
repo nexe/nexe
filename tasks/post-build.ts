@@ -1,4 +1,5 @@
 import { writeFileSync, readFileSync } from 'fs'
+import { template } from 'lodash'
 
 /**
  * post build step to insert code files into code files (naively).
@@ -16,17 +17,13 @@ inject('lib/options.js', JSON.stringify(require('../package.json').version))
 
 function inject(filename: string, ...replacements: string[]) {
   let contents = readFileSync(filename, 'utf8')
-  contents = contents.replace(/('{{(.*)}}')/g, (substring: string, ...matches: string[]) => {
-    if (!matches || !matches[1]) {
-      return substring
+  contents = template(contents, {
+    interpolate: /'\{\{([\s\S]*?)\}\}'/,
+    imports: {
+      file: (path: string) => JSON.stringify(readFileSync(path, 'utf8')),
+      replacements
     }
-    const [replace, file] = matches[1].split(':')
-    if (replace !== 'replace') {
-      return substring
-    }
-    console.log('Replacing: ', substring)
-    return replacements[+file] ? replacements[+file] : JSON.stringify(readFileSync(file, 'utf8'))
-  })
+  })()
   writeFileSync(filename, contents)
   console.log(`Wrote: ${filename}`)
 }
