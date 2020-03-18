@@ -1,6 +1,5 @@
 import { getLibzipSync } from '@yarnpkg/libzip'
 import { patchFs, npath, PosixFS, NodeFS, ZipFS } from '@yarnpkg/fslib'
-import * as Path from 'path'
 import { SnapshotZipFS } from './SnapshotZipFS'
 import * as assert from 'assert'
 
@@ -16,6 +15,8 @@ export interface NexeHeader {
 
 let originalFsMethods: any = null
 let lazyRestoreFs = () => {}
+const patches = (process as any).nexe.patches || {}
+delete (process as any).nexe
 
 function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   if (originalFsMethods !== null) {
@@ -50,6 +51,41 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   })
   const posixSnapshotZipFs = new PosixFS(snapshotZipFS)
   patchFs(fs, posixSnapshotZipFs)
+  const { readFileSync } = fs
+
+  let log = (_: string) => true
+  let loggedManifest = false
+  if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
+    log = (text: string) => {
+      if (!loggedManifest) {
+        // TODO anything meaningful to log here?
+        loggedManifest = true
+      }
+      return process.stderr.write('[nexe] - ' + text + '\n')
+    }
+  }
+  patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
+    return fs.readFileSync(args[0], 'utf-8')
+  }
+  patches.internalModuleReadJSON = patches.internalModuleReadFile
+  patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
+    console.dir(npath.contains('/snapshot', args[0]))
+    if (npath.contains('/snapshot', args[0]) === '/') {
+      return 1
+    }
+    if (npath.contains('/snapshot', args[0]) != null) {
+      try {
+        const stat = fs.statSync(args[0])
+        if (stat.isDirectory()) return 1
+        return 0
+      } catch (e) {
+        return -e.errno
+      }
+    } else {
+      return original.apply(this, args)
+    }
+  }
+  // TODO restore patches in restoreFs
 
   lazyRestoreFs = () => {
     Object.assign(fs, originalFsMethods)
