@@ -1,3 +1,20 @@
+I'm doing an experiment, seeing if I can create a build of nodejs that supports:
+
+* never needs to be recompiled to handle all the features below
+* I can embed custom entrypoint .js; will run at startup
+* executable can generate v8 snapshot of any bootstrapping logic and dump to a file
+* I can embed v8 snapshot in executable; will be loaded at startup
+
+Embedding data into the binary should support cross-compile.  E.g. an npm module running on Linux should be able to produce Windows, Mac, and Linux executables, by modifying pre-compiled binaries.
+
+The above should support use-cases like nexe, which embeds a custom entrypoint script and needs runtime access to a Buffer storing embedded filesystem zip.
+
+---
+
+`objcopy` supports Mac, Linux, and Windows binary formats.  `--update-section` can swap out the contents of a section of readonly data in the executable.  This may be all the features we need to patch executables for Mac, Linux, and Windows.
+
+---
+
 <p align="center"><img src="https://cloud.githubusercontent.com/assets/2391349/23598327/a17bb68a-01ee-11e7-8f55-88a5fc96e997.png" /></p>
 
 <p align="center">
