@@ -71,6 +71,11 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
       'initializePolicy();\n' + wrap('{{replace:lib/patches/boot-nexe.js}}')
     )
     await compiler.replaceInFileAsync(
+      bootFile,
+      'assert(!CJSLoader.hasLoadedAnyUserCJSModule)',
+      '/*assert(!CJSLoader.hasLoadedAnyUserCJSModule)*/'
+    )
+    await compiler.replaceInFileAsync(
       'src/node.cc',
       'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {',
       'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {\n' +
