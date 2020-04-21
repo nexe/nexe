@@ -109,46 +109,42 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       filepath in directories ? fs.constants.UV_DIRENT_DIR : fs.constants.UV_DIRENT_FILE
     )
   }
-  const createDir = function(filepath: string | Buffer, options: string, _entries: any) {
-    const Dir = originalFsMethods.Dir
-    let entries = _entries.map((x: any) => x)
-    let closed = false
-    Object.assign(Dir.prototype, {
-      read: function read(callback: any) {
-        if (closed) {
-          const e = new Error('Directory handle was closed')
-          Object.assign(e, { code: 'ERR_DIR_CLOSED' })
-          throw e
-        }
-        callback(null, entries.shift())
-      },
-      readSync: function readSync(options: any) {
-        if (closed) {
-          const e = new Error('Directory handle was closed')
-          Object.assign(e, { code: 'ERR_DIR_CLOSED' })
-          throw e
-        }
-        return entries.shift()
-      },
-      close: function close(callback: any) {
-        process.nextTick(() => {
-          closed = true
-          entries = null
-          callback(null)
-        })
-      },
-      closeSync: function closeSync() {
-        closed = true
-      },
-      async *entries() {
-        while (entries.length > 0) {
-          yield entries.shift()
-        }
+  class Dir extends originalFsMethods.Dir {
+    constructor(fileEntries: any[], path: string | Buffer, options: any) {
+      super({}, path, options)
+      this.closed = false
+      this.fileEntries = fileEntries.slice()
+    }
+    read(callback: any) {
+      if (this.closed) {
+        const e = new Error('Directory handle was closed')
+        Object.assign(e, { code: 'ERR_DIR_CLOSED' })
+        throw e
       }
-    })
-    Dir.prototype[Symbol.asyncIterator] = Dir.prototype.entries
-    return new Dir({}, filepath, options)
+      callback(null, this.fileEntries.shift())
+    }
+    readSync(options: any) {
+      if (this.closed) {
+        const e = new Error('Directory handle was closed')
+        Object.assign(e, { code: 'ERR_DIR_CLOSED' })
+        throw e
+      }
+      return this.fileEntries.shift()
+    }
+    close(callback: any) {
+      this.closed = true
+      process.nextTick(() => {
+        this.fileEntries = null
+        callback(null)
+      })
+    }
+    async *entries(): any {
+      while (this.fileEntries.length > 0) {
+        yield this.fileEntries.shift()
+      }
+    }
   }
+  Dir.prototype[Symbol.asyncIterator as any] = Dir.prototype.entries
 
   const ownStat = function (filepath: any, options: any) {
     setupManifest()
@@ -244,7 +240,6 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
           options = { encoding: 'utf8' }
         }
         process.nextTick(() => {
-          debugger
           let result = Object.keys(dir)
           if (options.withFileTypes) {
             result = result.map(child => createDirent(key, child))
@@ -280,7 +275,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
         }
         process.nextTick(() => {
           const files: any = Object.keys(dir).map(child => createDirent(key, child))
-          callback(null, createDir(filepath, options, files))
+          callback(null, new Dir(files, filepath, options))
         })
       } else {
         return originalFsMethods.opendir.apply(fs, arguments)
@@ -292,7 +287,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       const dir = directories[key]
       if (dir) {
         const files: any = Object.keys(dir).map(child => createDirent(key, child))
-        return createDir(filepath, options, files)
+        return new Dir(files, filepath, options)
       } else {
         return originalFsMethods.opendir.apply(fs, arguments)
       }
