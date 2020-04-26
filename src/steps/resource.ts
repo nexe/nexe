@@ -12,9 +12,9 @@ export default async function resource(compiler: NexeCompiler, next: () => Promi
 
   // workaround for https://github.com/sindresorhus/globby/issues/127
   // and https://github.com/mrmlnc/fast-glob#pattern-syntax
-  const resourcesWithForwardSlashes = resources.map(r => r.replace(/\\/g, '/'))
+  const resourcesWithForwardSlashes = resources.map((r) => r.replace(/\\/g, '/'))
 
-  await each(globs(resourcesWithForwardSlashes, { cwd }), async file => {
+  await each(globs(resourcesWithForwardSlashes, { cwd }), async (file) => {
     if (await isDirectoryAsync(file)) {
       return
     }

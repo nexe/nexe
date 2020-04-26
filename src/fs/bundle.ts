@@ -18,7 +18,7 @@ export function toStream(content: Buffer | string) {
     read() {
       this.push(content)
       this.push(null)
-    }
+    },
   })
   return readable
 }

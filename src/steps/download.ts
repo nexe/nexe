@@ -11,7 +11,7 @@ function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options 
     .on('response', (res: IncomingMessage) => {
       const total = +res.headers['content-length']!
       let current = 0
-      res.on('data', data => {
+      res.on('data', (data) => {
         current += data.length
         setText((current / total) * 100)
         if (current === total) {
@@ -32,7 +32,7 @@ async function fetchPrebuiltBinary(compiler: NexeCompiler, step: any) {
       (res: IncomingMessage) => {
         const total = +res.headers['content-length']!
         let current = 0
-        res.on('data', data => {
+        res.on('data', (data) => {
           current += data.length
           step!.modify(`Downloading...${((current / total) * 100).toFixed()}%`)
         })

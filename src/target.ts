@@ -21,7 +21,7 @@ const prettyPlatform: { [key: string]: NodePlatform } = {
   mac: 'mac',
   linux: 'linux',
   static: 'alpine',
-  alpine: 'alpine'
+  alpine: 'alpine',
 }
 
 const prettyArch: { [key: string]: NodeArch } = {
@@ -35,7 +35,7 @@ const prettyArch: { [key: string]: NodeArch } = {
   amd64: 'x64',
   ia32: 'x86',
   x32: 'x86',
-  x64: 'x64'
+  x64: 'x64',
 }
 
 function isVersion(x: string) {
@@ -80,7 +80,7 @@ export function getTarget(target: string | Partial<NexeTarget> = ''): NexeTarget
   target
     .toLowerCase()
     .split('-')
-    .forEach(x => {
+    .forEach((x) => {
       if (isVersion(x)) {
         version = x.replace(/v/g, '')
       }

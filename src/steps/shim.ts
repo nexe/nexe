@@ -1,7 +1,7 @@
 import { NexeCompiler } from '../compiler'
 import { wrap } from '../util'
 
-export default async function(compiler: NexeCompiler, next: () => Promise<void>) {
+export default async function (compiler: NexeCompiler, next: () => Promise<void>) {
   await next()
 
   compiler.shims.push(

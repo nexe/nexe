@@ -8,7 +8,7 @@ export default async function nodeRc(compiler: NexeCompiler, next: () => Promise
 
   const file = await compiler.readFileAsync('src/res/node.rc')
 
-  Object.keys(options).forEach(key => {
+  Object.keys(options).forEach((key) => {
     let value = options[key]
     const isVar = /^[A-Z_]+$/.test(value)
     value = isVar ? value : `"${value}"`
@@ -17,7 +17,7 @@ export default async function nodeRc(compiler: NexeCompiler, next: () => Promise
       `VALUE "${key}", ${value}`
     )
   })
-  ;['PRODUCTVERSION', 'FILEVERSION'].forEach(x => {
+  ;['PRODUCTVERSION', 'FILEVERSION'].forEach((x) => {
     if (options[x]) {
       file.contents = file.contents.replace(new RegExp(x + ' .*$', 'm'), `${x} ${options[x]}`)
     }

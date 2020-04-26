@@ -42,10 +42,10 @@ const bound: MethodDecorator = function bound<T>(
       Object.defineProperty(this, propertyKey as string, {
         configurable,
         value,
-        writable: true
+        writable: true,
       })
       return value
-    }
+    },
   }
 }
 
@@ -72,13 +72,13 @@ const isWindows = process.platform === 'win32'
 
 function pathExistsAsync(path: string) {
   return statAsync(path)
-    .then(x => true)
+    .then((x) => true)
     .catch(falseOnEnoent)
 }
 
 function isDirectoryAsync(path: string) {
   return statAsync(path)
-    .then(x => x.isDirectory())
+    .then((x) => x.isDirectory())
     .catch(falseOnEnoent)
 }
 /**
@@ -109,5 +109,5 @@ export {
   readFileAsync,
   pathExistsAsync,
   isDirectoryAsync,
-  writeFileAsync
+  writeFileAsync,
 }

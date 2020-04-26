@@ -21,7 +21,7 @@ export default async function disableNodeCli(compiler: NexeCompiler, next: () =>
       'int i = v8_argc; i < v8_argc; i++'
     )
     let matches = 0
-    await compiler.replaceInFileAsync('src/node.cc', /v8_argc > 1/g, match => {
+    await compiler.replaceInFileAsync('src/node.cc', /v8_argc > 1/g, (match) => {
       if (matches++) {
         return 'false'
       }

@@ -42,7 +42,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
       next: true,
       globalReturn: true,
       node: true,
-      skipShebang: true
+      skipShebang: true,
     }),
     location = { start: { line: 0 } }
 

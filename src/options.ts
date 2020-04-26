@@ -70,7 +70,7 @@ const defaults = {
   build: false,
   bundle: true,
   patches: [],
-  plugins: []
+  plugins: [],
 }
 const alias = {
   i: 'input',
@@ -88,7 +88,7 @@ const alias = {
   h: 'help',
   l: 'loglevel',
   'fake-argv': 'fakeArgv',
-  'gh-token': 'ghToken'
+  'gh-token': 'ghToken',
 }
 const argv = parseArgv(process.argv, { alias, default: { ...defaults } })
 let help = `
@@ -133,7 +133,7 @@ ${c.bold('nexe <entry-file> [options]')}
 help = EOL + help + EOL
 
 function flatten(...args: any[]): string[] {
-  return ([] as string[]).concat(...args).filter(x => x)
+  return ([] as string[]).concat(...args).filter((x) => x)
 }
 
 /**
@@ -144,16 +144,13 @@ function flatten(...args: any[]): string[] {
  */
 function extractCliMap(match: RegExp, options: any) {
   return Object.keys(options)
-    .filter(x => match.test(x))
-    .reduce(
-      (map: any, option: any) => {
-        const key = option.split('-')[1]
-        map[key] = options[option]
-        delete options[option]
-        return map
-      },
-      {} as any
-    )
+    .filter((x) => match.test(x))
+    .reduce((map: any, option: any) => {
+      const key = option.split('-')[1]
+      map[key] = options[option]
+      delete options[option]
+      return map
+    }, {} as any)
 }
 
 function extractLogLevel(options: NexeOptions) {
@@ -292,8 +289,8 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   }
 
   Object.keys(alias)
-    .filter(k => k !== 'rc')
-    .forEach(x => delete opts[x])
+    .filter((k) => k !== 'rc')
+    .forEach((x) => delete opts[x])
 
   return options
 }

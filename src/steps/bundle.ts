@@ -7,7 +7,7 @@ import { Readable } from 'stream'
 
 function getStdIn(stdin: Readable): Promise<string> {
   let out = ''
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     stdin
       .setEncoding('utf8')
       .on('readable', () => {
@@ -64,18 +64,18 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   const { files, warnings } = await resolveFiles(
     input,
-    ...Object.keys(compiler.bundle.index).filter(x => x.endsWith('.js')),
+    ...Object.keys(compiler.bundle.index).filter((x) => x.endsWith('.js')),
     { cwd, expand: 'variable', loadContent: false }
   )
 
   if (
-    warnings.filter(x => x.startsWith('Error parsing file') && !x.includes('node_modules')).length
+    warnings.filter((x) => x.startsWith('Error parsing file') && !x.includes('node_modules')).length
   ) {
     throw new NexeError('Parsing Error:\n' + warnings.join('\n'))
   }
 
   await each(Object.keys(files), (filename: string) => compiler.addResource(filename), {
-    concurrency: 10
+    concurrency: 10,
   })
   return next()
 }

@@ -11,7 +11,7 @@ import {
   dequote,
   isWindows,
   bound,
-  semverGt
+  semverGt,
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
@@ -151,16 +151,16 @@ export class NexeCompiler {
   @bound
   async readFileAsync(file: string) {
     this.assertBuild()
-    let cachedFile = this.files.find(x => normalize(x.filename) === normalize(file))
+    let cachedFile = this.files.find((x) => normalize(x.filename) === normalize(file))
     if (!cachedFile) {
       const absPath = join(this.src, file)
       cachedFile = {
         absPath,
         filename: file,
-        contents: await readFileAsync(absPath, 'utf-8').catch(x => {
+        contents: await readFileAsync(absPath, 'utf-8').catch((x) => {
           if (x.code === 'ENOENT') return ''
           throw x
-        })
+        }),
       }
       this.files.push(cachedFile)
     }
@@ -215,7 +215,7 @@ export class NexeCompiler {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
-        stdio: this.log.verbose ? 'inherit' : 'ignore'
+        stdio: this.log.verbose ? 'inherit' : 'ignore',
       })
         .once('error', (e: Error) => {
           if (this.log.verbose) {
@@ -242,7 +242,7 @@ export class NexeCompiler {
     }
     return this._runBuildCommandAsync(this.env.PYTHON || 'python', [
       this.configureScript,
-      ...this.options.configure
+      ...this.options.configure,
     ])
   }
 
@@ -313,7 +313,7 @@ export class NexeCompiler {
       binary,
       toStream(startup),
       this.bundle.toStream(),
-      toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths]))
+      toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths])),
     ])
   }
 }

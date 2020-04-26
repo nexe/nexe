@@ -1,29 +1,27 @@
 import { join, dirname } from 'path'
-import { readdir, unlink } from 'fs'
+import { promises } from 'fs'
 import { readFileAsync, writeFileAsync, isDirectoryAsync } from '../util'
-import * as mkdirp from 'mkdirp'
+import mkdirpAsync = require('mkdirp')
 import { NexeCompiler } from '../compiler'
-import pify = require('pify')
 
-const mkdirpAsync = pify(mkdirp)
-const unlinkAsync = pify(unlink)
-const readdirAsync = pify(readdir)
+const unlinkAsync = promises.unlink
+const readdirAsync = promises.readdir
 
 function readDirAsync(dir: string): Promise<string[]> {
-  return readdirAsync(dir).then(paths => {
+  return readdirAsync(dir).then((paths) => {
     return Promise.all(
       paths.map((file: string) => {
         const path = join(dir, file)
-        return isDirectoryAsync(path).then(x => (x ? readDirAsync(path) : (path as any)))
+        return isDirectoryAsync(path).then((x) => (x ? readDirAsync(path) : (path as any)))
       })
-    ).then(result => {
+    ).then((result) => {
       return [].concat(...(result as any))
     })
   })
 }
 
 function maybeReadFileContentsAsync(file: string) {
-  return readFileAsync(file, 'utf-8').catch(e => {
+  return readFileAsync(file, 'utf-8').catch((e) => {
     if (e.code === 'ENOENT') {
       return ''
     }
@@ -47,16 +45,16 @@ export default async function artifacts(compiler: NexeCompiler, next: () => Prom
   const tmpFiles = await readDirAsync(temp)
 
   await Promise.all(
-    tmpFiles.map(async path => {
+    tmpFiles.map(async (path) => {
       return compiler.writeFileAsync(path.replace(temp, ''), await readFileAsync(path, 'utf-8'))
     })
   )
 
   await next()
 
-  await Promise.all(tmpFiles.map(x => unlinkAsync(x)))
+  await Promise.all(tmpFiles.map((x) => unlinkAsync(x)))
   return Promise.all(
-    compiler.files.map(async file => {
+    compiler.files.map(async (file) => {
       const sourceFile = join(src, file.filename)
       const tempFile = join(temp, file.filename)
       const fileContents = await maybeReadFileContentsAsync(sourceFile)

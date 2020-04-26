@@ -20,13 +20,13 @@ const footer = tailWindow.slice(footerPosition, footerPosition + 32),
 Object.defineProperty(
   process,
   '__nexe',
-  (function() {
+  (function () {
     let nexeHeader: any = null
     return {
-      get: function() {
+      get: function () {
         return nexeHeader
       },
-      set: function(value: any) {
+      set: function (value: any) {
         if (nexeHeader) {
           throw new Error('This property is readonly')
         }
@@ -37,13 +37,13 @@ Object.defineProperty(
             contentSize,
             contentStart,
             resourceSize,
-            resourceStart
-          }
+            resourceStart,
+          },
         })
         Object.freeze(nexeHeader)
       },
       enumerable: false,
-      configurable: false
+      configurable: false,
     }
   })()
 )

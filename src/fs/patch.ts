@@ -34,7 +34,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
     noop = () => {},
     path = require('path'),
-    winPath: (key: string) => string = isWin ? upcaseDriveLetter : s => s,
+    winPath: (key: string) => string = isWin ? upcaseDriveLetter : (s) => s,
     baseDir = winPath(path.dirname(process.execPath))
 
   let log = (_: string) => true
@@ -63,7 +63,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     return winPath(key)
   }
 
-  const statTime = function() {
+  const statTime = function () {
     return {
       dev: 0,
       ino: 0,
@@ -80,7 +80,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       ctime: new Date(stat.ctime),
       ctimMs: stat.ctime.getTime(),
       birthtime: new Date(stat.birthtime),
-      birthtimeMs: stat.birthtime.getTime()
+      birthtimeMs: stat.birthtime.getTime(),
     }
   }
 
@@ -89,7 +89,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     BigInt = eval('BigInt')
   } catch (ignored) {}
 
-  const createStat = function(extensions: any, options: any) {
+  const createStat = function (extensions: any, options: any) {
     const stat = Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
     if (options && options.bigint && BigInt) {
       for (const k in stat) {
@@ -101,7 +101,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     return stat
   }
 
-  const ownStat = function(filepath: any, options: any) {
+  const ownStat = function (filepath: any, options: any) {
     setupManifest()
     const key = getKey(filepath)
     if (directories[key]) {
@@ -124,7 +124,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   let setupManifest = () => {
-    Object.keys(manifest).forEach(filepath => {
+    Object.keys(manifest).forEach((filepath) => {
       const entry = manifest[filepath]
       const absolutePath = getKey(filepath)
       const longPath = makeLong(absolutePath)
@@ -218,19 +218,19 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       const encoding = fileOpts(options).encoding
       callback = typeof options === 'function' ? options : callback
 
-      originalFsMethods.open(blobPath, 'r', function(err: Error, fd: number) {
+      originalFsMethods.open(blobPath, 'r', function (err: Error, fd: number) {
         if (err) return callback(err, null)
-        originalFsMethods.read(fd, Buffer.alloc(length), 0, length, resourceOffset, function(
+        originalFsMethods.read(fd, Buffer.alloc(length), 0, length, resourceOffset, function (
           error: Error,
           bytesRead: number,
           result: Buffer
         ) {
           if (error) {
-            return originalFsMethods.close(fd, function() {
+            return originalFsMethods.close(fd, function () {
               callback(error, null)
             })
           }
-          originalFsMethods.close(fd, function(err: Error) {
+          originalFsMethods.close(fd, function (err: Error) {
             if (err) {
               return callback(err, result)
             }
@@ -253,7 +253,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
         blobPath,
         Object.assign({}, opts, {
           start: resourceOffset,
-          end: resourceOffset + length - 1
+          end: resourceOffset + length - 1,
         })
       )
     },
@@ -294,11 +294,11 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       } else {
         return originalFsMethods.stat.apply(fs, arguments)
       }
-    }
+    },
   }
 
   if (typeof fs.exists === 'function') {
-    nfs.exists = function(filepath: string, cb: Function) {
+    nfs.exists = function (filepath: string, cb: Function) {
       cb = cb || noop
       const exists = nfs.existsSync(filepath)
       process.nextTick(() => cb(exists))
@@ -307,7 +307,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
   const patches = (process as any).nexe.patches || {}
   delete (process as any).nexe
-  patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
+  patches.internalModuleReadFile = function (this: any, original: any, ...args: any[]) {
     setupManifest()
     const filepath = getKey(args[0])
     if (manifest[filepath]) {
@@ -318,7 +318,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     return original.call(this, ...args)
   }
   patches.internalModuleReadJSON = patches.internalModuleReadFile
-  patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
+  patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
     setupManifest()
     const filepath = getKey(args[0])
     if (manifest[filepath]) {
@@ -341,7 +341,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   if (typeof fs.exists === 'function') {
-    nfs.exists = function(filepath: string, cb: Function) {
+    nfs.exists = function (filepath: string, cb: Function) {
       cb = cb || noop
       const exists = nfs.existsSync(filepath)
       if (!exists) {
@@ -352,7 +352,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   if (typeof fs.copyFile === 'function') {
-    nfs.copyFile = function(filepath: string, dest: string, flags: number, callback: Function) {
+    nfs.copyFile = function (filepath: string, dest: string, flags: number, callback: Function) {
       setupManifest()
       const entry = manifest[getKey(filepath)]
       if (!entry) {
@@ -374,7 +374,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
         })
       })
     }
-    nfs.copyFileSync = function(filepath: string, dest: string) {
+    nfs.copyFileSync = function (filepath: string, dest: string) {
       setupManifest()
       const entry = manifest[getKey(filepath)]
       if (!entry) {
@@ -387,7 +387,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   Object.assign(fs, nfs)
 
   lazyRestoreFs = () => {
-    Object.keys(nfs).forEach(key => {
+    Object.keys(nfs).forEach((key) => {
       fs[key] = originalFsMethods[key]
     })
     lazyRestoreFs = () => {}

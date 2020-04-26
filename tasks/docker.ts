@@ -58,16 +58,11 @@ export async function runDockerBuild(target: NexeTarget) {
       appendFileSync(outFilename, x.stderr)
       appendFileSync(outFilename, x.stdout)
     })
-    await got(
-      `https://transfer.sh/${Math.random()
-        .toString(36)
-        .substring(2)}.txt`,
-      {
-        body: await readFileAsync(outFilename),
-        method: 'PUT'
-      }
-    )
-      .then(x => console.log('Posted docker log: ', x.body))
-      .catch(e => console.log('Error posting log', e))
+    await got(`https://transfer.sh/${Math.random().toString(36).substring(2)}.txt`, {
+      body: await readFileAsync(outFilename),
+      method: 'PUT',
+    })
+      .then((x) => console.log('Posted docker log: ', x.body))
+      .catch((e) => console.log('Error posting log', e))
   }
 }
