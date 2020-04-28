@@ -108,14 +108,18 @@ export class NexeCompiler {
     //SOMEDAY iterate over multiple targets with `--outDir`
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
-    if (options.asset && options.asset.startsWith('http')) {
-      this.remoteAsset = options.asset
-    } else {
-      if (!options.remote.startsWith('http')) {
-        throw new NexeError(`Invalid remote URL (must be HTTP/HTTPS): ${options.remote}`)
-      }
-      this.remoteAsset = options.remote + this.target.toString()
+    if (
+      !(
+        options.remote.startsWith('http://') ||
+        options.remote.startsWith('https://') ||
+        options.remote.startsWith('file://')
+      )
+    ) {
+      throw new NexeError(
+        `Invalid remote URI scheme (must be http, https, or file): ${options.remote}`
+      )
     }
+    this.remoteAsset = options.remote + this.target.toString()
     this.src = join(this.options.temp, this.target.version)
     this.configureScript = configure + (semverGt(this.target.version, '10.10.0') ? '.py' : '')
     this.nodeSrcBinPath = isWindows
@@ -200,9 +204,6 @@ export class NexeCompiler {
   }
 
   public getNodeExecutableLocation(target?: NexeTarget) {
-    if (this.options.asset && !this.options.asset.startsWith('http')) {
-      return resolve(this.options.cwd, this.options.asset)
-    }
     if (target) {
       return join(this.options.temp, target.toString())
     }

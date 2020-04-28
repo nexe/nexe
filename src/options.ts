@@ -21,7 +21,7 @@ export interface NexeOptions {
   output: string
   targets: (string | NexeTarget)[]
   name: string
-  asset: string
+  remote: string
   cwd: string
   fs: boolean | string[]
   flags: string[]
@@ -39,7 +39,6 @@ export interface NexeOptions {
   native: any
   mangle: boolean
   ghToken: string
-  remote: string
   sourceUrl?: string
   enableStdIn?: boolean
   python?: string
@@ -82,14 +81,12 @@ const alias = {
   b: 'build',
   n: 'name',
   r: 'resource',
-  a: 'asset',
   p: 'python',
   f: 'flag',
   c: 'configure',
   m: 'make',
   h: 'help',
   l: 'loglevel',
-  e: 'remote',
   'fake-argv': 'fakeArgv',
   'gh-token': 'ghToken',
 }
@@ -104,9 +101,8 @@ ${c.bold('nexe <entry-file> [options]')}
   -t   --target                     -- node version description
   -n   --name                       -- main app module name
   -r   --resource                   -- *embed files (glob) within the binary
-  -a   --asset                      -- alternate asset path, file or url pointing to a base (nexe) binary
+       --remote                     -- alternate location (URL) to download pre-built base (nexe) binaries from
        --plugin                     -- extend nexe runtime behavior
-  -e   --remote                     -- third-party remote location (URL) to download pre-built releases from
 
    ${c.underline.bold('Building from source:')}
 
