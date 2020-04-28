@@ -116,8 +116,8 @@ compile({
     - default: true
  - #### `build: boolean`
     - Build node from source, passing this flag tells nexe to download and build from source. Subsequently using this flag will cause nexe to use the previously built binary. To rebuild, first add [`--clean`](#clean-boolean)
- - #### `asset: string`
-    - Provide a pre-built nexe binary asset, this can either be an http or https URL or a file path.
+ - #### `remote: string`
+    - Provide a custom remote location for fetching pre-built nexe binaries from. This can either be an HTTP or HTTPS URL or a file path.
     - default: `null`
  - #### `python: string`
     - On Linux this is the path pointing to your python2 executable
