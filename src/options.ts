@@ -39,6 +39,7 @@ export interface NexeOptions {
   native: any
   mangle: boolean
   ghToken: string
+  remote: string
   sourceUrl?: string
   enableStdIn?: boolean
   python?: string
@@ -71,6 +72,7 @@ const defaults = {
   bundle: true,
   patches: [],
   plugins: [],
+  remote: 'https://github.com/nexe/nexe/releases/download/v3.0.0/',
 }
 const alias = {
   i: 'input',
@@ -87,6 +89,7 @@ const alias = {
   m: 'make',
   h: 'help',
   l: 'loglevel',
+  e: 'remote',
   'fake-argv': 'fakeArgv',
   'gh-token': 'ghToken',
 }
@@ -103,6 +106,7 @@ ${c.bold('nexe <entry-file> [options]')}
   -r   --resource                   -- *embed files (glob) within the binary
   -a   --asset                      -- alternate asset path, file or url pointing to a base (nexe) binary
        --plugin                     -- extend nexe runtime behavior
+  -e   --remote                     -- third-party remote location (URL) to download pre-built releases from
 
    ${c.underline.bold('Building from source:')}
 
@@ -248,6 +252,10 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   options.make = flatten(isWindows ? options.vcBuild : options.make)
   options.configure = flatten(options.configure)
   options.resources = flatten(opts.resource, options.resources)
+
+  if (!options.remote.endsWith('/')) {
+    options.remote += '/'
+  }
 
   options.downloadOptions = options.downloadOptions || {}
   options.downloadOptions.headers = options.downloadOptions.headers || {}

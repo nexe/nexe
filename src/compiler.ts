@@ -111,8 +111,10 @@ export class NexeCompiler {
     if (options.asset && options.asset.startsWith('http')) {
       this.remoteAsset = options.asset
     } else {
-      this.remoteAsset =
-        'https://github.com/nexe/nexe/releases/download/v3.0.0/' + this.target.toString()
+      if (!options.remote.startsWith('http')) {
+        throw new NexeError(`Invalid remote URL (must be HTTP/HTTPS): ${options.remote}`)
+      }
+      this.remoteAsset = options.remote + this.target.toString()
     }
     this.src = join(this.options.temp, this.target.version)
     this.configureScript = configure + (semverGt(this.target.version, '10.10.0') ? '.py' : '')

@@ -39,6 +39,26 @@ describe('options', () => {
       expect(options.output).to.equal(path.resolve(cwd, `abc${ext}`))
     })
   })
+
+  describe('remote', () => {
+    it('should use default remote', () => {
+      const options = normalizeOptions({})
+      expect(options.remote).to.equal('https://github.com/nexe/nexe/releases/download/v3.0.0/')
+    })
+    it('should append trailing slash to third-party remote if necessary', () => {
+      const options = normalizeOptions({
+        remote: 'https://sitejs.org/nexe'
+      })
+      expect(options.remote).to.equal('https://sitejs.org/nexe/')
+    })
+    it('should not append trailing slash to third-party remote that already has one', () => {
+      const options = normalizeOptions({
+        remote: 'https://sitejs.org/nexe/'
+      })
+      expect(options.remote).to.equal('https://sitejs.org/nexe/')
+    })
+  })
+
   describe('output', () => {
     it('should work', () => {
       const options = normalizeOptions({
