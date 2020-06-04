@@ -65,11 +65,19 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   file.contents = fileLines.join('\n')
 
   if (semverGt(version, '11.99')) {
-    await compiler.replaceInFileAsync(
-      bootFile,
-      'initializePolicy();',
-      'initializePolicy();\n' + wrap('{{replace:lib/patches/boot-nexe.js}}')
-    )
+    if (semverGt(version, '12.17.99')) {
+      await compiler.replaceInFileAsync(
+        bootFile,
+        'initializeFrozenIntrinsics();',
+        'initializeFrozenIntrinsics();\n' + wrap('{{replace:lib/patches/boot-nexe.js}}')
+      )
+    } else {
+      await compiler.replaceInFileAsync(
+        bootFile,
+        'initializePolicy();',
+        'initializePolicy();\n' + wrap('{{replace:lib/patches/boot-nexe.js}}')
+      )
+    }
     await compiler.replaceInFileAsync(
       bootFile,
       'assert(!CJSLoader.hasLoadedAnyUserCJSModule)',
