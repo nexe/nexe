@@ -43,7 +43,7 @@ describe('options', () => {
   describe('remote', () => {
     it('should use default remote', () => {
       const options = normalizeOptions({})
-      expect(options.remote).to.equal('https://github.com/nexe/nexe/releases/download/v3.0.0/')
+      expect(options.remote).to.equal('https://github.com/nexe/nexe/releases/download/v3.3.3/')
     })
     it('should append trailing slash to third-party remote if necessary', () => {
       const options = normalizeOptions({
