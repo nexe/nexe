@@ -29,15 +29,15 @@ function isBuildableVersion(version: string) {
   return !versionsToSkip.includes(major) || version === '4.8.4'
 }
 
-export function getLatestGitRelease(options?: any) {
-  return getJson<GitRelease>('https://api.github.com/repos/nexe/nexe/releases/latest', options)
+export function getV3GitRelease(options?: any) {
+  return getJson<GitRelease>('https://api.github.com/repos/nexe/nexe/releases/7567580/', options)
 }
 
 export async function getUnBuiltReleases(options?: any) {
   const nodeReleases = await getJson<NodeRelease[]>(
     'https://nodejs.org/download/release/index.json'
   )
-  const existingVersions = (await getLatestGitRelease(options)).assets.map(x => getTarget(x.name))
+  const existingVersions = (await getV3GitRelease(options)).assets.map(x => getTarget(x.name))
 
   const versionMap: { [key: string]: true } = {}
   return nodeReleases
