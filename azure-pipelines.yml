@@ -25,7 +25,7 @@ jobs:
       linux:
         imageName: 'ubuntu-16.04'
       mac:
-        imageName: 'macos-10.13'
+        imageName: 'macos-10.14'
       windows_2017:
         imageName: 'vs2017-win2016'
       windows_2015:
