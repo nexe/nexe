@@ -43,7 +43,7 @@ jobs:
   - task: NodeTool@0
     displayName: Install Node
     inputs:
-      versionSpec: '10.x'
+      versionSpec: '12.x'
   - script: sudo apt-get update && sudo apt-get install -y libc6-dev-i386 gcc-multilib g++-multilib
     condition: contains(variables['Agent.JobName'], 'linux')
     displayName: Install Linux build dependencies
