@@ -6,7 +6,7 @@ import { appendFileSync } from 'fs'
 
 function alpine(target: NexeTarget) {
   return `
-FROM ${target.arch === 'x64' ? '' : 'i386/'}alpine:3.4
+FROM ${target.arch === 'x64' ? '' : 'i386/'}alpine:3.12
 RUN apk add --no-cache curl make gcc g++ binutils-gold python linux-headers paxctl libgcc libstdc++ git vim tar gzip wget
 ENV NODE_VERSION=${target.version}
 ENV NEXE_VERSION=latest

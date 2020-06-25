@@ -25,7 +25,7 @@ jobs:
       linux:
         imageName: 'ubuntu-16.04'
       mac:
-        imageName: 'macos-10.14'
+        imageName: 'macos-10.15'
       windows_2017:
         imageName: 'vs2017-win2016'
       windows_2015:
@@ -55,6 +55,7 @@ jobs:
     env:
       GITHUB_TOKEN: $(PersonalGithubToken)
       NEXE_VERBOSE: $(NEXE_VERBOSE)
+      msbuild_args: /3G
     condition: not(contains(variables['Agent.JobName'], 'windows'))
   - powershell: |
       iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
