@@ -1,7 +1,7 @@
 import { NexeCompiler, NexeError } from '../compiler'
 import { resolve, relative } from 'path'
 import { each } from '@calebboyd/semaphore'
-import resolveFiles, { resolveFileNameSync } from 'resolve-dependencies'
+import resolveFiles, { resolveSync } from 'resolve-dependencies'
 import { dequote, STDIN_FLAG, semverGt } from '../util'
 import { Readable } from 'stream'
 
@@ -54,7 +54,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   }
 
   if (input === STDIN_FLAG) {
-    const maybeInput = resolveFileNameSync(cwd, '.')
+    const maybeInput = resolveSync(cwd, '.')
     if (!maybeInput || !maybeInput.absPath) {
       throw new NexeError('No valid input detected')
     }
@@ -65,7 +65,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   const { files, warnings } = await resolveFiles(
     input,
     ...Object.keys(compiler.bundle.index).filter(x => x.endsWith('.js')),
-    { cwd, expand: true, loadContent: false }
+    { cwd, expand: 'all', loadContent: false }
   )
 
   if (
