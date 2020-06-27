@@ -12,6 +12,7 @@ import {
   isWindows,
   bound,
   semverGt,
+  wrap,
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
@@ -144,14 +145,6 @@ export class NexeCompiler {
   @bound
   addResource(absoluteFileName: string, content?: Buffer | string) {
     return this.bundle.addResource(absoluteFileName, content)
-  }
-
-  get binaryConfiguration() {
-    return { resources: this.bundle.index }
-  }
-
-  get resourceSize() {
-    return this.bundle.blobSize
   }
 
   @bound
@@ -301,21 +294,26 @@ export class NexeCompiler {
     return [this.shims.join(''), this.startup].join(';')
   }
 
-  private _assembleDeliverable(binary: NodeJS.ReadableStream) {
+  private async _assembleDeliverable(binary: NodeJS.ReadableStream) {
     if (!this.options.mangle) {
       return binary
     }
+    const bundle = await this.bundle.toStream()
+
+    this.shims.unshift(
+      wrap(`process.__nexe = ${JSON.stringify({ resources: this.bundle.fileIndex() })};\n`)
+    )
 
     const startup = this.code(),
-      codeSize = Buffer.byteLength(startup)
+      codeSize = Buffer.byteLength(startup),
+      lengths = Buffer.from(Array(16))
 
-    const lengths = Buffer.from(Array(16))
     lengths.writeDoubleLE(codeSize, 0)
-    lengths.writeDoubleLE(this.bundle.blobSize, 8)
+    lengths.writeDoubleLE(this.bundle.size, 8)
     return new (MultiStream as any)([
       binary,
       toStream(startup),
-      this.bundle.toStream(),
+      bundle,
       toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths])),
     ])
   }

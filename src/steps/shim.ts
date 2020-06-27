@@ -3,10 +3,9 @@ import { wrap } from '../util'
 
 export default async function (compiler: NexeCompiler, next: () => Promise<void>) {
   await next()
-
   compiler.shims.push(
     wrap(
-      `process.__nexe = ${JSON.stringify(compiler.binaryConfiguration)};\n` +
+      '' +
         '{{replace:lib/fs/patch.js}}' +
         '\nshimFs(process.__nexe)' +
         `\n${compiler.options.fs ? '' : 'restoreFs()'}`

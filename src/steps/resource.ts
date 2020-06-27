@@ -22,6 +22,6 @@ export default async function resource(compiler: NexeCompiler, next: () => Promi
     step.log(`Including file: ${file}`)
     await compiler.addResource(file)
   })
-  step.log(`Included ${count} file(s). ${(compiler.resourceSize / 1e6).toFixed(3)} MB`)
+  step.log(`Included ${count} file(s)`)
   return next()
 }

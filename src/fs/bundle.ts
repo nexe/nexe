@@ -1,12 +1,23 @@
-import { stat as getStat, Stats, createReadStream } from 'fs'
+import * as fs from 'fs'
+import { promisify } from 'util'
 import { relative } from 'path'
 import { Readable } from 'stream'
+import { each } from '@calebboyd/semaphore'
 import MultiStream = require('multistream')
 
-const stat = (file: string): Promise<Stats> => {
-  return new Promise((resolve, reject) => {
-    getStat(file, (err, stats) => (err ? reject(err) : resolve(stats)))
-  })
+const { createReadStream } = fs,
+  lstat = promisify(fs.lstat),
+  realpath = promisify(fs.realpath),
+  stat = promisify(fs.stat)
+
+export type MultiStreams = (Readable | (() => Readable))[]
+
+function renderSortedObject(entries: [string, [number, number]][], streams: MultiStreams) {
+  return entries.sort().reduce((obj, [key, value]) => {
+    streams.push((value as any).stream)
+    ;(value as any).stream = void 0
+    return Object.assign(obj, { [key]: value })
+  }, {})
 }
 
 function makeRelative(cwd: string, path: string) {
@@ -35,39 +46,69 @@ export interface BundleOptions {
 }
 
 export class Bundle {
+  size = 0
+  cwd: string
+  rendered = false
+  files: { [key: string]: string | Buffer | undefined } = {}
+  streams: MultiStreams = []
+  private index: { [relativeFilePath: string]: [number, number] } = {}
   constructor({ cwd }: { cwd: string } = { cwd: process.cwd() }) {
     this.cwd = cwd
   }
-  cwd: string
-  blobSize: number = 0
-  index: { [relativeFilePath: string]: [number, number] } = {}
-  streams: (Readable | (() => Readable))[] = []
 
-  async addResource(absoluteFileName: string, content?: Buffer | string) {
+  addResource(absoluteFileName: string, content?: Buffer | string) {
+    this.files[absoluteFileName] = content
+  }
+
+  async addEntry(absoluteFileName: string, content?: Buffer | string) {
     let length = 0
+    let linkpath = ''
     if (content !== undefined) {
       length = Buffer.byteLength(content)
     } else {
-      const stats = await stat(absoluteFileName)
+      let stats = await lstat(absoluteFileName)
+      if (stats.isSymbolicLink()) {
+        linkpath = absoluteFileName
+        absoluteFileName = await realpath(linkpath)
+        stats = await stat(linkpath)
+      }
       length = stats.size
     }
-
-    const start = this.blobSize
-
-    this.blobSize += length
-    this.index[makeRelative(this.cwd, absoluteFileName)] = [start, length]
-    this.streams.push(() => (content ? toStream(content) : createReadStream(absoluteFileName)))
+    const name = makeRelative(this.cwd, absoluteFileName),
+      existing = this.index[name]
+    if (!existing) {
+      const start = this.size
+      this.size += length
+      this.index[name] = [start, length]
+    }
+    if (linkpath) {
+      const linkName = makeRelative(this.cwd, absoluteFileName)
+      this.index[linkName] = this.index[name]
+    }
+    if (!existing) {
+      ;(this.index[name] as any).stream = () =>
+        content ? toStream(content) : createReadStream(absoluteFileName)
+    }
   }
 
-  concat() {
-    throw new Error('Not Implemented')
-  }
-
-  toStream() {
-    return new (MultiStream as any)(this.streams)
-  }
-
-  toJSON() {
+  fileIndex() {
+    if (!this.rendered) {
+      throw new Error('Index not rendered must call toStream() first')
+    }
     return this.index
+  }
+
+  async toStream() {
+    this.files
+    await each(
+      Object.keys(this.files),
+      (key: string) => {
+        return this.addEntry(key, this.files[key])
+      },
+      { concurrency: 10 }
+    )
+    this.index = renderSortedObject(Object.entries(this.index), this.streams)
+    this.rendered = true
+    return new (MultiStream as any)(this.streams)
   }
 }

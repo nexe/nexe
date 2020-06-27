@@ -64,7 +64,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   const { files, warnings } = await resolveFiles(
     input,
-    ...Object.keys(compiler.bundle.index).filter((x) => x.endsWith('.js')),
+    ...Object.keys(compiler.bundle.files).filter((x) => x.endsWith('.js')),
     { cwd, expand: 'variable', loadContent: false }
   )
 
@@ -74,8 +74,6 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     throw new NexeError('Parsing Error:\n' + warnings.join('\n'))
   }
 
-  await each(Object.keys(files), (filename: string) => compiler.addResource(filename), {
-    concurrency: 10,
-  })
+  Object.keys(files).forEach((x) => compiler.addResource(x))
   return next()
 }

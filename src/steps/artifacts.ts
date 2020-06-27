@@ -1,11 +1,12 @@
 import { join, dirname } from 'path'
-import { promises } from 'fs'
+import * as fs from 'fs'
+import { promisify } from 'util'
 import { readFileAsync, writeFileAsync, isDirectoryAsync } from '../util'
 import mkdirpAsync = require('mkdirp')
 import { NexeCompiler } from '../compiler'
 
-const unlinkAsync = promises.unlink
-const readdirAsync = promises.readdir
+const unlinkAsync = promisify(fs.unlink),
+  readdirAsync = promisify(fs.readdir)
 
 function readDirAsync(dir: string): Promise<string[]> {
   return readdirAsync(dir).then((paths) => {
