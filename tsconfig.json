@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target":"es5",
+    "target":"es2015",
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "lib": ["es2018"],

@@ -2,26 +2,23 @@ import * as fs from 'fs'
 import { promisify } from 'util'
 import { relative } from 'path'
 import { Readable } from 'stream'
-import { each } from '@calebboyd/semaphore'
+import { argv } from '../options'
+import { File } from 'resolve-dependencies'
 import MultiStream = require('multistream')
 
-const { createReadStream } = fs,
-  lstat = promisify(fs.lstat),
+const lstat = promisify(fs.lstat),
   realpath = promisify(fs.realpath),
+  createReadStream = fs.createReadStream,
   stat = promisify(fs.stat)
 
 export type MultiStreams = (Readable | (() => Readable))[]
 
-function renderSortedObject(entries: [string, [number, number]][], streams: MultiStreams) {
-  return entries.sort().reduce((obj, [key, value]) => {
-    streams.push((value as any).stream)
-    ;(value as any).stream = void 0
-    return Object.assign(obj, { [key]: value })
-  }, {})
-}
-
 function makeRelative(cwd: string, path: string) {
   return './' + relative(cwd, path)
+}
+
+function sortEntry(a: [string, File], b: [string, File]) {
+  return a[0] > b[0] ? 1 : -1
 }
 
 export function toStream(content: Buffer | string) {
@@ -34,81 +31,126 @@ export function toStream(content: Buffer | string) {
   return readable
 }
 
-export type File = { absPath: string; contents: string; deps: FileMap }
-export type FileMap = { [absPath: string]: File | null }
-
-export interface BundleOptions {
-  entries: string[]
-  cwd: string
-  expand: boolean
-  loadContent: boolean
-  files: FileMap
+async function createFile(absoluteFileName: string) {
+  const stats = await lstat(absoluteFileName),
+    file: File = {
+      size: 0,
+      contents: '',
+      absPath: absoluteFileName,
+      deps: {},
+    }
+  if (stats.isSymbolicLink()) {
+    file.size = stats.size
+    const [realPath, realStat] = await Promise.all([
+      realpath(absoluteFileName),
+      stat(absoluteFileName),
+    ])
+    file.realPath = realPath
+    file.realSize = realStat.size
+  }
+  return file
 }
 
 export class Bundle {
   size = 0
   cwd: string
   rendered = false
-  files: { [key: string]: string | Buffer | undefined } = {}
+  private offset = 0
+  private index: { [key: string]: [number, number] } = {}
+  private files: { [key: string]: File } = {}
   streams: MultiStreams = []
-  private index: { [relativeFilePath: string]: [number, number] } = {}
   constructor({ cwd }: { cwd: string } = { cwd: process.cwd() }) {
     this.cwd = cwd
   }
 
-  addResource(absoluteFileName: string, content?: Buffer | string) {
-    this.files[absoluteFileName] = content
+  get list() {
+    return Object.keys(this.files)
   }
 
-  async addEntry(absoluteFileName: string, content?: Buffer | string) {
-    let length = 0
-    let linkpath = ''
-    if (content !== undefined) {
-      length = Buffer.byteLength(content)
-    } else {
-      let stats = await lstat(absoluteFileName)
-      if (stats.isSymbolicLink()) {
-        linkpath = absoluteFileName
-        absoluteFileName = await realpath(linkpath)
-        stats = await stat(linkpath)
+  public async addResource(
+    absoluteFileName: string,
+    content?: File | Buffer | string
+  ): Promise<number> {
+    if (this.files[absoluteFileName]) {
+      return this.size
+    }
+    if (typeof content === 'string' || Buffer.isBuffer(content)) {
+      this.files[absoluteFileName] = {
+        size: Buffer.byteLength(content),
+        contents: content as any, //todo type is wrong here... should allow buffer
+        deps: {},
+        absPath: absoluteFileName,
       }
-      length = stats.size
+    } else if (content) {
+      this.files[content.absPath] = content
+    } else {
+      this.files[absoluteFileName] = {
+        absPath: absoluteFileName,
+        contents: '',
+        deps: {},
+        size: 0,
+      }
+      this.files[absoluteFileName] = await createFile(absoluteFileName)
     }
-    const name = makeRelative(this.cwd, absoluteFileName),
-      existing = this.index[name]
-    if (!existing) {
-      const start = this.size
-      this.size += length
-      this.index[name] = [start, length]
-    }
-    if (linkpath) {
-      const linkName = makeRelative(this.cwd, absoluteFileName)
-      this.index[linkName] = this.index[name]
-    }
-    if (!existing) {
-      ;(this.index[name] as any).stream = () =>
-        content ? toStream(content) : createReadStream(absoluteFileName)
-    }
+    return (this.size += this.files[absoluteFileName].size)
   }
 
-  fileIndex() {
-    if (!this.rendered) {
-      throw new Error('Index not rendered must call toStream() first')
+  /**
+   * De-dupe files by absolute path, partition by symlink/real
+   * Iterate over real, add entries
+   * Iterate over symlinks, add symlinks
+   */
+  renderIndex() {
+    if (this.rendered) {
+      throw new Error('Bundle index already rendered')
     }
+    const files = Object.entries(this.files),
+      realFiles: [string, File][] = [],
+      symLinks: [string, File][] = []
+    for (const entry of files) {
+      if (entry[1].realPath) {
+        symLinks.push(entry)
+      } else {
+        realFiles.push(entry)
+      }
+    }
+    realFiles.sort(sortEntry)
+    symLinks.sort(sortEntry)
+
+    for (const [absPath, file] of realFiles) {
+      this.addEntry(absPath, file)
+    }
+    for (const [absPath, file] of symLinks) {
+      this.addEntry(file.realPath as string, file)
+      this.addEntry(absPath, file, file.realPath)
+    }
+    this.rendered = true
     return this.index
   }
 
-  async toStream() {
-    this.files
-    await each(
-      Object.keys(this.files),
-      (key: string) => {
-        return this.addEntry(key, this.files[key])
-      },
-      { concurrency: 10 }
-    )
-    this.index = renderSortedObject(Object.entries(this.index), this.streams)
-    this.rendered = true
+  /**
+   * Add a stream if needed and an entry with the required offset and size
+   * Ensure the calling order of this method is idempotent (eg, while iterating a sorted set)
+   * @param entryPath
+   * @param file
+   * @param useEntry
+   */
+  addEntry(entryPath: string, file: File, useEntry?: string) {
+    const existingName = useEntry && makeRelative(this.cwd, useEntry),
+      name = makeRelative(this.cwd, entryPath),
+      size = file.realSize ?? file.size,
+      existingEntry = this.index[existingName ?? name]
+
+    this.index[name] = existingEntry || [this.offset, size]
+    if (!existingEntry) {
+      this.streams.push(() =>
+        file.contents ? toStream(file.contents) : createReadStream(file.absPath)
+      )
+      this.offset += size
+    }
+  }
+
+  toStream() {
     return new (MultiStream as any)(this.streams)
   }
 }

@@ -18,6 +18,7 @@ import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
 import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
+import { File } from 'resolve-dependencies'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -143,7 +144,7 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer | string) {
+  addResource(absoluteFileName: string, content?: Buffer | string | File) {
     return this.bundle.addResource(absoluteFileName, content)
   }
 
@@ -298,22 +299,19 @@ export class NexeCompiler {
     if (!this.options.mangle) {
       return binary
     }
-    const bundle = await this.bundle.toStream()
+    const index = this.bundle.renderIndex()
+    this.shims.unshift(wrap(`process.__nexe = ${JSON.stringify({ resources: index }, null, 4)};\n`))
 
-    this.shims.unshift(
-      wrap(`process.__nexe = ${JSON.stringify({ resources: this.bundle.fileIndex() })};\n`)
-    )
-
-    const startup = this.code(),
-      codeSize = Buffer.byteLength(startup),
+    const code = this.code(),
+      codeSize = Buffer.byteLength(code),
       lengths = Buffer.from(Array(16))
 
     lengths.writeDoubleLE(codeSize, 0)
     lengths.writeDoubleLE(this.bundle.size, 8)
     return new (MultiStream as any)([
       binary,
-      toStream(startup),
-      bundle,
+      toStream(code),
+      this.bundle.toStream(),
       toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths])),
     ])
   }
