@@ -36,7 +36,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   }
 
   const file = await compiler.readFileAsync(bootFile),
-    ast = parse(file.contents, {
+    ast = parse(file.contents.toString(), {
       loc: true,
       tolerant: true,
       next: true,
@@ -54,7 +54,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
     }
   })
 
-  const fileLines = file.contents.split('\n')
+  const fileLines = file.contents.toString().split('\n')
   fileLines.splice(
     location.start.line,
     0,

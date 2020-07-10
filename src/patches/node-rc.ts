@@ -12,14 +12,15 @@ export default async function nodeRc(compiler: NexeCompiler, next: () => Promise
     let value = options[key]
     const isVar = /^[A-Z_]+$/.test(value)
     value = isVar ? value : `"${value}"`
-    file.contents = file.contents.replace(
-      new RegExp(`VALUE "${key}",.*`),
-      `VALUE "${key}", ${value}`
-    )
+    file.contents = file.contents
+      .toString()
+      .replace(new RegExp(`VALUE "${key}",.*`), `VALUE "${key}", ${value}`)
   })
   ;['PRODUCTVERSION', 'FILEVERSION'].forEach((x) => {
     if (options[x]) {
-      file.contents = file.contents.replace(new RegExp(x + ' .*$', 'm'), `${x} ${options[x]}`)
+      file.contents = file.contents
+        .toString()
+        .replace(new RegExp(x + ' .*$', 'm'), `${x} ${options[x]}`)
     }
   })
 

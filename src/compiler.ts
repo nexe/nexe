@@ -29,7 +29,7 @@ type StringReplacer = (match: string) => string
 export interface NexeFile {
   filename: string
   absPath: string
-  contents: string
+  contents: string | Buffer
 }
 
 export { NexeOptions }
@@ -176,11 +176,11 @@ export class NexeCompiler {
   @bound
   async replaceInFileAsync(file: string, replace: string | RegExp, value: string | StringReplacer) {
     const entry = await this.readFileAsync(file)
-    entry.contents = entry.contents.replace(replace, value as any)
+    entry.contents = entry.contents.toString().replace(replace, value as any)
   }
 
   @bound
-  async setFileContentsAsync(file: string, contents: string) {
+  async setFileContentsAsync(file: string, contents: string | Buffer) {
     const entry = await this.readFileAsync(file)
     entry.contents = contents
   }
@@ -258,10 +258,7 @@ export class NexeCompiler {
     return createReadStream(this.getNodeExecutableLocation())
   }
 
-  private async _shouldCompileBinaryAsync(
-    binary: NodeJS.ReadableStream | null,
-    location: string | undefined
-  ) {
+  private async _shouldCompileBinaryAsync(binary: NodeJS.ReadableStream | null, location: string) {
     //SOMEDAY combine make/configure/vcBuild/and modified times of included files
     const { snapshot, build } = this.options
 
@@ -299,8 +296,8 @@ export class NexeCompiler {
     if (!this.options.mangle) {
       return binary
     }
-    const index = this.bundle.renderIndex()
-    this.shims.unshift(wrap(`process.__nexe = ${JSON.stringify({ resources: index }, null, 4)};\n`))
+    const resources = this.bundle.renderIndex()
+    this.shims.unshift(wrap(`process.__nexe = ${JSON.stringify({ resources })};\n`))
 
     const code = this.code(),
       codeSize = Buffer.byteLength(code),

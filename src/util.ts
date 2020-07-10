@@ -1,9 +1,9 @@
 import { readFile, writeFile, stat } from 'fs'
 import { execFile } from 'child_process'
-import pify = require('pify')
+import { promisify } from 'util'
 import rimraf = require('rimraf')
 
-const rimrafAsync = pify(rimraf)
+const rimrafAsync = promisify(rimraf)
 export const STDIN_FLAG = '[stdin]'
 
 export async function each<T>(
@@ -64,10 +64,10 @@ export interface ReadFileAsync {
   (path: string, encoding: string): Promise<string>
 }
 
-const readFileAsync = pify(readFile)
-const writeFileAsync = pify(writeFile)
-const statAsync = pify(stat)
-const execFileAsync = pify(execFile)
+const readFileAsync = promisify(readFile)
+const writeFileAsync = promisify(writeFile)
+const statAsync = promisify(stat)
+const execFileAsync = promisify(execFile)
 const isWindows = process.platform === 'win32'
 
 function pathExistsAsync(path: string) {

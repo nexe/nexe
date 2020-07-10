@@ -34,7 +34,7 @@ export function toStream(content: Buffer | string) {
 async function createFile(absoluteFileName: string) {
   const stats = await lstat(absoluteFileName),
     file: File = {
-      size: 0,
+      size: stats.size,
       contents: '',
       absPath: absoluteFileName,
       deps: {},

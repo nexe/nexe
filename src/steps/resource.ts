@@ -1,4 +1,4 @@
-import { isDirectoryAsync, each } from '../util'
+import { each } from '../util'
 import * as globs from 'globby'
 import { NexeCompiler } from '../compiler'
 
@@ -14,10 +14,7 @@ export default async function resource(compiler: NexeCompiler, next: () => Promi
   // and https://github.com/mrmlnc/fast-glob#pattern-syntax
   const resourcesWithForwardSlashes = resources.map((r) => r.replace(/\\/g, '/'))
 
-  await each(globs(resourcesWithForwardSlashes, { cwd }), async (file) => {
-    if (await isDirectoryAsync(file)) {
-      return
-    }
+  await each(globs(resourcesWithForwardSlashes, { cwd, onlyFiles: true }), async (file) => {
     count++
     step.log(`Including file: ${file}`)
     await compiler.addResource(file)
