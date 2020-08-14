@@ -320,7 +320,9 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   patches.internalModuleReadJSON = function (this: any, original: any, ...args: any[]) {
     const returningArray = Array.isArray(original.call(this, ''))
     const res = patches.internalModuleReadFile.call(this, original, ...args)
-    return returningArray && !Array.isArray(res) ? [res, true] : res
+    return returningArray && !Array.isArray(res)
+      ? [res, /"(name|main|type|exports)"/.test(res)]
+      : res
   }
   patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
     setupManifest()
