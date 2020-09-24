@@ -317,7 +317,14 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     log('read          (miss)       ' + filepath)
     return original.call(this, ...args)
   }
-  patches.internalModuleReadJSON = patches.internalModuleReadFile
+  let returningArray: boolean
+  patches.internalModuleReadJSON = function (this: any, original: any, ...args: any[]) {
+    if (returningArray == null) returningArray = Array.isArray(original.call(this, ''))
+    const res = patches.internalModuleReadFile.call(this, original, ...args)
+    return returningArray && !Array.isArray(res)
+      ? [res, /"(main|name|type|exports|imports)"/.test(res)]
+      : res
+  }
   patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
     setupManifest()
     const filepath = getKey(args[0])
