@@ -83,12 +83,22 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
       'assert(!CJSLoader.hasLoadedAnyUserCJSModule)',
       '/*assert(!CJSLoader.hasLoadedAnyUserCJSModule)*/'
     )
-    await compiler.replaceInFileAsync(
-      'src/node.cc',
-      'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {',
-      'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {\n' +
-        '  return StartExecution(env, "internal/main/run_main_module");\n'
-    )
+    const { contents: nodeccContents } = await compiler.readFileAsync('src/node.cc')
+    if (nodeccContents.includes('if (env->worker_context() != nullptr) {')) {
+      await compiler.replaceInFileAsync(
+        'src/node.cc',
+        'if (env->worker_context() != nullptr) {',
+        'if (env->worker_context() == nullptr) {\n' +
+          '  return StartExecution(env, "internal/main/run_main_module"); } else {\n'
+      )
+    } else {
+      await compiler.replaceInFileAsync(
+        'src/node.cc',
+        'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {',
+        'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {\n' +
+          '  return StartExecution(env, "internal/main/run_main_module");\n'
+      )
+    }
   } else {
     await compiler.setFileContentsAsync(
       'lib/_third_party_main.js',
