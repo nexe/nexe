@@ -1,4 +1,5 @@
 import { Stats } from 'fs'
+import { getLatestGitRelease } from '../releases'
 
 export interface NexeBinary {
   blobPath: string
@@ -112,6 +113,25 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     }
     if (manifest[key]) {
       return createStat({ size: manifest[key][1] }, options)
+    }
+  }
+
+  const getStat = function (fn: string) {
+    return function stat(filepath: string | Buffer, options: any, callback: any) {
+      let stat: any
+      if (typeof options === 'function') {
+        callback = options
+        stat = ownStat(filepath, null)
+      } else {
+        stat = ownStat(filepath, options)
+      }
+      if (stat) {
+        process.nextTick(() => {
+          callback(null, stat)
+        })
+      } else {
+        return originalFsMethods[fn].apply(fs, arguments)
+      }
     }
   }
 
@@ -279,24 +299,16 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       }
       return originalFsMethods.statSync.apply(fs, arguments)
     },
-    stat: function stat(filepath: string | Buffer, options: any, callback: any) {
-      let stat: any
-      if (typeof options === 'function') {
-        callback = options
-        stat = ownStat(filepath, null)
-      } else {
-        stat = ownStat(filepath, options)
-      }
+    stat: getStat('stat'),
+    lstat: getStat('lstat'),
+    lstatSync: function statSync(filepath: string | Buffer, options: any) {
+      const stat = ownStat(filepath, options)
       if (stat) {
-        process.nextTick(() => {
-          callback(null, stat)
-        })
-      } else {
-        return originalFsMethods.stat.apply(fs, arguments)
+        return stat
       }
-    },
+      return originalFsMethods.lstatSync.apply(fs, arguments)
+    }
   }
-
   if (typeof fs.exists === 'function') {
     nfs.exists = function (filepath: string, cb: Function) {
       cb = cb || noop
