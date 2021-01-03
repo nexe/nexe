@@ -240,23 +240,26 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
       originalFsMethods.open(blobPath, 'r', function (err: Error, fd: number) {
         if (err) return callback(err, null)
-        originalFsMethods.read(fd, Buffer.alloc(length), 0, length, resourceOffset, function (
-          error: Error,
-          bytesRead: number,
-          result: Buffer
-        ) {
-          if (error) {
-            return originalFsMethods.close(fd, function () {
-              callback(error, null)
+        originalFsMethods.read(
+          fd,
+          Buffer.alloc(length),
+          0,
+          length,
+          resourceOffset,
+          function (error: Error, bytesRead: number, result: Buffer) {
+            if (error) {
+              return originalFsMethods.close(fd, function () {
+                callback(error, null)
+              })
+            }
+            originalFsMethods.close(fd, function (err: Error) {
+              if (err) {
+                return callback(err, result)
+              }
+              callback(err, encoding ? result.toString(encoding) : result)
             })
           }
-          originalFsMethods.close(fd, function (err: Error) {
-            if (err) {
-              return callback(err, result)
-            }
-            callback(err, encoding ? result.toString(encoding) : result)
-          })
-        })
+        )
       })
     },
     createReadStream: function createReadStream(filepath: any, options: any) {
@@ -307,7 +310,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
         return stat
       }
       return originalFsMethods.lstatSync.apply(fs, arguments)
-    }
+    },
   }
   if (typeof fs.exists === 'function') {
     nfs.exists = function (filepath: string, cb: Function) {
