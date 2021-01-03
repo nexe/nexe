@@ -1,5 +1,6 @@
 import { each } from '../util'
 import * as globs from 'globby'
+import { resolve } from 'path'
 import { NexeCompiler } from '../compiler'
 
 export default async function resource(compiler: NexeCompiler, next: () => Promise<any>) {
@@ -17,7 +18,7 @@ export default async function resource(compiler: NexeCompiler, next: () => Promi
   await each(globs(resourcesWithForwardSlashes, { cwd, onlyFiles: true }), async (file) => {
     count++
     step.log(`Including file: ${file}`)
-    await compiler.addResource(file)
+    await compiler.addResource(resolve(cwd, file))
   })
   step.log(`Included ${count} file(s)`)
   return next()
