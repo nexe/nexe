@@ -3,7 +3,7 @@ import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import { runDockerBuild } from './docker'
 import { getTarget, targetsEqual, NexeTarget } from '../lib/target'
 import { pathExistsAsync, readFileAsync, execFileAsync, semverGt } from '../lib/util'
-import got = require('got')
+import got from 'got'
 import { cpus } from 'os'
 
 const env = process.env,
@@ -86,7 +86,7 @@ async function build() {
       return
     }
     await got(gitRelease.upload_url.split('{')[0], {
-      query: { name: target.toString() },
+      searchParams: { name: target.toString() },
       body: await readFileAsync(output),
       headers: {
         ...headers,
