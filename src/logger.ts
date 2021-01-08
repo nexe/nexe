@@ -24,7 +24,7 @@ export class Logger {
       this.ora = ora({
         text: 'Starting...',
         color: 'blue',
-        spinner: 'dots'
+        spinner: 'dots',
       })
       this.ora.stop()
     }
@@ -35,7 +35,7 @@ export class Logger {
 
   flush() {
     !this.silent && this.ora.succeed()
-    return new Promise(resolve => setTimeout(resolve, frameLength))
+    return new Promise((resolve) => setTimeout(resolve, frameLength))
   }
 
   _write(update: string, color = 'green') {
@@ -66,7 +66,7 @@ export class Logger {
       modify: this.modify,
       log: this.verbose ? this.write : this.modify,
       pause: () => this.ora.stopAndPersist(),
-      resume: () => this.ora.start()
+      resume: () => this.ora.start(),
     } as LogStep
   }
 }

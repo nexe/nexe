@@ -2,6 +2,8 @@ import { getLibzipSync } from '@yarnpkg/libzip'
 import { patchFs, npath, PosixFS, NodeFS, ZipFS } from '@yarnpkg/fslib'
 import { SnapshotZipFS } from './SnapshotZipFS'
 import * as assert from 'assert'
+import { Stats } from 'fs'
+import { getLatestGitRelease } from '../releases'
 
 export interface NexeHeader {
   blobPath: string
@@ -24,7 +26,6 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   }
 
   originalFsMethods = Object.assign({}, fs)
-
   const realFs: typeof fs = { ...fs }
   const nodeFs = new NodeFS(realFs)
 
@@ -40,14 +41,14 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   assert.equal(bytesRead, binary.layout.resourceSize)
 
   const zipFs = new ZipFS(blob, {
-    libzip: getLibzipSync()
+    libzip: getLibzipSync(),
   })
   const snapshotZipFS = new SnapshotZipFS({
     libzip: getLibzipSync(),
     mountAt: npath.toPortablePath('/snapshot'),
     zipFs,
     baseFs: nodeFs,
-    readOnlyArchives: true
+    readOnlyArchives: true,
   })
   const posixSnapshotZipFs = new PosixFS(snapshotZipFS)
   patchFs(fs, posixSnapshotZipFs)
@@ -64,11 +65,11 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
       return process.stderr.write('[nexe] - ' + text + '\n')
     }
   }
-  patches.internalModuleReadFile = function(this: any, original: any, ...args: any[]) {
+  patches.internalModuleReadFile = function (this: any, original: any, ...args: any[]) {
     return fs.readFileSync(args[0], 'utf-8')
   }
   patches.internalModuleReadJSON = patches.internalModuleReadFile
-  patches.internalModuleStat = function(this: any, original: any, ...args: any[]) {
+  patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
     console.dir(npath.contains('/snapshot', args[0]))
     if (npath.contains('/snapshot', args[0]) === '/') {
       return 1

@@ -1,9 +1,9 @@
 import { readFile, writeFile, stat } from 'fs'
 import { execFile } from 'child_process'
-import pify = require('pify')
+import { promisify } from 'util'
 import rimraf = require('rimraf')
 
-const rimrafAsync = pify(rimraf)
+const rimrafAsync = promisify(rimraf)
 export const STDIN_FLAG = '[stdin]'
 
 export async function each<T>(
@@ -42,10 +42,10 @@ const bound: MethodDecorator = function bound<T>(
       Object.defineProperty(this, propertyKey as string, {
         configurable,
         value,
-        writable: true
+        writable: true,
       })
       return value
-    }
+    },
   }
 }
 
@@ -64,21 +64,21 @@ export interface ReadFileAsync {
   (path: string, encoding: string): Promise<string>
 }
 
-const readFileAsync = pify(readFile)
-const writeFileAsync = pify(writeFile)
-const statAsync = pify(stat)
-const execFileAsync = pify(execFile)
+const readFileAsync = promisify(readFile)
+const writeFileAsync = promisify(writeFile)
+const statAsync = promisify(stat)
+const execFileAsync = promisify(execFile)
 const isWindows = process.platform === 'win32'
 
 function pathExistsAsync(path: string) {
   return statAsync(path)
-    .then(x => true)
+    .then((x) => true)
     .catch(falseOnEnoent)
 }
 
 function isDirectoryAsync(path: string) {
   return statAsync(path)
-    .then(x => x.isDirectory())
+    .then((x) => x.isDirectory())
     .catch(falseOnEnoent)
 }
 /**
@@ -109,5 +109,5 @@ export {
   readFileAsync,
   pathExistsAsync,
   isDirectoryAsync,
-  writeFileAsync
+  writeFileAsync,
 }

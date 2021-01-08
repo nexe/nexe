@@ -1,22 +1,14 @@
 import { NexeCompiler } from '../compiler'
 import { wrap } from '../util'
 
-export default async function(compiler: NexeCompiler, next: () => Promise<void>) {
+export default async function (compiler: NexeCompiler, next: () => Promise<void>) {
   await next()
-
   compiler.shims.push(
     wrap(
-      [
-        `process.__nexe = ${JSON.stringify(compiler.binaryConfiguration)};`,
-        'const fsPatcher = (function() {',
-        'const module = {exports: {}};',
-        'const exports = module.exports;',
-        '{{file("lib/fs/patch.bundle.js")}}',
-        'return module.exports;',
-        '})()',
-        'fsPatcher.shimFs(process.__nexe);',
-        compiler.options.fs ? '' : 'restoreFs();'
-      ].join('\n')
+      '' +
+        '{{replace:lib/fs/patch.js}}' +
+        '\nshimFs(process.__nexe)' +
+        `\n${compiler.options.fs ? '' : 'restoreFs()'}`
       //TODO support only restoring specific methods
     )
   )

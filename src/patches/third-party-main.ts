@@ -36,13 +36,13 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   }
 
   const file = await compiler.readFileAsync(bootFile),
-    ast = parse(file.contents, {
+    ast = parse(file.contents.toString(), {
       loc: true,
       tolerant: true,
       next: true,
       globalReturn: true,
       node: true,
-      skipShebang: true
+      skipShebang: true,
     }),
     location = { start: { line: 0 } }
 
@@ -54,7 +54,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
     }
   })
 
-  const fileLines = file.contents.split('\n')
+  const fileLines = file.contents.toString().split('\n')
   fileLines.splice(
     location.start.line,
     0,
@@ -65,17 +65,40 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   file.contents = fileLines.join('\n')
 
   if (semverGt(version, '11.99')) {
+    if (semverGt(version, '12.17.99')) {
+      await compiler.replaceInFileAsync(
+        bootFile,
+        'initializeFrozenIntrinsics();',
+        'initializeFrozenIntrinsics();\n' + wrap('{{replace:lib/patches/boot-nexe.js}}')
+      )
+    } else {
+      await compiler.replaceInFileAsync(
+        bootFile,
+        'initializePolicy();',
+        'initializePolicy();\n' + wrap('{{replace:lib/patches/boot-nexe.js}}')
+      )
+    }
     await compiler.replaceInFileAsync(
       bootFile,
-      'initializePolicy();',
-      'initializePolicy();\n' + wrap('{{file("lib/patches/boot-nexe.js")}}')
+      'assert(!CJSLoader.hasLoadedAnyUserCJSModule)',
+      '/*assert(!CJSLoader.hasLoadedAnyUserCJSModule)*/'
     )
-    await compiler.replaceInFileAsync(
-      'src/node.cc',
-      'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {',
-      'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {\n' +
-        '  return StartExecution(env, "internal/main/run_main_module");\n'
-    )
+    const { contents: nodeccContents } = await compiler.readFileAsync('src/node.cc')
+    if (nodeccContents.includes('if (env->worker_context() != nullptr) {')) {
+      await compiler.replaceInFileAsync(
+        'src/node.cc',
+        'if (env->worker_context() != nullptr) {',
+        'if (env->worker_context() == nullptr) {\n' +
+          '  return StartExecution(env, "internal/main/run_main_module"); } else {\n'
+      )
+    } else {
+      await compiler.replaceInFileAsync(
+        'src/node.cc',
+        'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {',
+        'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {\n' +
+          '  return StartExecution(env, "internal/main/run_main_module");\n'
+      )
+    }
   } else {
     await compiler.setFileContentsAsync(
       'lib/_third_party_main.js',

@@ -3,7 +3,7 @@ import { getUnBuiltReleases, getLatestGitRelease } from '../lib/releases'
 import { runDockerBuild } from './docker'
 import { getTarget, targetsEqual, NexeTarget } from '../lib/target'
 import { pathExistsAsync, readFileAsync, execFileAsync, semverGt } from '../lib/util'
-import got = require('got')
+import got from 'got'
 import { cpus } from 'os'
 
 const env = process.env,
@@ -14,12 +14,12 @@ const env = process.env,
   isMac = process.platform === 'darwin',
   headers = {
     Authorization: 'token ' + env.GITHUB_TOKEN,
-    'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)'
+    'User-Agent': 'nexe (https://www.npmjs.com/package/nexe)',
   }
 
 if (require.main === module) {
   if (!isPullRequest) {
-    build().catch(x => {
+    build().catch((x) => {
       console.error(x)
       process.exit(1)
     })
@@ -31,10 +31,10 @@ async function build() {
   if (!releases.length) {
     return
   }
-  const windowsBuild = releases.find(x => x.platform === 'windows'),
-    macBuild = releases.find(x => x.platform === 'mac'),
-    linux = releases.find(x => x.platform === 'linux'),
-    alpine = releases.find(x => x.platform === 'alpine')
+  const windowsBuild = releases.find((x) => x.platform === 'windows'),
+    macBuild = releases.find((x) => x.platform === 'mac'),
+    linux = releases.find((x) => x.platform === 'linux'),
+    alpine = releases.find((x) => x.platform === 'alpine')
 
   let target: NexeTarget | undefined
 
@@ -62,7 +62,7 @@ async function build() {
       verbose: Boolean(env.NEXE_VERBOSE!),
       target,
       make: ['-j' + cpus().length],
-      output
+      output,
     }
   console.log('Building: ' + target + ' on ' + buildHost)
   const stop = keepalive()
@@ -80,19 +80,19 @@ async function build() {
     await assertNexeBinary(output)
     const gitRelease = await getLatestGitRelease({ headers }),
       unbuiltReleases = await getUnBuiltReleases({ headers })
-    if (!unbuiltReleases.some(x => targetsEqual(x, target!))) {
+    if (!unbuiltReleases.some((x) => targetsEqual(x, target!))) {
       console.log(`${target} already uploaded.`)
       process.exit(0)
       return
     }
     await got(gitRelease.upload_url.split('{')[0], {
-      query: { name: target.toString() },
+      searchParams: { name: target.toString() },
       body: await readFileAsync(output),
       headers: {
         ...headers,
-        'Content-Type': 'application/octet-stream'
-      }
-    }).catch(reason => {
+        'Content-Type': 'application/octet-stream',
+      },
+    }).catch((reason) => {
       console.log(reason && reason.response && reason.response.body)
       throw reason
     })
@@ -107,7 +107,7 @@ function keepalive() {
 }
 
 function assertNexeBinary(file: string) {
-  return execFileAsync(file).catch(e => {
+  return execFileAsync(file).catch((e) => {
     if (e && e.stack && e.stack.includes('Invalid Nexe binary')) {
       return
     }

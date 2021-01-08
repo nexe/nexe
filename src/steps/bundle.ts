@@ -1,13 +1,12 @@
 import { NexeCompiler, NexeError } from '../compiler'
 import { resolve, relative } from 'path'
-import { each } from '@calebboyd/semaphore'
 import resolveFiles, { resolveSync } from 'resolve-dependencies'
-import { dequote, STDIN_FLAG, semverGt } from '../util'
+import { dequote, STDIN_FLAG, semverGt, each } from '../util'
 import { Readable } from 'stream'
 
 function getStdIn(stdin: Readable): Promise<string> {
   let out = ''
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     stdin
       .setEncoding('utf8')
       .on('readable', () => {
@@ -26,7 +25,7 @@ function getStdIn(stdin: Readable): Promise<string> {
 }
 
 export default async function bundle(compiler: NexeCompiler, next: any) {
-  const { bundle, cwd, input: inputPath } = compiler.options
+  const { bundle: doBundle, cwd, input: inputPath } = compiler.options
   let input = inputPath
   compiler.entrypoint = './' + relative(cwd, input)
 
@@ -36,14 +35,14 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     compiler.startup = ';require("module").runMain();'
   }
 
-  if (!bundle) {
+  if (!doBundle) {
     await compiler.addResource(resolve(cwd, input))
     return next()
   }
 
   let code = ''
-  if (typeof bundle === 'string') {
-    code = await require(bundle).createBundle(compiler.options)
+  if (typeof doBundle === 'string') {
+    code = await require(doBundle).createBundle(compiler.options)
   }
 
   if (input === STDIN_FLAG && (code = code || dequote(await getStdIn(process.stdin)))) {
@@ -62,20 +61,25 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     compiler.entrypoint = './' + relative(cwd, input)
   }
 
-  const { files, warnings } = await resolveFiles(
+  const { files, warnings } = resolveFiles(
     input,
-    ...[...compiler.bundle.files.keys()].filter(x => x.endsWith('.js')),
+    ...Object.keys(compiler.bundle.list).filter((x) => x.endsWith('.js')),
     { cwd, expand: 'variable', loadContent: false }
   )
 
   if (
-    warnings.filter(x => x.startsWith('Error parsing file') && !x.includes('node_modules')).length
+    warnings.filter((x) => x.startsWith('Error parsing file') && !x.includes('node_modules')).length
   ) {
     throw new NexeError('Parsing Error:\n' + warnings.join('\n'))
   }
 
-  await each(Object.keys(files), (filename: string) => compiler.addResource(filename), {
-    concurrency: 10
-  })
+  //TODO: warnings.forEach((x) => console.log(x))
+
+  await Promise.all(
+    Object.entries(files).map(([key, file]) => {
+      return compiler.addResource(key, file)
+    })
+  )
+
   return next()
 }

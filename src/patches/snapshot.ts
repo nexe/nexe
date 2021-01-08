@@ -2,7 +2,7 @@ import { resolve } from 'path'
 import { NexeCompiler } from '../compiler'
 import { semverGt } from '../util'
 
-export default async function(compiler: NexeCompiler, next: () => Promise<void>) {
+export default async function (compiler: NexeCompiler, next: () => Promise<void>) {
   const { snapshot, warmup, cwd } = compiler.options
 
   if (!snapshot) {

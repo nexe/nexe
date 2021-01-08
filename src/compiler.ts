@@ -11,13 +11,15 @@ import {
   dequote,
   isWindows,
   bound,
-  semverGt
+  semverGt,
+  wrap,
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
 import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
 import { NexeHeader } from './fs/patch'
+import { File } from 'resolve-dependencies'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -28,7 +30,7 @@ type StringReplacer = (match: string) => string
 export interface NexeFile {
   filename: string
   absPath: string
-  contents: string
+  contents: string | Buffer
 }
 
 export { NexeOptions }
@@ -109,12 +111,18 @@ export class NexeCompiler {
     //SOMEDAY iterate over multiple targets with `--outDir`
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
-    if (options.asset && options.asset.startsWith('http')) {
-      this.remoteAsset = options.asset
-    } else {
-      this.remoteAsset =
-        'https://github.com/nexe/nexe/releases/download/v3.0.0/' + this.target.toString()
+    if (
+      !(
+        options.remote.startsWith('http://') ||
+        options.remote.startsWith('https://') ||
+        options.remote.startsWith('file://')
+      )
+    ) {
+      throw new NexeError(
+        `Invalid remote URI scheme (must be http, https, or file): ${options.remote}`
+      )
     }
+    this.remoteAsset = options.remote + this.target.toString()
     this.src = join(this.options.temp, this.target.version)
     const tempZipDir = mkdtempSync(join(this.options.temp, 'zip'))
     const tempZip = join(tempZipDir, 'bundle.zip')
@@ -143,11 +151,6 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer) {
-    return this.bundle.addResource(absoluteFileName, content)
-  }
-
-  @bound
   addDirectoryResource(absoluteFileName: string) {
     return this.bundle.addDirectoryResource(absoluteFileName)
   }
@@ -157,18 +160,23 @@ export class NexeCompiler {
   }
 
   @bound
+  addResource(absoluteFileName: string, content?: Buffer | string | File) {
+    return this.bundle.addResource(absoluteFileName, content)
+  }
+
+  @bound
   async readFileAsync(file: string) {
     this.assertBuild()
-    let cachedFile = this.files.find(x => normalize(x.filename) === normalize(file))
+    let cachedFile = this.files.find((x) => normalize(x.filename) === normalize(file))
     if (!cachedFile) {
       const absPath = join(this.src, file)
       cachedFile = {
         absPath,
         filename: file,
-        contents: await readFileAsync(absPath, 'utf-8').catch(x => {
+        contents: await readFileAsync(absPath, 'utf-8').catch((x) => {
           if (x.code === 'ENOENT') return ''
           throw x
-        })
+        }),
       }
       this.files.push(cachedFile)
     }
@@ -184,11 +192,11 @@ export class NexeCompiler {
   @bound
   async replaceInFileAsync(file: string, replace: string | RegExp, value: string | StringReplacer) {
     const entry = await this.readFileAsync(file)
-    entry.contents = entry.contents.replace(replace, value as any)
+    entry.contents = entry.contents.toString().replace(replace, value as any)
   }
 
   @bound
-  async setFileContentsAsync(file: string, contents: string) {
+  async setFileContentsAsync(file: string, contents: string | Buffer) {
     const entry = await this.readFileAsync(file)
     entry.contents = contents
   }
@@ -206,9 +214,6 @@ export class NexeCompiler {
   }
 
   public getNodeExecutableLocation(target?: NexeTarget) {
-    if (this.options.asset && !this.options.asset.startsWith('http')) {
-      return resolve(this.options.cwd, this.options.asset)
-    }
     if (target) {
       return join(this.options.temp, target.toString())
     }
@@ -223,7 +228,7 @@ export class NexeCompiler {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
-        stdio: this.log.verbose ? 'inherit' : 'ignore'
+        stdio: this.log.verbose ? 'inherit' : 'ignore',
       })
         .once('error', (e: Error) => {
           if (this.log.verbose) {
@@ -250,7 +255,7 @@ export class NexeCompiler {
     }
     return this._runBuildCommandAsync(this.env.PYTHON || 'python', [
       this.configureScript,
-      ...this.options.configure
+      ...this.options.configure,
     ])
   }
 
@@ -269,10 +274,7 @@ export class NexeCompiler {
     return createReadStream(this.getNodeExecutableLocation())
   }
 
-  private async _shouldCompileBinaryAsync(
-    binary: NodeJS.ReadableStream | null,
-    location: string | undefined
-  ) {
+  private async _shouldCompileBinaryAsync(binary: NodeJS.ReadableStream | null, location: string) {
     //SOMEDAY combine make/configure/vcBuild/and modified times of included files
     const { snapshot, build } = this.options
 
@@ -307,13 +309,16 @@ export class NexeCompiler {
     return [this.shims.join(''), this.startup].join(';')
   }
 
-  private _assembleDeliverable(binary: NodeJS.ReadableStream) {
+  private async _assembleDeliverable(binary: NodeJS.ReadableStream) {
     if (!this.options.mangle) {
       return binary
     }
+    const resources = this.bundle.renderIndex()
+    this.shims.unshift(wrap(`process.__nexe = ${JSON.stringify({ resources })};\n`))
 
-    const startup = this.code(),
-      codeSize = Buffer.byteLength(startup)
+    const code = this.code(),
+      codeSize = Buffer.byteLength(code),
+      lengths = Buffer.from(Array(16))
 
     const zipStat = statSync(this.bundle.tempZip)
 

@@ -1,5 +1,6 @@
-import { isDirectoryAsync, each } from '../util'
+import { each } from '../util'
 import * as globs from 'globby'
+import { resolve } from 'path'
 import { NexeCompiler } from '../compiler'
 
 export default async function resource(compiler: NexeCompiler, next: () => Promise<any>) {
@@ -13,19 +14,13 @@ export default async function resource(compiler: NexeCompiler, next: () => Promi
 
   // workaround for https://github.com/sindresorhus/globby/issues/127
   // and https://github.com/mrmlnc/fast-glob#pattern-syntax
-  const resourcesWithForwardSlashes = resources.map(r => r.replace(/\\/g, '/'))
+  const resourcesWithForwardSlashes = resources.map((r) => r.replace(/\\/g, '/'))
 
-  await each(globs(resourcesWithForwardSlashes, { cwd }), async file => {
-    if (await isDirectoryAsync(file)) {
-      dirCount++
-      step.log(`Including directory: ${file}`)
-      await compiler.addDirectoryResource(file)
-    } else {
-      fileCount++
-      step.log(`Including file: ${file}`)
-      await compiler.addResource(file)
-    }
+  await each(globs(resourcesWithForwardSlashes, { cwd, onlyFiles: true }), async (file) => {
+    count++
+    step.log(`Including file: ${file}`)
+    await compiler.addResource(resolve(cwd, file))
   })
-  step.log(`Included ${fileCount} file(s), ${dirCount} directory(s).`)
+  step.log(`Included ${count} file(s)`)
   return next()
 }

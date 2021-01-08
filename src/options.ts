@@ -21,7 +21,7 @@ export interface NexeOptions {
   output: string
   targets: (string | NexeTarget)[]
   name: string
-  asset: string
+  remote: string
   cwd: string
   fs: boolean | string[]
   flags: string[]
@@ -70,7 +70,8 @@ const defaults = {
   build: false,
   bundle: true,
   patches: [],
-  plugins: []
+  plugins: [],
+  remote: 'https://github.com/nexe/nexe/releases/download/v3.3.3/',
 }
 const alias = {
   i: 'input',
@@ -80,7 +81,6 @@ const alias = {
   b: 'build',
   n: 'name',
   r: 'resource',
-  a: 'asset',
   p: 'python',
   f: 'flag',
   c: 'configure',
@@ -88,7 +88,7 @@ const alias = {
   h: 'help',
   l: 'loglevel',
   'fake-argv': 'fakeArgv',
-  'gh-token': 'ghToken'
+  'gh-token': 'ghToken',
 }
 const argv = parseArgv(process.argv, { alias, default: { ...defaults } })
 let help = `
@@ -101,7 +101,7 @@ ${c.bold('nexe <entry-file> [options]')}
   -t   --target                     -- node version description
   -n   --name                       -- main app module name
   -r   --resource                   -- *embed files (glob) within the binary
-  -a   --asset                      -- alternate asset path, file or url pointing to a base (nexe) binary
+       --remote                     -- alternate location (URL) to download pre-built base (nexe) binaries from
        --plugin                     -- extend nexe runtime behavior
 
    ${c.underline.bold('Building from source:')}
@@ -112,7 +112,7 @@ ${c.bold('nexe <entry-file> [options]')}
   -c   --configure                  -- *arguments to the configure step
   -m   --make                       -- *arguments to the make/build step
        --patch                      -- module with middleware default export for adding a build patch
-       --no-mangle                  -- used when generating base binaries, or when patching _third_party_main manually.
+       --no-mangle                  -- used when generating base binaries, or when patching _third_party_main manually
        --snapshot                   -- path to a warmup snapshot
        --ico                        -- file name for alternate icon file (windows)
        --rc-*                       -- populate rc file options (windows)
@@ -133,7 +133,7 @@ ${c.bold('nexe <entry-file> [options]')}
 help = EOL + help + EOL
 
 function flatten(...args: any[]): string[] {
-  return ([] as string[]).concat(...args).filter(x => x)
+  return ([] as string[]).concat(...args).filter((x) => x)
 }
 
 /**
@@ -144,7 +144,7 @@ function flatten(...args: any[]): string[] {
  */
 function extractCliMap(match: RegExp, options: any) {
   return Object.keys(options)
-    .filter(x => match.test(x))
+    .filter((x) => match.test(x))
     .reduce((map: any, option: any) => {
       const key = option.split('-')[1]
       map[key] = options[option]
@@ -249,6 +249,10 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   options.configure = flatten(options.configure)
   options.resources = flatten(opts.resource, options.resources)
 
+  if (!options.remote.endsWith('/')) {
+    options.remote += '/'
+  }
+
   options.downloadOptions = options.downloadOptions || {}
   options.downloadOptions.headers = options.downloadOptions.headers || {}
   options.downloadOptions.headers['User-Agent'] = 'nexe (https://www.npmjs.com/package/nexe)'
@@ -289,8 +293,8 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   }
 
   Object.keys(alias)
-    .filter(k => k !== 'rc')
-    .forEach(x => delete opts[x])
+    .filter((k) => k !== 'rc')
+    .forEach((x) => delete opts[x])
 
   return options
 }
