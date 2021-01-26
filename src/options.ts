@@ -22,6 +22,7 @@ export interface NexeOptions {
   targets: (string | NexeTarget)[]
   name: string
   remote: string
+  asset: string
   cwd: string
   fs: boolean | string[]
   flags: string[]
@@ -77,6 +78,7 @@ const alias = {
   i: 'input',
   o: 'output',
   v: 'version',
+  a: 'asset',
   t: 'target',
   b: 'build',
   n: 'name',
