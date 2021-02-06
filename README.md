@@ -29,7 +29,7 @@
 ## Installing
 `npm install nexe -g`
 
-On Windows, close out of your console session then open a new console (cmd/powershell/pwsh).
+If using Windows, after you run the command above, close out of your console session then open a new console (cmd/powershell/pwsh).
 
 ## Usage
 
@@ -63,9 +63,8 @@ Additional files or resources can be added to the binary by passing `-r "glob/pa
 	- See the [releases page](https://github.com/nexe/nexe/releases) to find the executable's version number
 	- At the time of writing this, the latest binary build version is `14.5.3` from release version `3.3.3`.
 		- You can replace this with another version from the Releases page if desired.
-	- Examples
+	- Example
 		- `nexe -i "app.js" -r "public/**/*.html" -o "dist/myApp.exe" -t x64-14.15.3`
-		- `more "app.js" | nexe -o "dist/myApp.exe" -t x64-14.15.3`
 		- Where `-i` specifies the input, `-r` specifies resources to embed, `-o` specifies the output, `-t` specifies the target.
 	- Alternatively you can compile the executable yourself, see that section for details
 
