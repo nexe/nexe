@@ -46,7 +46,7 @@
     "multistream": "^4.0.1",
     "ora": "^3.4.0",
     "pify": "^5.0.0",
-    "resolve-dependencies": "^6.0.4",
+    "resolve-dependencies": "^6.0.5",
     "rimraf": "^3.0.2"
   },
   "devDependencies": {
