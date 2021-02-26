@@ -5,6 +5,7 @@
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/dt/nexe.svg" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/v/nexe.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/nexe"><img src="https://img.shields.io/npm/l/nexe.svg" alt="License"></a>
+  <a href="https://discord.gg/2qTH52zNcZ"><img src="https://discordapp.com/api/guilds/814334925049561168/widget.png?style=shield"></a>
 </p>
 
 <p align="center"><code>npm i nexe -g</code></p>
