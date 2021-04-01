@@ -66,22 +66,11 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
   const statTime = function () {
     return {
-      dev: 0,
-      ino: 0,
-      nlink: 0,
-      rdev: 0,
-      uid: 123,
-      gid: 500,
-      blksize: 4096,
       blocks: 0,
       atime: new Date(stat.atime),
-      atimeMs: stat.atime.getTime(),
       mtime: new Date(stat.mtime),
-      mtimeMs: stat.mtime.getTime(),
       ctime: new Date(stat.ctime),
-      ctimMs: stat.ctime.getTime(),
-      birthtime: new Date(stat.birthtime),
-      birthtimeMs: stat.birthtime.getTime(),
+      birthtime: new Date(stat.birthtime)
     }
   }
 
