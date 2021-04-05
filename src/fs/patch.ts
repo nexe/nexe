@@ -66,22 +66,10 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
   const statTime = function () {
     return {
-      dev: 0,
-      ino: 0,
-      nlink: 0,
-      rdev: 0,
-      uid: 123,
-      gid: 500,
-      blksize: 4096,
-      blocks: 0,
       atime: new Date(stat.atime),
-      atimeMs: stat.atime.getTime(),
       mtime: new Date(stat.mtime),
-      mtimeMs: stat.mtime.getTime(),
       ctime: new Date(stat.ctime),
-      ctimMs: stat.ctime.getTime(),
-      birthtime: new Date(stat.birthtime),
-      birthtimeMs: stat.birthtime.getTime(),
+      birthtime: new Date(stat.birthtime)
     }
   }
 
@@ -90,9 +78,14 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     BigInt = eval('BigInt')
   } catch (ignored) {}
 
+  const minBlocks = Math.max(Math.ceil(stat.blksize / 512), 1)
   const createStat = function (extensions: any, options: any) {
     const stat = Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
-    if (options && options.bigint && BigInt) {
+    if ('size' in extensions) {
+      //Assume non adjustable allocation size for file system
+      stat.blocks = Math.ceil(stat.size / stat.blksize) * minBlocks
+    }
+    if (options && options.bigint && typeof BigInt !== 'undefined') {
       for (const k in stat) {
         if (Object.prototype.hasOwnProperty.call(stat, k) && typeof stat[k] === 'number') {
           stat[k] = BigInt(stat[k])
