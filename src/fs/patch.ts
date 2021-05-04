@@ -399,6 +399,25 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     }
   }
 
+  if (typeof fs.realpath.native === 'function') {
+    nfs.realpath.native = function realpathNative(filepath: any, options: any, cb: any): void {
+      setupManifest()
+      const key = getKey(filepath)
+      if (isString(filepath) && (manifest[filepath] || manifest[key])) {
+        return process.nextTick(() => cb(null, filepath))
+      }
+      return originalFsMethods.realpath.native.call(fs, filepath, options, cb)
+    }
+    nfs.realpathSync.native = function realpathSyncNative(filepath: any, options: any) {
+      setupManifest()
+      const key = getKey(filepath)
+      if (manifest[key]) {
+        return filepath
+      }
+      return originalFsMethods.realpathSync.native.call(fs, filepath, options)
+    }
+  }
+
   Object.assign(fs, nfs)
 
   lazyRestoreFs = () => {
