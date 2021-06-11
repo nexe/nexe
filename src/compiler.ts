@@ -111,9 +111,7 @@ export class NexeCompiler {
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
     if (!/https?\:\/\//.test(options.remote)) {
-      throw new NexeError(
-        `Invalid remote URI scheme (must be http, https, or file): ${options.remote}`
-      )
+      throw new NexeError(`Invalid remote URI scheme (must be http or https): ${options.remote}`)
     }
     this.remoteAsset = options.remote + this.target.toString()
     this.src = join(this.options.temp, this.target.version)
