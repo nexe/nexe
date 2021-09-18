@@ -6,7 +6,7 @@ export default async function (compiler: NexeCompiler, next: () => Promise<void>
   compiler.shims.push(
     wrap(
       '' +
-        '{{replace:lib/fs/patch.js}}' +
+        '{{ file("lib/fs/patch.js") }}' +
         '\nshimFs(process.__nexe)' +
         `\n${compiler.options.fs ? '' : 'restoreFs()'}`
       //TODO support only restoring specific methods
