@@ -1,432 +1,107 @@
-import { Stats } from 'fs'
-import { getLatestGitRelease } from '../releases'
+import { ZipFS, getLibzipSync } from '@yarnpkg/libzip'
+import { patchFs, npath, PosixFS, NodeFS } from '@yarnpkg/fslib'
+import { SnapshotZipFS } from './SnapshotZipFS'
+import * as assert from 'assert'
+import * as constants from 'constants'
+import { dirname } from 'path'
 
-export interface NexeBinary {
+export interface NexeHeader {
   blobPath: string
-  resources: { [key: string]: number[] }
   layout: {
-    stat: Stats
     resourceStart: number
-    contentSize?: number
-    contentStart?: number
-    resourceSize?: number
+    resourceSize: number
+    contentSize: number
+    contentStart: number
   }
 }
 
 let originalFsMethods: any = null
 let lazyRestoreFs = () => {}
+const patches = (process as any).nexe.patches || {}
+const originalPatches = { ...patches }
+delete (process as any).nexe
 
-// optional Win32 file namespace prefix followed by drive letter and colon
-const windowsFullPathRegex = /^(\\{2}\?\\)?([a-zA-Z]):/
-
-const upcaseDriveLetter = (s: string): string =>
-  s.replace(windowsFullPathRegex, (_match, ns, drive) => `${ns || ''}${drive.toUpperCase()}:`)
-
-function shimFs(binary: NexeBinary, fs: any = require('fs')) {
+function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   if (originalFsMethods !== null) {
     return
   }
+
   originalFsMethods = Object.assign({}, fs)
-  const { blobPath, resources: manifest } = binary,
-    { resourceStart, stat } = binary.layout,
-    directories: { [key: string]: { [key: string]: boolean } } = {},
-    notAFile = '!@#$%^&*',
-    isWin = process.platform.startsWith('win'),
-    isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
-    noop = () => {},
-    path = require('path'),
-    winPath: (key: string) => string = isWin ? upcaseDriveLetter : (s) => s,
-    baseDir = winPath(path.dirname(process.execPath))
+
+  const realFs: typeof fs = { ...fs }
+  const nodeFs = new NodeFS(realFs)
+
+  const blob = Buffer.allocUnsafe(binary.layout.resourceSize)
+  const blobFd = realFs.openSync(binary.blobPath, 'r')
+  const bytesRead = realFs.readSync(
+    blobFd,
+    blob,
+    0,
+    binary.layout.resourceSize,
+    binary.layout.resourceStart
+  )
+  assert.equal(bytesRead, binary.layout.resourceSize)
+
+  const zipFs = new ZipFS(blob, { readOnly: true })
+  const snapshotZipFS = new SnapshotZipFS({
+    libzip: getLibzipSync(),
+    zipFs,
+    baseFs: nodeFs,
+    root: dirname(process.argv[0]),
+  })
+  const posixSnapshotZipFs = new PosixFS(snapshotZipFS)
+  patchFs(fs, posixSnapshotZipFs)
+  const { readFileSync } = fs
 
   let log = (_: string) => true
-  let loggedManifest = false
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
+    process.stderr.write(
+      // @ts-ignore
+      `[nexe] - FILES ${JSON.stringify(Array.from(zipFs.entries.keys()), null, 4)}\n`
+    )
+    process.stderr.write(
+      // @ts-ignore
+      `[nexe] - DIRECTORIES ${JSON.stringify(Array.from(zipFs.listings.keys()), null, 4)}\n`
+    )
     log = (text: string) => {
-      setupManifest()
-      if (!loggedManifest) {
-        process.stderr.write('[nexe] - MANIFEST' + JSON.stringify(manifest, null, 4) + '\n')
-        process.stderr.write('[nexe] - DIRECTORIES' + JSON.stringify(directories, null, 4) + '\n')
-        loggedManifest = true
-      }
-      return process.stderr.write('[nexe] - ' + text + '\n')
+      return process.stderr.write(`[nexe] - ${text}\n`)
     }
   }
-
-  const getKey = function getKey(filepath: string | Buffer | null): string {
-    if (Buffer.isBuffer(filepath)) {
-      filepath = filepath.toString()
-    }
-    if (!isString(filepath)) {
-      return notAFile
-    }
-    let key = path.resolve(baseDir, filepath)
-
-    return winPath(key)
-  }
-
-  const statTime = function () {
-    return {
-      atime: new Date(stat.atime),
-      mtime: new Date(stat.mtime),
-      ctime: new Date(stat.ctime),
-      birthtime: new Date(stat.birthtime),
+  function internalModuleReadFile(this: any, original: any, ...args: any[]) {
+    log(`internalModuleReadFile ${args[0]}`)
+    try {
+      return fs.readFileSync(args[0], 'utf-8')
+    } catch (e) {
+      return ''
     }
   }
-
-  let BigInt: Function
-  try {
-    BigInt = eval('BigInt')
-  } catch (ignored) {}
-
-  const minBlocks = Math.max(Math.ceil(stat.blksize / 512), 1)
-  const createStat = function (extensions: any, options: any) {
-    const stat = Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
-    if ('size' in extensions) {
-      //Assume non adjustable allocation size for file system
-      stat.blocks = Math.ceil(stat.size / stat.blksize) * minBlocks
-    }
-    if (options && options.bigint && typeof BigInt !== 'undefined') {
-      for (const k in stat) {
-        if (Object.prototype.hasOwnProperty.call(stat, k) && typeof stat[k] === 'number') {
-          stat[k] = BigInt(stat[k])
-        }
-      }
-    }
-    return stat
-  }
-
-  const ownStat = function (filepath: any, options: any) {
-    setupManifest()
-    const key = getKey(filepath)
-    if (directories[key]) {
-      let mode = binary.layout.stat.mode
-      mode |= fs.constants.S_IFDIR
-      mode &= ~fs.constants.S_IFREG
-      return createStat({ mode, size: 0 }, options)
-    }
-    if (manifest[key]) {
-      return createStat({ size: manifest[key][1] }, options)
-    }
-  }
-
-  const getStat = function (fn: string) {
-    return function stat(filepath: string | Buffer, options: any, callback: any) {
-      let stat: any
-      if (typeof options === 'function') {
-        callback = options
-        stat = ownStat(filepath, null)
-      } else {
-        stat = ownStat(filepath, options)
-      }
-      if (stat) {
-        process.nextTick(() => {
-          callback(null, stat)
-        })
-      } else {
-        return originalFsMethods[fn].apply(fs, arguments)
-      }
-    }
-  }
-
-  function makeLong(filepath: string) {
-    return (path as any)._makeLong && (path as any)._makeLong(filepath)
-  }
-
-  function fileOpts(options: any) {
-    return !options ? {} : isString(options) ? { encoding: options } : options
-  }
-
-  let setupManifest = () => {
-    Object.keys(manifest).forEach((filepath) => {
-      const entry = manifest[filepath]
-      const absolutePath = getKey(filepath)
-      const longPath = makeLong(absolutePath)
-      const normalizedPath = winPath(path.normalize(filepath))
-
-      if (!manifest[absolutePath]) {
-        manifest[absolutePath] = entry
-      }
-      if (longPath && !manifest[longPath]) {
-        manifest[longPath] = entry
-      }
-      if (!manifest[normalizedPath]) {
-        manifest[normalizedPath] = manifest[filepath]
-      }
-
-      let currentDir = path.dirname(absolutePath)
-      let prevDir = absolutePath
-
-      while (currentDir !== prevDir) {
-        directories[currentDir] = directories[currentDir] || {}
-        directories[currentDir][path.basename(prevDir)] = true
-        const longDir = makeLong(currentDir)
-        if (longDir && !directories[longDir]) {
-          directories[longDir] = directories[currentDir]
-        }
-        prevDir = currentDir
-        currentDir = path.dirname(currentDir)
-      }
-    })
-    ;(manifest[notAFile] as any) = false
-    ;(directories[notAFile] as any) = false
-    setupManifest = noop
-  }
-
-  //naive patches intended to work for most use cases
-  const nfs: any = {
-    existsSync: function existsSync(filepath: string) {
-      setupManifest()
-      const key = getKey(filepath)
-      if (manifest[key] || directories[key]) {
-        return true
-      }
-      return originalFsMethods.existsSync.apply(fs, arguments)
-    },
-    realpath: function realpath(filepath: any, options: any, cb: any): void {
-      setupManifest()
-      const key = getKey(filepath)
-      if (isString(filepath) && (manifest[filepath] || manifest[key])) {
-        return process.nextTick(() => cb(null, filepath))
-      }
-      return originalFsMethods.realpath.call(fs, filepath, options, cb)
-    },
-    realpathSync: function realpathSync(filepath: any, options: any) {
-      setupManifest()
-      const key = getKey(filepath)
-      if (manifest[key]) {
-        return filepath
-      }
-      return originalFsMethods.realpathSync.call(fs, filepath, options)
-    },
-    readdir: function readdir(filepath: string | Buffer, options: any, callback: any) {
-      setupManifest()
-      const dir = directories[getKey(filepath)]
-      if (dir) {
-        if ('function' === typeof options) {
-          callback = options
-          options = { encoding: 'utf8' }
-        }
-        process.nextTick(() => callback(null, Object.keys(dir)))
-      } else {
-        return originalFsMethods.readdir.apply(fs, arguments)
-      }
-    },
-    readdirSync: function readdirSync(filepath: string | Buffer, options: any) {
-      setupManifest()
-      const dir = directories[getKey(filepath)]
-      if (dir) {
-        return Object.keys(dir)
-      }
-      return originalFsMethods.readdirSync.apply(fs, arguments)
-    },
-
-    readFile: function readFile(filepath: any, options: any, callback: any) {
-      setupManifest()
-      const entry = manifest[getKey(filepath)]
-      if (!entry) {
-        return originalFsMethods.readFile.apply(fs, arguments)
-      }
-      const [offset, length] = entry
-      const resourceOffset = resourceStart + offset
-      const encoding = fileOpts(options).encoding
-      callback = typeof options === 'function' ? options : callback
-
-      originalFsMethods.open(blobPath, 'r', function (err: Error, fd: number) {
-        if (err) return callback(err, null)
-        originalFsMethods.read(
-          fd,
-          Buffer.alloc(length),
-          0,
-          length,
-          resourceOffset,
-          function (error: Error, bytesRead: number, result: Buffer) {
-            if (error) {
-              return originalFsMethods.close(fd, function () {
-                callback(error, null)
-              })
-            }
-            originalFsMethods.close(fd, function (err: Error) {
-              if (err) {
-                return callback(err, result)
-              }
-              callback(err, encoding ? result.toString(encoding) : result)
-            })
-          }
-        )
-      })
-    },
-    createReadStream: function createReadStream(filepath: any, options: any) {
-      setupManifest()
-      const entry = manifest[getKey(filepath)]
-      if (!entry) {
-        return originalFsMethods.createReadStream.apply(fs, arguments)
-      }
-      const [offset, length] = entry
-      const resourceOffset = resourceStart + offset
-      const opts = fileOpts(options)
-
-      return originalFsMethods.createReadStream(
-        blobPath,
-        Object.assign({}, opts, {
-          start: resourceOffset,
-          end: resourceOffset + length - 1,
-        })
-      )
-    },
-    readFileSync: function readFileSync(filepath: any, options: any) {
-      setupManifest()
-      const entry = manifest[getKey(filepath)]
-      if (!entry) {
-        return originalFsMethods.readFileSync.apply(fs, arguments)
-      }
-      const [offset, length] = entry
-      const resourceOffset = resourceStart + offset
-      const encoding = fileOpts(options).encoding
-      const fd = originalFsMethods.openSync(process.execPath, 'r')
-      const result = Buffer.alloc(length)
-      originalFsMethods.readSync(fd, result, 0, length, resourceOffset)
-      originalFsMethods.closeSync(fd)
-      return encoding ? result.toString(encoding) : result
-    },
-    statSync: function statSync(filepath: string | Buffer, options: any) {
-      const stat = ownStat(filepath, options)
-      if (stat) {
-        return stat
-      }
-      return originalFsMethods.statSync.apply(fs, arguments)
-    },
-    stat: getStat('stat'),
-    lstat: getStat('lstat'),
-    lstatSync: function statSync(filepath: string | Buffer, options: any) {
-      const stat = ownStat(filepath, options)
-      if (stat) {
-        return stat
-      }
-      return originalFsMethods.lstatSync.apply(fs, arguments)
-    },
-  }
-  if (typeof fs.exists === 'function') {
-    nfs.exists = function (filepath: string, cb: Function) {
-      cb = cb || noop
-      const exists = nfs.existsSync(filepath)
-      process.nextTick(() => cb(exists))
-    }
-  }
-
-  const patches = (process as any).nexe.patches || {}
-  delete (process as any).nexe
-  patches.internalModuleReadFile = function (this: any, original: any, ...args: any[]) {
-    setupManifest()
-    const filepath = getKey(args[0])
-    if (manifest[filepath]) {
-      log('read     (hit)              ' + filepath)
-      return nfs.readFileSync(filepath, 'utf-8')
-    }
-    log('read          (miss)       ' + filepath)
-    return original.call(this, ...args)
+  if (patches.internalModuleReadFile) {
+    patches.internalModuleReadFile = internalModuleReadFile
   }
   let returningArray: boolean
   patches.internalModuleReadJSON = function (this: any, original: any, ...args: any[]) {
     if (returningArray == null) returningArray = Array.isArray(original.call(this, ''))
-    const res = patches.internalModuleReadFile.call(this, original, ...args)
+    const res = internalModuleReadFile.call(this, original, ...args)
     return returningArray && !Array.isArray(res)
       ? [res, /"(main|name|type|exports|imports)"/.test(res)]
       : res
   }
   patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
-    setupManifest()
-    const filepath = getKey(args[0])
-    if (manifest[filepath]) {
-      log('stat     (hit)              ' + filepath + '   ' + 0)
+    log(`internalModuleStat ${args[0]}`)
+    try {
+      const stat = fs.statSync(args[0])
+      if (stat.isDirectory()) return 1
       return 0
-    }
-    if (directories[filepath]) {
-      log('stat dir (hit)              ' + filepath + '   ' + 1)
-      return 1
-    }
-    const res = original.call(this, ...args)
-    if (res === 0) {
-      log('stat          (miss)        ' + filepath + '   ' + res)
-    } else if (res === 1) {
-      log('stat dir      (miss)        ' + filepath + '   ' + res)
-    } else {
-      log('stat                 (fail) ' + filepath + '   ' + res)
-    }
-    return res
-  }
-
-  if (typeof fs.exists === 'function') {
-    nfs.exists = function (filepath: string, cb: Function) {
-      cb = cb || noop
-      const exists = nfs.existsSync(filepath)
-      if (!exists) {
-        return originalFsMethods.exists(filepath, cb)
-      }
-      process.nextTick(() => cb(exists))
+    } catch (e) {
+      return -constants.ENOENT
     }
   }
-
-  if (typeof fs.copyFile === 'function') {
-    nfs.copyFile = function (filepath: string, dest: string, flags: number, callback: Function) {
-      setupManifest()
-      const entry = manifest[getKey(filepath)]
-      if (!entry) {
-        return originalFsMethods.copyFile.apply(fs, arguments)
-      }
-      if (typeof flags === 'function') {
-        callback = flags
-        flags = 0
-      }
-      nfs.readFile(filepath, (err: any, buffer: any) => {
-        if (err) {
-          return callback(err)
-        }
-        originalFsMethods.writeFile(dest, buffer, (err: any) => {
-          if (err) {
-            return callback(err)
-          }
-          callback(null)
-        })
-      })
-    }
-    nfs.copyFileSync = function (filepath: string, dest: string) {
-      setupManifest()
-      const entry = manifest[getKey(filepath)]
-      if (!entry) {
-        return originalFsMethods.copyFileSync.apply(fs, arguments)
-      }
-      return originalFsMethods.writeFileSync(dest, nfs.readFileSync(filepath))
-    }
-  }
-
-  if (typeof fs.realpath.native === 'function') {
-    nfs.realpath.native = function realpathNative(filepath: any, options: any, cb: any): void {
-      setupManifest()
-      const key = getKey(filepath)
-      if (isString(filepath) && (manifest[filepath] || manifest[key])) {
-        return process.nextTick(() => cb(null, filepath))
-      }
-      return originalFsMethods.realpath.native.call(fs, filepath, options, cb)
-    }
-    nfs.realpathSync.native = function realpathSyncNative(filepath: any, options: any) {
-      setupManifest()
-      const key = getKey(filepath)
-      if (manifest[key]) {
-        return filepath
-      }
-      return originalFsMethods.realpathSync.native.call(fs, filepath, options)
-    }
-  }
-
-  Object.assign(fs, nfs)
 
   lazyRestoreFs = () => {
-    Object.keys(nfs).forEach((key) => {
-      fs[key] = originalFsMethods[key]
-    })
+    Object.assign(fs, originalFsMethods)
+    Object.assign(patches, originalPatches)
     lazyRestoreFs = () => {}
   }
-  return true
 }
 
 function restoreFs() {

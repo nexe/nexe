@@ -138,7 +138,7 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer | string | File | null) {
+  addResource(absoluteFileName: string, content?: Buffer | string | File) {
     return this.bundle.addResource(absoluteFileName, content)
   }
 
@@ -298,13 +298,19 @@ export class NexeCompiler {
     const sentinel = Buffer.from('<nexe~~sentinel>')
 
     let vfsSize = 0
-    const streams = [binary, toStream(launchCode), this.bundle.toStream().pipe(new Transform({
-      transform: (chunk, _, cb) => {
-        vfsSize || this.bundle.finalize()
-        chunk && (vfsSize += chunk.length)
-        cb(null, chunk)
-      },
-    }))]
+    const streams = [
+      binary,
+      toStream(launchCode),
+      this.bundle.toStream().pipe(
+        new Transform({
+          transform: (chunk, _, cb) => {
+            vfsSize || this.bundle.finalize()
+            chunk && (vfsSize += chunk.length)
+            cb(null, chunk)
+          },
+        })
+      ),
+    ]
 
     let done = false
     return new MultiStream((cb) => {

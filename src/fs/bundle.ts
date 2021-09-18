@@ -29,7 +29,7 @@ export class Bundle {
     return Array.from(this.files)
   }
 
-  public addResource(absoluteFileName: string, content?: File | Buffer | string | null) {
+  public addResource(absoluteFileName: string, content?: File | Buffer | string) {
     const destPath = makeRelativeToZip(this.cwd, absoluteFileName)
     if (!this.files.has(destPath)) {
       if (content == null) {
