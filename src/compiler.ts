@@ -16,9 +16,11 @@ import {
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
+import { PassThrough, Readable, Stream, Transform } from 'stream'
 import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
 import { File } from 'resolve-dependencies'
+import { FactoryStream, LazyStream } from 'multistream'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -136,7 +138,7 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer | string | File) {
+  addResource(absoluteFileName: string, content?: Buffer | string | File | null) {
     return this.bundle.addResource(absoluteFileName, content)
   }
 
@@ -287,24 +289,34 @@ export class NexeCompiler {
     return [this.shims.join(''), this.startup].join(';')
   }
 
-  private async _assembleDeliverable(binary: NodeJS.ReadableStream) {
+  private async _assembleDeliverable(binary: Readable) {
     if (!this.options.mangle) {
       return binary
     }
-    const resources = this.bundle.renderIndex()
-    this.shims.unshift(wrap(`process.__nexe = ${JSON.stringify({ resources })};\n`))
+    const launchCode = this.code()
+    const codeSize = Buffer.byteLength(launchCode)
+    const sentinel = Buffer.from('<nexe~~sentinel>')
 
-    const code = this.code(),
-      codeSize = Buffer.byteLength(code),
-      lengths = Buffer.from(Array(16))
+    let vfsSize = 0
+    const streams = [binary, toStream(launchCode), this.bundle.toStream().pipe(new Transform({
+      transform: (chunk, _, cb) => {
+        vfsSize || this.bundle.finalize()
+        chunk && (vfsSize += chunk.length)
+        cb(null, chunk)
+      },
+    }))]
 
-    lengths.writeDoubleLE(codeSize, 0)
-    lengths.writeDoubleLE(this.bundle.size, 8)
-    return new (MultiStream as any)([
-      binary,
-      toStream(code),
-      this.bundle.toStream(),
-      toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths])),
-    ])
+    let done = false
+    return new MultiStream((cb) => {
+      if (done) cb(null, null)
+      else if (streams.length) cb(null, streams.shift() as Readable)
+      else {
+        done = true
+        const trailers = Buffer.alloc(16)
+        trailers.writeDoubleLE(codeSize, 0)
+        trailers.writeDoubleLE(vfsSize, 8)
+        cb(null, toStream(Buffer.concat([sentinel, trailers])))
+      }
+    })
   }
 }
