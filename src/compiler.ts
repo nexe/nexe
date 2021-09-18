@@ -136,7 +136,7 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer | string | File) {
+  addResource(absoluteFileName: string, content?: Buffer | string | File | null) {
     return this.bundle.addResource(absoluteFileName, content)
   }
 
@@ -291,19 +291,20 @@ export class NexeCompiler {
     if (!this.options.mangle) {
       return binary
     }
-    const resources = this.bundle.renderIndex()
-    this.shims.unshift(wrap(`process.__nexe = ${JSON.stringify({ resources })};\n`))
 
     const code = this.code(),
       codeSize = Buffer.byteLength(code),
       lengths = Buffer.from(Array(16))
 
+    const bundleBuffer = await this.bundle.toBuffer()
+
     lengths.writeDoubleLE(codeSize, 0)
-    lengths.writeDoubleLE(this.bundle.size, 8)
+    lengths.writeDoubleLE(bundleBuffer.length, 8)
+
     return new (MultiStream as any)([
       binary,
       toStream(code),
-      this.bundle.toStream(),
+      toStream(bundleBuffer),
       toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths])),
     ])
   }

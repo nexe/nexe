@@ -61,9 +61,11 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     compiler.entrypoint = './' + relative(cwd, input)
   }
 
-  const { files, warnings } = resolveFiles(
+  const step = compiler.log.step('Resolving dependencies...')
+
+  const { files, warnings } = await resolveFiles(
     input,
-    ...Object.keys(compiler.bundle.list).filter((x) => x.endsWith('.js')),
+    ...Object.keys(compiler.bundle.list).filter((x) => x.endsWith('.js') || x.endsWith('.mjs')),
     { cwd, expand: 'variable', loadContent: false }
   )
 
@@ -76,8 +78,9 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   //TODO: warnings.forEach((x) => console.log(x))
 
   await Promise.all(
-    Object.entries(files).map(([key, file]) => {
-      return compiler.addResource(key, file)
+    Object.entries(files).map(([key]) => {
+      step.log(`Including dependency: ${key}`)
+      return compiler.addResource(key)
     })
   )
 
