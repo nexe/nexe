@@ -136,7 +136,7 @@ export class NexeCompiler {
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer | string | File | null) {
+  addResource(absoluteFileName: string, content?: Buffer | string | File) {
     return this.bundle.addResource(absoluteFileName, content)
   }
 
