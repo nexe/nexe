@@ -47,7 +47,7 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install -y libc6-dev-i386 gcc-multilib g++-multilib
     condition: contains(variables['Agent.JobName'], 'linux')
     displayName: Install Linux build dependencies
-  - script: choco install visualcpp-build-tools --version 14.0.25420.1 -fy && npm config set msvs_version 2015
+  - script: npm config set msvs_version 2015
     condition: contains(variables['Agent.JobName'], 'windows_2015')
     displayName: Install Windows build dependencies
   - script: npm install && npm run ci:build
