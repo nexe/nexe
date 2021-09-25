@@ -11,6 +11,10 @@
   "scripts": {
     "ci:build": "ts-node tasks/build",
     "test": "mocha",
+    "test:integration": "node index.js --build -i test/integration/index.js -o integration-tests --verbose -r test/integration -r node_modules/ && npm run test:integration:run",
+    "test:integration:run": "run-script-os",
+    "test:integration:run:win32": "integration-tests.exe",
+    "test:integration:run:default": "./integration-tests",
     "lint": "tslint \"{src,plugins,tasks}/**/*.ts\" --fix",
     "prepare": "npm run lint && npm run build && npm test",
     "prebuild": "rimraf lib",
@@ -59,6 +63,7 @@
     "ora": "^3.4.0",
     "resolve-dependencies": "^6.0.8",
     "rimraf": "^3.0.2",
+    "run-script-os": "^1.1.6",
     "webpack-config-prefabs": "0.0.5"
   },
   "devDependencies": {
