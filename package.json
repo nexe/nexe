@@ -11,7 +11,7 @@
   "scripts": {
     "ci:build": "ts-node tasks/build",
     "test": "mocha",
-    "test:integration": "node index.js --build -i test/integration/index.js -o integration-tests --verbose -r test/integration -r node_modules/ && npm run test:integration:run",
+    "test:integration": "node index.js --target 14.15.3 -i test/integration/index.js -o integration-tests --verbose -r test/integration -r node_modules/ && npm run test:integration:run",
     "test:integration:run": "run-script-os",
     "test:integration:run:win32": "integration-tests.exe",
     "test:integration:run:default": "./integration-tests",
