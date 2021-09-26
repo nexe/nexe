@@ -1,3 +1,4 @@
+
 <p align="center"><img src="https://cloud.githubusercontent.com/assets/2391349/23598327/a17bb68a-01ee-11e7-8f55-88a5fc96e997.png" /></p>
 
 <p align="center">
@@ -26,6 +27,11 @@
 - Flexible build pipeline
 - Cross platform builds
 
+## Installing
+`npm install nexe -g`
+
+If using Windows, after you run the command above, close out of your console session then open a new console (cmd/powershell/pwsh).
+
 ## Usage
 
 - Application entrypoint:
@@ -48,9 +54,54 @@ For more CLI options see: `nexe --help`
 
 Additional files or resources can be added to the binary by passing `-r "glob/pattern/**/*"`. These included files can be read in the application by using `fs.readFile` or `fs.readFileSync`.
 
-## Compiling Node
+## Troubleshooting
 
-By default `nexe` will attempt to download a pre-built executable. These are listed on the [Nexe V3 releases page](https://github.com/nexe/nexe/releases/tag/v3.3.3). The exact version you want may be unavailable or you may want to customize what is built. See `nexe --help` for a list of options available when passing the [`--build`](#build-boolean) option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptable version of python 2. eg. Systems that have python2 will need to create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486).
+`Error: Entry file "" not found!` means you need to provide `nexe` with input. Either use `-i` or pipe data to it.  
+
+`Error: https://github.com/nexe/nexe/releases/download/v3.3.3/windows-x64-15.8.0 is not available, create it using the --build flag` or similar message means that it either:
+- You are having networking issues such as the download being blocked
+- You just to specify the target so `nexe` knows what version of the executable to use.
+	- See the [releases page](https://github.com/nexe/nexe/releases) to find the executable's version number
+	- At the time of writing this, the latest binary build version is `14.5.3` from release version `3.3.3`.
+		- You can replace this with another version from the Releases page if desired.
+	- Example
+		- `nexe -i "app.js" -r "public/**/*.html" -o "dist/myApp.exe" -t x64-14.15.3`
+		- Where `-i` specifies the input, `-r` specifies resources to embed, `-o` specifies the output, `-t` specifies the target.
+	- Alternatively you can compile the executable yourself, see that section for details
+
+## Compiling the nexe Executable
+
+By default `nexe` will attempt to download a pre-built executable. These are listed on the [releases page](https://github.com/nexe/nexe/releases/tag/v3.3.3). The exact version you want may be unavailable or you may want to customize what is built. See `nexe --help` for a list of options available when passing the [`--build`](#build-boolean) option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptable version of python 2. eg. Systems that have python 2 will need to create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486).
+
+### Linux and macOS
+[Prerequisites & details](https://github.com/nodejs/node/blob/master/BUILDING.md#unix-and-macos)
+
+### Windows
+
+The fastest and most reliable way to get started is simply to run the commands below. If you'd rather read the details or perform a manual install of the prerequisites, [you can find that here](https://github.com/nodejs/node/blob/master/BUILDING.md#windows).
+
+The instructions below are the fastest and most reliable method.
+Run the following sets of commands with PowerShell (running as Administrator).
+
+**Install all required build tools (and dependencies):**
+```
+Set-ExecutionPolicy Unrestricted -Force
+iex ((New-Object System.Net.WebClient).DownloadString('https://boxstarter.org/bootstrapper.ps1'))
+get-boxstarter -Force
+Install-BoxstarterPackage https://raw.githubusercontent.com/nodejs/node/master/tools/bootstrap/windows_boxstarter -DisableReboots
+```
+
+**Set config:**
+```
+npm config set msvs_version 2019
+npm config set python python2.7
+```
+Where `2019` is the version of Visual Studio you have (if you have it).
+
+**Notes:**
+- The above works and has been tested with node.js `14.5.4` and `15.8.0`
+- Python 3 and Python 2 can coexist and `nexe` will still work, considering the `set config` area above
+- Don't use `npm install windows-build-tools` unless you're having some type of issue, because the above commands configures and installs the latest/preferred too.
 
 ## Node.js API
 
