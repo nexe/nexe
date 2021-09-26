@@ -1,0 +1,21 @@
+name: No Response
+
+# Both `issue_comment` and `scheduled` event types are required for this Action
+# to work properly.
+on:
+  issue_comment:
+    types: [created]
+  schedule:
+    # 9AM Central
+    - cron: '0 14 * * *'
+
+jobs:
+  noResponse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lee-dohm/no-response@v0.5.0
+        with:
+          token: ${{ github.token }}
+          closeComment: 'Closed awaiting response from OP, please open a new issue with the requested information and/or examples'
+          daysUntilClose: 21
+          responseRequiredLabel: more-information-needed

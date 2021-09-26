@@ -69,7 +69,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       atime: new Date(stat.atime),
       mtime: new Date(stat.mtime),
       ctime: new Date(stat.ctime),
-      birthtime: new Date(stat.birthtime)
+      birthtime: new Date(stat.birthtime),
     }
   }
 
