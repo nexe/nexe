@@ -38,7 +38,7 @@ async function fetchPrebuiltBinary(compiler: NexeCompiler, step: any) {
         })
       }
     )
-  } catch (e) {
+  } catch (e: any) {
     if (e.statusCode === 404) {
       throw new NexeError(`${remoteAsset} is not available, create it using the --build flag`)
     } else {

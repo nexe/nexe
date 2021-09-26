@@ -203,7 +203,7 @@ export class NexeCompiler {
     if (this.log.verbose) {
       this.compileStep!.pause()
     }
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,

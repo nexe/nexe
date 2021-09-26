@@ -1,6 +1,6 @@
 import { NexeTarget, architectures } from '../lib/target'
 import { writeFileAsync, readFileAsync } from '../lib/util'
-import got = require('got')
+import got from 'got'
 import execa = require('execa')
 import { appendFileSync } from 'fs'
 

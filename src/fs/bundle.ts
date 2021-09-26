@@ -35,6 +35,7 @@ async function createFile(absoluteFileName: string) {
   const stats = await lstat(absoluteFileName),
     file: File = {
       size: stats.size,
+      moduleType: 'commonjs',
       contents: '',
       absPath: absoluteFileName,
       deps: {},
@@ -77,6 +78,7 @@ export class Bundle {
     if (typeof content === 'string' || Buffer.isBuffer(content)) {
       this.files[absoluteFileName] = {
         size: Buffer.byteLength(content),
+        moduleType: 'commonjs',
         contents: content as any, //todo type is wrong here... should allow buffer
         deps: {},
         absPath: absoluteFileName,
@@ -86,6 +88,7 @@ export class Bundle {
     } else {
       this.files[absoluteFileName] = {
         absPath: absoluteFileName,
+        moduleType: 'commonjs',
         contents: '',
         deps: {},
         size: 0,

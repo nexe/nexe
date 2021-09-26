@@ -15,7 +15,7 @@ async function compile(
   compilerOptions?: Partial<NexeOptions>,
   callback?: (err: Error | null) => void
 ) {
-  let error = null,
+  let error: Error | null = null,
     options: NexeOptions | null = null,
     compiler: NexeCompiler | null = null
 
@@ -32,7 +32,7 @@ async function compile(
       options.build ? [artifacts, ...patches, ...(options.patches as NexePatch[])] : [],
       options.plugins as NexePatch[]
     )(compiler)
-  } catch (e) {
+  } catch (e: any) {
     error = e
   }
 
