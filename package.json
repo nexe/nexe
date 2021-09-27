@@ -14,7 +14,7 @@
     "lint": "tslint \"{src,plugins,tasks}/**/*.ts\" --fix",
     "prepare": "npm run lint && npm run build && npm test",
     "prebuild": "rimraf lib",
-    "build": "tsc --declaration",
+    "build": "tsc --declaration && tsc tasks/*.ts --noEmit --skipLibCheck",
     "postbuild": "ts-node tasks/post-build"
   },
   "repository": {
