@@ -63,6 +63,7 @@
     "@types/mkdirp": "^1.0.2",
     "@types/mocha": "^9.0.0",
     "@types/multistream": "^2.1.1",
+    "@types/node": "^16.10.2",
     "@types/ora": "^3.2.0",
     "@types/rimraf": "3.0.2",
     "@types/semver": "^7.3.8",
