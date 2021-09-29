@@ -59,6 +59,7 @@
     "@types/chai": "^4",
     "@types/download": "^6",
     "@types/globby": "^9",
+    "@types/got": "^9.6.12",
     "@types/minimist": "^1.2.2",
     "@types/mkdirp": "^1.0.2",
     "@types/mocha": "^9.0.0",
