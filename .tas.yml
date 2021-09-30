@@ -1,0 +1,25 @@
+---
+framework: "jest"
+blacklist:
+  - "<location>#<suit-name>#<test-name>"
+  - "<location>#<suit-name>#<test-name>"
+  - "src/test/api.js"
+modifiers:
+  - type: mocha
+    config: cnf/mocha.ini
+  - type: jest
+    cli: "--forbid-pending --no-bail"
+postMerge:
+  pattern:
+    - "**/*.integration.js"
+    - e2e/**/*.test.js
+  strategy:
+    threshold: <5|100s|30m|6h>
+    type: <commit|time>
+preMerge:
+  pattern:
+    - "test/unit/adapters/http.js"
+preRun:
+  - npm ci
+postRun:
+  - echo 'Done'
