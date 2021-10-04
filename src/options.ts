@@ -109,7 +109,7 @@ ${c.bold('nexe <entry-file> [options]')}
    ${c.underline.bold('Building from source:')}
 
   -b   --build                      -- build from source
-  -p   --python                     -- python2 (as python) executable path
+  -p   --python                     -- python3 (as python) executable path
   -f   --flag                       -- *v8 flags to include during compilation
   -c   --configure                  -- *arguments to the configure step
   -m   --make                       -- *arguments to the make/build step
