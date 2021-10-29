@@ -261,7 +261,7 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   options.downloadOptions.agent = process.env.HTTPS_PROXY
     ? caw(process.env.HTTPS_PROXY, { protocol: 'https' })
     : options.downloadOptions.agent || require('https').globalAgent
-  options.downloadOptions.rejectUnauthorized = process.env.HTTPS_PROXY ? false : true
+  options.downloadOptions.rejectUnauthorized = process.env.NODE_TLS_REJECT_UNAUTHORIZED ? false : true
 
   options.rc = options.rc || extractCliMap(/^rc-.*/, options)
   options.output =
