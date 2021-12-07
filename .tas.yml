@@ -10,6 +10,8 @@ preMerge:
   pattern:
     - "./test/**/*.spec.ts"
 preRun:
+   secret:
+   testing:  "{{secretvalue}}" 
    command:
      - npm ci
 postRun:
