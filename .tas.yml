@@ -11,7 +11,7 @@ preMerge:
     - "./test/**/*.spec.ts"
 preRun:
    secret:
-   testing:  "{{secretvalue}}" 
+       testing:  "{{secretvalue}}" 
    command:
      - npm ci
 postRun:
