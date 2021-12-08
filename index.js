@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-# testing
+# testing sfsd
 const options = require('./lib/options')
 if (require.main === module) {
   //fast path for help/version
