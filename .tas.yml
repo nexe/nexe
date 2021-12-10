@@ -1,5 +1,16 @@
 ---
 framework: mocha
+postMerge: 
+  env: 
+    envname11: postmerge1
+    envname12: postmerge2
+  secret:
+    postmergesecretname: "{{secretvalue}}"  
+  pattern: 
+    - ./test/algorithms/geometric-test.js
+  strategy: 
+    threshold: <5|100s|30m|6h>
+    type: <commit|time>
 preMerge:
   pattern:
     - "./test/**/*.spec.ts"
