@@ -16,7 +16,7 @@ preMerge:
 preRun:
      env:
          envname1: "prerun"
-         testing: ${{ secrets.AWS_Dummy_Key }}
+         testing: Key testing string ${{ secrets.AWS_Dummy_Key }} done
      command:
         - ${{ secrets.NPM_CI }}
 postRun:
