@@ -4,8 +4,6 @@ postMerge:
   env: 
     envname11: postmerge1
     envname12: postmerge2
-  secret:
-    postmergesecretname: "{{secretvalue}}"  
   pattern: 
     - "./test/**/*.spec.ts"
   strategy: 
@@ -17,10 +15,9 @@ preMerge:
 preRun:
      env:
          envname1: "prerun"
-     secret:
-         testing: "{{secretvalue}}" 
+         testing: ${{ secrets.AWS_Dummy_Key }}
      command:
-        - npm ci
+        - ${{ secrets.NPM_CI }}
 postRun:
      command:
         - node --version
