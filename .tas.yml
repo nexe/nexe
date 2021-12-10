@@ -1,5 +1,5 @@
 ---
-framework: ${{ secrets.Mocha_Framework }}
+framework: mocha
 postMerge: 
   env: 
     envname11: postmerge1
