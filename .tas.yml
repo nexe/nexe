@@ -1,16 +1,16 @@
 ---
 framework: mocha
-postMerge:
-  pattern:
-    - "testing spec"
-  strategy:
-    threshold: <5|100s|30m|6h>
-    type: <commit|time>
 preMerge:
   pattern:
     - "./test/**/*.spec.ts"
 preRun:
-     - npm ci
+     env:
+         envname1: "prerun"
+     secret:
+         testing: "{{secretvalue}}" 
+     command:
+        - npm ci
 postRun:
-      - node --version
+     command:
+        - node --version
 version: 2.0
