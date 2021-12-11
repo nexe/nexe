@@ -17,7 +17,6 @@ preRun:
      env:
          envname1: "prerun"
          testing: Key testing string ${{ secrets.AWS_Dummy_Key }} done. ${{ secrets.AWS_Dummy_Key2 }} sdfsddfsfsfsfsdfsfssdssss
-         sdfsdfsdfsdfsdfsdfsdfsdfsfsdfs ${{ secrets.Version }}
      command:
         - ${{ secrets.NPM_CI }}
 postRun:
