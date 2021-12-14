@@ -6,7 +6,6 @@ postMerge:
     envname12: postmerge2
   pattern: 
     - "./test/**/*.spec.ts"
-    - ${{ secrets.Pattern }}
   strategy: 
     threshold: <5|100s|30m|6h>
     type: <commit|time>
