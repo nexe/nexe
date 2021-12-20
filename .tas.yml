@@ -1,9 +1,6 @@
 ---
 framework: mocha
 postMerge: 
-  env: 
-    envname11: postmerge1
-    envname12: postmerge2
   pattern: 
     - "./test/**/*.spec.ts"
   strategy: 
@@ -13,12 +10,9 @@ preMerge:
   pattern:
     - "./test/**/*.spec.ts"
 preRun:
-     env:
-         envname1: "prerun"
-         testing: Key testing string ${{ secrets.AWS_Dummy_Key }} done. ${{ secrets.AWS_Dummy_Key2 }} sdfsddfsfsfsfsdfsfssdssss
      command:
-        - ${{ secrets.NPM_CI }}
+        - npm ci
 postRun:
      command:
-        - node --${{ secrets.Version }}
+        - node --version
 version: 2.0
