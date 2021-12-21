@@ -1,5 +1,6 @@
 ---
 framework: mocha
+licenseTier: xsmall
 postMerge: 
   pattern: 
     - "./test/**/*.spec.ts"
