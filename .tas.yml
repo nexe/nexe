@@ -1,6 +1,6 @@
 ---
 framework: mocha
-tier: xsmall
+tier: xsmallsdfsdf
 postMerge: 
   pattern: 
     - "./test/**/*.spec.ts"
