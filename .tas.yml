@@ -3,9 +3,9 @@ framework: mocha
 postMerge: 
   pattern: 
     - "./test/**/*.spec.ts"
-    strategy:
-       threshold: 2
-       name: "after_n_commits"
+  strategy: 
+    threshold: 2
+    name: after_n_commits
 preMerge:
   pattern:
     - "./test/**/*.spec.ts"
