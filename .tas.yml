@@ -1,10 +1,10 @@
 ---
 framework: mocha
 postMerge: 
+  isactive: false
   pattern: 
     - "./test/**/*.spec.ts"
   strategy:
-    isactive: 0
     threshold: 2
     name: after_n_commits
 preMerge:
