@@ -1,5 +1,6 @@
 ---
 framework: mocha
+tier: xsmall
 postMerge:
   isActive: false
   pattern: 
