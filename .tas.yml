@@ -1,7 +1,7 @@
 ---
 framework: mocha
 postMerge: 
-  isactive: false
+  isActive: false
   pattern: 
     - "./test/**/*.spec.ts"
   strategy:
