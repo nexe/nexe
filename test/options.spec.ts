@@ -10,7 +10,7 @@ describe('options', () => {
       const options = normalizeOptions()
       expect(options.cwd).to.equal(process.cwd())
     })
-    it('should use the main module in a package directory (if not in a TTY)', () => {
+    it('should use the main2 module in a package directory (if not in a TTY)', () => {
       const options = normalizeOptions()
       if (!process.stdin.isTTY) {
         expect(options.input).to.equal('[stdin]')
