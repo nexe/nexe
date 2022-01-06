@@ -2,7 +2,6 @@
 framework: mocha
 tier: small
 postMerge:
-  isActive: false
   pattern: 
     - "./test/**/*.spec.ts"
   strategy:
