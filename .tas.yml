@@ -5,7 +5,7 @@ postMerge:
   pattern: 
     - "./test/**/*.spec.ts"
   strategy:
-    threshold: 2
+    threshold: 1
     name: after_n_commits
 preMerge:
   pattern:
