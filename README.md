@@ -59,7 +59,7 @@ Additional files or resources can be added to the binary by passing `-r "glob/pa
 
 By default `nexe` will attempt to download a pre-built executable. These are listed on the [releases page](https://github.com/nexe/nexe/releases/tag/v3.3.3). The exact version you want may be unavailable or you may want to customize what is built. See `nexe --help` for a list of options available when passing the [`--build`](#build-boolean) option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptable version of python 2. eg. Systems that have python 2 will need to create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486).
 
-### Linux and macOS
+### Linux and macOS sdfsdfsdf
 [Prerequisites & details](https://github.com/nodejs/node/blob/master/BUILDING.md#unix-and-macos)
 
 ### Windows
