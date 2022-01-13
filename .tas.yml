@@ -4,9 +4,6 @@ tier: xsmall
 postMerge:
   pattern: 
     - "./test/**/*.spec.ts"
-  strategy:
-    threshold: 1
-    name: after_n_commits
 preMerge:
   pattern:
     - "./test/**/*.spec.ts"
@@ -16,4 +13,4 @@ preRun:
 postRun:
      command:
         - node --version
-version: 2.1
+version: 2.0
