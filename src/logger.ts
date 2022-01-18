@@ -2,7 +2,7 @@ import colors from 'chalk'
 import ora from 'ora'
 
 const frameLength = 120
-
+// fourth commit
 export interface LogStep {
   modify(text: string, color?: string): void
   log(text: string, color?: string): void
