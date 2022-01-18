@@ -82,7 +82,7 @@ function isDirectoryAsync(path: string) {
     .catch(falseOnEnoent)
 }
 /**
- * @param version See if this version is greather than the second one sdfsdf
+ * @param version See if this version is greather than the second one
  * @param operand Version to compare against
  */
 function semverGt(version: string, operand: string) {
