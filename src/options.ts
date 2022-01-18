@@ -108,7 +108,7 @@ ${c.bold('nexe <entry-file> [options]')}
 
    ${c.underline.bold('Building from source:')}
 
-  -b   --build                      -- build from sourcesdfsdf sdfsd
+  -b   --build                      -- build from sourcesdfsdf sdfsdsdfsd
   -p   --python                     -- python2 (as python) executable path
   -f   --flag                       -- *v8 flags to include during compilation
   -c   --configure                  -- *arguments to the configure step
