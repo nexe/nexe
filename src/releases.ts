@@ -8,7 +8,7 @@ export interface GitAsset {
   url: string
   browser_download_url: string
 }
-// firfit commit
+// firfit commit sdfsd
 export interface GitRelease {
   tag_name: string
   assets_url: string
