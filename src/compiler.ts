@@ -25,7 +25,7 @@ const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
 const configure = isWindows ? 'configure' : './configure'
 
 type StringReplacer = (match: string) => string
-
+// sixth commit
 export interface NexeFile {
   filename: string
   absPath: string
