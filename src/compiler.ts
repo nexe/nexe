@@ -43,7 +43,7 @@ export class NexeError extends Error {
 
 export class NexeCompiler {
   /**
-   * Epoch of when compilation started
+   * Epoch of when compilation started sdfsdf
    */
   private start = Date.now()
   private compileStep: LogStep | undefined
