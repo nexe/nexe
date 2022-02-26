@@ -1,0 +1,15 @@
+---
+framework: mocha
+preRun:
+  command:
+    - npm install  
+preMerge:
+  pattern:
+    - "./test/*.spec.ts"
+postMerge:
+  pattern: 
+    - "./test/*.spec.ts"
+postRun:
+  command:
+    - node --version
+version: 1.0
