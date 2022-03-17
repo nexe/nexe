@@ -51,7 +51,7 @@ Additional files or resources can be added to the binary by passing `-r "glob/pa
 
 ## Compiling the nexe Executable
 
-By default `nexe` will attempt to download a pre-built executable. These are listed on the [releases page](https://github.com/nexe/nexe/releases/tag/v3.3.3). The exact version you want may be unavailable or you may want to customize what is built. See `nexe --help` for a list of options available when passing the [`--build`](#build-boolean) option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptable version of python 2. eg. Systems that have python 2 will need to create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486).
+By default `nexe` will attempt to download a pre-built executable. These are listed on the [releases page](https://github.com/nexe/nexe/releases/tag/v3.3.3). The exact version you want may be unavailable or you may want to customize what is built. See `nexe --help` for a list of options available when passing the [`--build`](#build-boolean) option. You will also need to ensure your environment is setup to [build node](https://github.com/nodejs/node/blob/master/BUILDING.md). Note: the `python` binary in your path should be an acceptable version of python 3; you can create a [symlink](https://github.com/nexe/nexe/issues/354#issuecomment-319874486) or use the `--python` parameter (e.g. `nexe --build --python=$(which python3)`).
 
 ### Linux and macOS
 [Prerequisites & details](https://github.com/nodejs/node/blob/master/BUILDING.md#unix-and-macos)
@@ -74,7 +74,7 @@ Install-BoxstarterPackage https://raw.githubusercontent.com/nodejs/node/master/t
 **Set config:**
 ```
 npm config set msvs_version 2019
-npm config set python python2.7
+npm config set python python3.8
 ```
 Where `2019` is the version of Visual Studio you have (if you have it).
 
@@ -154,7 +154,7 @@ compile({
  - #### `asset: string`
     - Provide a pre-built nexe binary asset, this is a file path is resolved relative to cwd.
  - #### `python: string`
-    - On Linux this is the path pointing to your python2 executable
+    - On Linux this is the path pointing to your python3 executable
     - On Windows this is the directory where `python` can be accessed
     - default: `null`
  - #### `flags: string[]`
