@@ -26,7 +26,7 @@ function falseOnEnoent(e: any) {
 }
 
 function padRight(str: string, l: number) {
-  return (str + ' '.repeat(l)).substr(0, l)
+  return (str + ' '.repeat(l)).slice(0, l)
 }
 
 const bound: MethodDecorator = function bound<T>(
