@@ -1,5 +1,5 @@
 import { NexeCompiler } from '../compiler'
-import { parse } from 'cherow'
+import { parse } from 'meriyah'
 import { wrap, semverGt } from '../util'
 
 function walkSome(node: any, visit: Function) {
@@ -37,12 +37,10 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
 
   const file = await compiler.readFileAsync(bootFile),
     ast = parse(file.contents.toString(), {
-      loc: true,
-      tolerant: true,
       next: true,
       globalReturn: true,
-      node: true,
-      skipShebang: true,
+      loc: true,
+      specDeviation: true,
     }),
     location = { start: { line: 0 } }
 
