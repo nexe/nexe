@@ -1,20 +1,21 @@
 if (true) {
-  const __nexe_patches = (process.nexe = { patches: {} }).patches
-  const slice = [].slice
-  const __nexe_noop_patch = function (original) {
-    const args = slice.call(arguments, 1)
+  const patches = (process.nexe = { patches: {} }).patches
+
+  ;["ReadFile", "ReadJSON", "Stat"].forEach((x) => {
+    patch(process.binding("fs"), "internalModule" + x, noop)
+  })
+
+  function noop(original, ...args) {
     return original.apply(this, args)
   }
-  const __nexe_patch = function (obj, method, patch) {
-    const original = obj[method]
+
+  function patch(obj, method, patch) {
+    const original = obj[method];
     if (!original) return
-    __nexe_patches[method] = patch
-    obj[method] = function() {
-      const args = [original].concat(slice.call(arguments))
-      return __nexe_patches[method].apply(this, args)
+    patches[method] = patch
+    obj[method] = function (...args) {
+      args.unshift(original)
+      return patches[method].apply(this, args)
     }
   }
-  __nexe_patch((process).binding('fs'), 'internalModuleReadFile', __nexe_noop_patch)
-  __nexe_patch((process).binding('fs'), 'internalModuleReadJSON', __nexe_noop_patch)
-  __nexe_patch((process).binding('fs'), 'internalModuleStat', __nexe_noop_patch)
 }

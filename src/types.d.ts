@@ -6,6 +6,9 @@ declare module 'got' {
   const got: GotFn
   export = got
 }
+
+declare module 'caw'
+
 declare module 'download' {
   import { Duplex } from 'stream'
   interface DownloadOptions {

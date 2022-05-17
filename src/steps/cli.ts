@@ -1,9 +1,8 @@
-import { dirname, normalize, relative, resolve } from 'path'
-import { createWriteStream, chmodSync, statSync } from 'fs'
+import { dirname, normalize, relative, resolve } from 'node:path'
+import { createWriteStream, chmodSync, statSync, mkdirSync } from 'node:fs'
 import { NexeCompiler } from '../compiler'
 import { NexeTarget } from '../target'
 import { STDIN_FLAG } from '../util'
-import mkdirp = require('mkdirp')
 
 /**
  * The "cli" step detects the appropriate input. If no input options are passed,
@@ -20,11 +19,11 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
   const { log } = compiler,
     target = compiler.options.targets.shift() as NexeTarget,
     deliverable = await compiler.compileAsync(target),
-    output = normalize(compiler.output!)
+    output = normalize(compiler.output)
 
-  mkdirp.sync(dirname(output))
+  mkdirSync(dirname(output), { recursive: true })
 
-  return new Promise((res, rej) => {
+  return await new Promise((res, rej) => {
     const step = log.step('Writing result to file')
     deliverable
       .pipe(createWriteStream(output))

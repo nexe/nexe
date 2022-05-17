@@ -1,28 +1,22 @@
-import { join, dirname } from 'path'
-import * as fs from 'fs'
-import { promisify } from 'util'
-import { readFileAsync, writeFileAsync, isDirectoryAsync } from '../util'
-import mkdirpAsync = require('mkdirp')
+import { join, dirname } from 'node:path'
+import { unlink, readdir, mkdir } from 'node:fs/promises'
+
+import { readFile, writeFile, isDirectory } from '../util'
 import { NexeCompiler } from '../compiler'
 
-const unlinkAsync = promisify(fs.unlink),
-  readdirAsync = promisify(fs.readdir)
-
-function readDirAsync(dir: string): Promise<string[]> {
-  return readdirAsync(dir).then((paths) => {
-    return Promise.all(
-      paths.map((file: string) => {
+async function readDirAsync(dir: string): Promise<string[]> {
+  return await readdir(dir).then(async (paths) => {
+    return await Promise.all(
+      paths.map(async (file: string) => {
         const path = join(dir, file)
-        return isDirectoryAsync(path).then((x) => (x ? readDirAsync(path) : (path as any)))
+        return await isDirectory(path).then((x) => (x ? readDirAsync(path) : (path as any)))
       })
-    ).then((result) => {
-      return [].concat(...(result as any))
-    })
+    ).then((result) => result.flat())
   })
 }
 
-function maybeReadFileContentsAsync(file: string) {
-  return readFileAsync(file, 'utf-8').catch((e) => {
+async function maybeReadFileContentsAsync(file: string) {
+  return await readFile(file, 'utf-8').catch((e) => {
     if (e.code === 'ENOENT') {
       return ''
     }
@@ -40,28 +34,28 @@ function maybeReadFileContentsAsync(file: string) {
  *  - Finally, The patched files are written into source.
  */
 export default async function artifacts(compiler: NexeCompiler, next: () => Promise<void>) {
-  const { src } = compiler
-  const temp = join(src, 'nexe')
-  await mkdirpAsync(temp)
+  const { src } = compiler,
+    temp = join(src, 'nexe')
+  await mkdir(temp, { recursive: true })
   const tmpFiles = await readDirAsync(temp)
 
   await Promise.all(
     tmpFiles.map(async (path) => {
-      return compiler.writeFileAsync(path.replace(temp, ''), await readFileAsync(path, 'utf-8'))
+      return await compiler.writeFileAsync(path.replace(temp, ''), await readFile(path, 'utf-8'))
     })
   )
 
   await next()
 
-  await Promise.all(tmpFiles.map((x) => unlinkAsync(x)))
-  return Promise.all(
+  await Promise.all(tmpFiles.map(async (x) => await unlink(x)))
+  return await Promise.all(
     compiler.files.map(async (file) => {
-      const sourceFile = join(src, file.filename)
-      const tempFile = join(temp, file.filename)
-      const fileContents = await maybeReadFileContentsAsync(sourceFile)
+      const sourceFile = join(src, file.filename),
+        tempFile = join(temp, file.filename),
+        fileContents = await maybeReadFileContentsAsync(sourceFile)
 
-      await mkdirpAsync(dirname(tempFile))
-      await writeFileAsync(tempFile, fileContents)
+      await mkdir(dirname(tempFile), { recursive: true })
+      await writeFile(tempFile, fileContents)
       await compiler.writeFileAsync(file.filename, file.contents)
     })
   )

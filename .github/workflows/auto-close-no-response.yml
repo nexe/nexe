@@ -6,7 +6,6 @@ on:
   issue_comment:
     types: [created]
   schedule:
-    # 9AM Central
     - cron: '0 14 * * *'
 
 jobs:

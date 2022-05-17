@@ -1,5 +1,7 @@
-import { Stats } from 'fs'
-import { getLatestGitRelease } from '../releases'
+/* eslint-disable prefer-rest-params */
+/* eslint-disable @typescript-eslint/no-var-requires */
+import type { Stats } from 'fs'
+import type { Func } from '../util'
 
 export interface NexeBinary {
   blobPath: string
@@ -13,14 +15,13 @@ export interface NexeBinary {
   }
 }
 
-let originalFsMethods: any = null
-let lazyRestoreFs = () => {}
+let originalFsMethods: any = null,
+  lazyRestoreFs = () => void 0
 
 // optional Win32 file namespace prefix followed by drive letter and colon
-const windowsFullPathRegex = /^(\\{2}\?\\)?([a-zA-Z]):/
-
-const upcaseDriveLetter = (s: string): string =>
-  s.replace(windowsFullPathRegex, (_match, ns, drive) => `${ns || ''}${drive.toUpperCase()}:`)
+const windowsFullPathRegex = /^(\\{2}\?\\)?([a-zA-Z]):/,
+  upcaseDriveLetter = (s: string): string =>
+    s.replace(windowsFullPathRegex, (_match, ns, drive) => `${ns || ''}${drive.toUpperCase()}:`)
 
 function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   if (originalFsMethods !== null) {
@@ -33,13 +34,13 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     notAFile = '!@#$%^&*',
     isWin = process.platform.startsWith('win'),
     isString = (x: any): x is string => typeof x === 'string' || x instanceof String,
-    noop = () => {},
-    path = require('path'),
-    winPath: (key: string) => string = isWin ? upcaseDriveLetter : (s) => s,
+    noop = () => void 0
+  const path = require('path')
+  const winPath: (key: string) => string = isWin ? upcaseDriveLetter : (s) => s,
     baseDir = winPath(path.dirname(process.execPath))
 
-  let log = (_: string) => true
-  let loggedManifest = false
+  let log = (_: string) => true,
+    loggedManifest = false
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
     log = (text: string) => {
       setupManifest()
@@ -53,83 +54,82 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   const getKey = function getKey(filepath: string | Buffer | null): string {
-    if (Buffer.isBuffer(filepath)) {
-      filepath = filepath.toString()
-    }
-    if (!isString(filepath)) {
-      return notAFile
-    }
-    let key = path.resolve(baseDir, filepath)
+      if (Buffer.isBuffer(filepath)) {
+        filepath = filepath.toString()
+      }
+      if (!isString(filepath)) {
+        return notAFile
+      }
+      const key = path.resolve(baseDir, filepath)
 
-    return winPath(key)
-  }
-
-  const statTime = function () {
-    return {
-      atime: new Date(stat.atime),
-      mtime: new Date(stat.mtime),
-      ctime: new Date(stat.ctime),
-      birthtime: new Date(stat.birthtime),
+      return winPath(key)
+    },
+    statTime = function () {
+      return {
+        atime: new Date(stat.atime),
+        mtime: new Date(stat.mtime),
+        ctime: new Date(stat.ctime),
+        birthtime: new Date(stat.birthtime),
+      }
     }
-  }
 
-  let BigInt: Function
+  let BigInt: any
   try {
     BigInt = eval('BigInt')
-  } catch (ignored) {}
+  } catch (ignored) {
+    void ignored
+  }
 
-  const minBlocks = Math.max(Math.ceil(stat.blksize / 512), 1)
-  const createStat = function (extensions: any, options: any) {
-    const stat = Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
-    if ('size' in extensions) {
-      //Assume non adjustable allocation size for file system
-      stat.blocks = Math.ceil(stat.size / stat.blksize) * minBlocks
-    }
-    if (options && options.bigint && typeof BigInt !== 'undefined') {
-      for (const k in stat) {
-        if (Object.prototype.hasOwnProperty.call(stat, k) && typeof stat[k] === 'number') {
-          stat[k] = BigInt(stat[k])
+  const minBlocks = Math.max(Math.ceil(stat.blksize / 512), 1),
+    createStat = function (extensions: any, options: any) {
+      const stat = Object.assign(new fs.Stats(), binary.layout.stat, statTime(), extensions)
+      if ('size' in extensions) {
+        // Assume non adjustable allocation size for file system
+        stat.blocks = Math.ceil(stat.size / stat.blksize) * minBlocks
+      }
+      if (options && options.bigint && typeof BigInt !== 'undefined') {
+        for (const k in stat) {
+          if (Object.prototype.hasOwnProperty.call(stat, k) && typeof stat[k] === 'number') {
+            stat[k] = BigInt(stat[k])
+          }
+        }
+      }
+      return stat
+    },
+    ownStat = function (filepath: any, options: any) {
+      setupManifest()
+      const key = getKey(filepath)
+      if (directories[key]) {
+        let mode = binary.layout.stat.mode
+        mode |= fs.constants.S_IFDIR
+        mode &= ~fs.constants.S_IFREG
+        return createStat({ mode, size: 0 }, options)
+      }
+      if (manifest[key]) {
+        return createStat({ size: manifest[key][1] }, options)
+      }
+    },
+    getStat = function (fn: string) {
+      return function stat(filepath: string | Buffer, options: any, callback: any) {
+        let stat: any
+        if (typeof options === 'function') {
+          callback = options
+          stat = ownStat(filepath, null)
+        } else {
+          stat = ownStat(filepath, options)
+        }
+        if (stat) {
+          process.nextTick(() => {
+            callback(null, stat)
+          })
+        } else {
+          return originalFsMethods[fn].apply(fs, arguments)
         }
       }
     }
-    return stat
-  }
-
-  const ownStat = function (filepath: any, options: any) {
-    setupManifest()
-    const key = getKey(filepath)
-    if (directories[key]) {
-      let mode = binary.layout.stat.mode
-      mode |= fs.constants.S_IFDIR
-      mode &= ~fs.constants.S_IFREG
-      return createStat({ mode, size: 0 }, options)
-    }
-    if (manifest[key]) {
-      return createStat({ size: manifest[key][1] }, options)
-    }
-  }
-
-  const getStat = function (fn: string) {
-    return function stat(filepath: string | Buffer, options: any, callback: any) {
-      let stat: any
-      if (typeof options === 'function') {
-        callback = options
-        stat = ownStat(filepath, null)
-      } else {
-        stat = ownStat(filepath, options)
-      }
-      if (stat) {
-        process.nextTick(() => {
-          callback(null, stat)
-        })
-      } else {
-        return originalFsMethods[fn].apply(fs, arguments)
-      }
-    }
-  }
 
   function makeLong(filepath: string) {
-    return (path as any)._makeLong && (path as any)._makeLong(filepath)
+    return path._makeLong && path._makeLong(filepath)
   }
 
   function fileOpts(options: any) {
@@ -138,10 +138,10 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
 
   let setupManifest = () => {
     Object.keys(manifest).forEach((filepath) => {
-      const entry = manifest[filepath]
-      const absolutePath = getKey(filepath)
-      const longPath = makeLong(absolutePath)
-      const normalizedPath = winPath(path.normalize(filepath))
+      const entry = manifest[filepath],
+        absolutePath = getKey(filepath),
+        longPath = makeLong(absolutePath),
+        normalizedPath = winPath(path.normalize(filepath))
 
       if (!manifest[absolutePath]) {
         manifest[absolutePath] = entry
@@ -153,8 +153,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
         manifest[normalizedPath] = manifest[filepath]
       }
 
-      let currentDir = path.dirname(absolutePath)
-      let prevDir = absolutePath
+      let currentDir = path.dirname(absolutePath),
+        prevDir = absolutePath
 
       while (currentDir !== prevDir) {
         directories[currentDir] = directories[currentDir] || {}
@@ -172,7 +172,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     setupManifest = noop
   }
 
-  //naive patches intended to work for most use cases
+  // naive patches intended to work for most use cases
   const nfs: any = {
     existsSync: function existsSync(filepath: string) {
       setupManifest()
@@ -202,7 +202,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       setupManifest()
       const dir = directories[getKey(filepath)]
       if (dir) {
-        if ('function' === typeof options) {
+        if (typeof options === 'function') {
           callback = options
           options = { encoding: 'utf8' }
         }
@@ -211,7 +211,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
         return originalFsMethods.readdir.apply(fs, arguments)
       }
     },
-    readdirSync: function readdirSync(filepath: string | Buffer, options: any) {
+    readdirSync: function readdirSync(filepath: string | Buffer) {
       setupManifest()
       const dir = directories[getKey(filepath)]
       if (dir) {
@@ -226,9 +226,9 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       if (!entry) {
         return originalFsMethods.readFile.apply(fs, arguments)
       }
-      const [offset, length] = entry
-      const resourceOffset = resourceStart + offset
-      const encoding = fileOpts(options).encoding
+      const [offset, length] = entry,
+        resourceOffset = resourceStart + offset,
+        encoding = fileOpts(options).encoding
       callback = typeof options === 'function' ? options : callback
 
       originalFsMethods.open(blobPath, 'r', function (err: Error, fd: number) {
@@ -261,9 +261,9 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       if (!entry) {
         return originalFsMethods.createReadStream.apply(fs, arguments)
       }
-      const [offset, length] = entry
-      const resourceOffset = resourceStart + offset
-      const opts = fileOpts(options)
+      const [offset, length] = entry,
+        resourceOffset = resourceStart + offset,
+        opts = fileOpts(options)
 
       return originalFsMethods.createReadStream(
         blobPath,
@@ -279,11 +279,11 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
       if (!entry) {
         return originalFsMethods.readFileSync.apply(fs, arguments)
       }
-      const [offset, length] = entry
-      const resourceOffset = resourceStart + offset
-      const encoding = fileOpts(options).encoding
-      const fd = originalFsMethods.openSync(process.execPath, 'r')
-      const result = Buffer.alloc(length)
+      const [offset, length] = entry,
+        resourceOffset = resourceStart + offset,
+        encoding = fileOpts(options).encoding,
+        fd = originalFsMethods.openSync(process.execPath, 'r'),
+        result = Buffer.alloc(length)
       originalFsMethods.readSync(fd, result, 0, length, resourceOffset)
       originalFsMethods.closeSync(fd)
       return encoding ? result.toString(encoding) : result
@@ -306,7 +306,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     },
   }
   if (typeof fs.exists === 'function') {
-    nfs.exists = function (filepath: string, cb: Function) {
+    nfs.exists = function (filepath: string, cb: Func) {
       cb = cb || noop
       const exists = nfs.existsSync(filepath)
       process.nextTick(() => cb(exists))
@@ -356,7 +356,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   if (typeof fs.exists === 'function') {
-    nfs.exists = function (filepath: string, cb: Function) {
+    nfs.exists = function (filepath: string, cb: Func) {
       cb = cb || noop
       const exists = nfs.existsSync(filepath)
       if (!exists) {
@@ -367,7 +367,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
 
   if (typeof fs.copyFile === 'function') {
-    nfs.copyFile = function (filepath: string, dest: string, flags: number, callback: Function) {
+    nfs.copyFile = function (filepath: string, dest: string, flags: number, callback: Func) {
       setupManifest()
       const entry = manifest[getKey(filepath)]
       if (!entry) {
@@ -424,7 +424,8 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
     Object.keys(nfs).forEach((key) => {
       fs[key] = originalFsMethods[key]
     })
-    lazyRestoreFs = () => {}
+    lazyRestoreFs = () => void 0
+    return void 0
   }
   return true
 }

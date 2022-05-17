@@ -13,30 +13,29 @@ export interface NexeTarget {
 }
 
 const prettyPlatform: { [key: string]: NodePlatform } = {
-  win32: 'windows',
-  windows: 'windows',
-  win: 'windows',
-  darwin: 'mac',
-  macos: 'mac',
-  mac: 'mac',
-  linux: 'linux',
-  static: 'alpine',
-  alpine: 'alpine',
-}
-
-const prettyArch: { [key: string]: NodeArch } = {
-  x86: 'x86',
-  arm6: 'arm',
-  arm64: 'arm64',
-  arm6l: 'arm',
-  arm: 'arm',
-  arm7: 'arm',
-  arm7l: 'arm',
-  amd64: 'x64',
-  ia32: 'x86',
-  x32: 'x86',
-  x64: 'x64',
-}
+    win32: 'windows',
+    windows: 'windows',
+    win: 'windows',
+    darwin: 'mac',
+    macos: 'mac',
+    mac: 'mac',
+    linux: 'linux',
+    static: 'alpine',
+    alpine: 'alpine',
+  },
+  prettyArch: { [key: string]: NodeArch } = {
+    x86: 'x86',
+    arm6: 'arm',
+    arm64: 'arm64',
+    arm6l: 'arm',
+    arm: 'arm',
+    arm7: 'arm',
+    arm7l: 'arm',
+    amd64: 'x64',
+    ia32: 'x86',
+    x32: 'x86',
+    x64: 'x64',
+  }
 
 function isVersion(x: string) {
   if (!x) {
@@ -58,6 +57,7 @@ class Target implements NexeTarget {
   toJSON() {
     return this.toString()
   }
+
   toString() {
     return `${this.platform}-${this.arch}-${this.version}`
   }

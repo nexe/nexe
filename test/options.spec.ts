@@ -1,5 +1,5 @@
+import { describe, it, expect } from 'vitest'
 import { normalizeOptions } from '../src/options'
-import { expect } from 'chai'
 import * as path from 'path'
 
 const ext = process.platform === 'win32' ? '.exe' : ''
@@ -27,13 +27,13 @@ describe('options', () => {
       expect(options.input).to.equal(path.resolve('./test/fixture/entry.js'))
     })
     it('should resolve pathed options against cwd', () => {
-      const cwd = path.join(process.cwd(), 'test/fixture')
-      const options = normalizeOptions({
-        cwd,
-        input: 'entry',
-        output: 'abc',
-        temp: './d'
-      })
+      const cwd = path.join(process.cwd(), 'test/fixture'),
+        options = normalizeOptions({
+          cwd,
+          input: 'entry',
+          output: 'abc',
+          temp: './d',
+        })
       expect(options.temp).to.equal(path.resolve(cwd, './d'))
       expect(options.input).to.equal(path.resolve(cwd, 'entry.js'))
       expect(options.output).to.equal(path.resolve(cwd, `abc${ext}`))
@@ -47,13 +47,13 @@ describe('options', () => {
     })
     it('should append trailing slash to third-party remote if necessary', () => {
       const options = normalizeOptions({
-        remote: 'https://sitejs.org/nexe'
+        remote: 'https://sitejs.org/nexe',
       })
       expect(options.remote).to.equal('https://sitejs.org/nexe/')
     })
     it('should not append trailing slash to third-party remote that already has one', () => {
       const options = normalizeOptions({
-        remote: 'https://sitejs.org/nexe/'
+        remote: 'https://sitejs.org/nexe/',
       })
       expect(options.remote).to.equal('https://sitejs.org/nexe/')
     })
@@ -62,13 +62,13 @@ describe('options', () => {
   describe('output', () => {
     it('should work', () => {
       const options = normalizeOptions({
-        output: './some-output'
+        output: './some-output',
       })
       expect(options.output).to.equal(path.resolve(`./some-output${ext}`))
     })
     it('should default to the input file name if not index', () => {
       const options = normalizeOptions({
-        input: './test/fixture'
+        input: './test/fixture',
       })
       expect(options.output).to.equal(path.resolve(`./entry${ext}`))
     })

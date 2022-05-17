@@ -1,17 +1,12 @@
-import * as fs from 'fs'
-import { promisify } from 'util'
-import { relative } from 'path'
-import { Readable } from 'stream'
-import { argv } from '../options'
+import { lstat, realpath, stat } from 'node:fs/promises'
+import { createReadStream } from 'node:fs'
+import { relative } from 'node:path'
+import { Readable } from 'node:stream'
+
 import { File } from 'resolve-dependencies'
-import MultiStream = require('multistream')
+import MultiStream from 'multistream'
 
-const lstat = promisify(fs.lstat),
-  realpath = promisify(fs.realpath),
-  createReadStream = fs.createReadStream,
-  stat = promisify(fs.stat)
-
-export type MultiStreams = (Readable | (() => Readable))[]
+export type MultiStreams = Array<Readable | (() => Readable)>
 
 function makeRelative(cwd: string, path: string) {
   return './' + relative(cwd, path)
@@ -79,7 +74,7 @@ export class Bundle {
       this.files[absoluteFileName] = {
         size: Buffer.byteLength(content),
         moduleType: 'commonjs',
-        contents: content as any, //todo type is wrong here... should allow buffer
+        contents: content.toString(),
         deps: {},
         absPath: absoluteFileName,
       }
@@ -108,8 +103,8 @@ export class Bundle {
       throw new Error('Bundle index already rendered')
     }
     const files = Object.entries(this.files),
-      realFiles: [string, File][] = [],
-      symLinks: [string, File][] = []
+      realFiles: Array<[string, File]> = [],
+      symLinks: Array<[string, File]> = []
     for (const entry of files) {
       if (entry[1].realPath) {
         symLinks.push(entry)
@@ -154,6 +149,6 @@ export class Bundle {
   }
 
   toStream() {
-    return new (MultiStream as any)(this.streams)
+    return new MultiStream(this.streams)
   }
 }

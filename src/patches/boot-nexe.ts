@@ -1,5 +1,6 @@
-const fs = require('fs'),
-  fd = fs.openSync(process.execPath, 'r'),
+/* eslint-disable @typescript-eslint/no-var-requires */
+const fs = require('fs')
+const fd = fs.openSync(process.execPath, 'r'),
   stat = fs.statSync(process.execPath),
   tailSize = Math.min(stat.size, 16000),
   tailWindow = Buffer.from(Array(tailSize))
@@ -8,7 +9,8 @@ fs.readSync(fd, tailWindow, 0, tailSize, stat.size - tailSize)
 
 const footerPosition = tailWindow.indexOf('<nexe~~sentinel>')
 if (footerPosition == -1) {
-  throw 'Invalid Nexe binary'
+  process.stderr.write('\nInvalid Nexe binary\n')
+  process.exit(1)
 }
 
 const footer = tailWindow.slice(footerPosition, footerPosition + 32),
@@ -48,8 +50,8 @@ Object.defineProperty(
   })()
 )
 
-const contentBuffer = Buffer.from(Array(contentSize)),
-  Module = require('module')
+const contentBuffer = Buffer.from(Array(contentSize))
+const Module = require('module')
 
 fs.readSync(fd, contentBuffer, 0, contentSize, contentStart)
 fs.closeSync(fd)

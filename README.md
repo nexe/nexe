@@ -23,7 +23,7 @@
 - Distribute binaries without needing node / npm.
 - Idempotent builds
 - Start and deploy faster.
-- Lockdown specific application versions, and easily rollback.
+- Lock-down specific application versions, and easily rollback.
 - Flexible build pipeline
 - Cross platform builds
 
@@ -79,7 +79,6 @@ npm config set python python3.8
 Where `2019` is the version of Visual Studio you have (if you have it).
 
 **Notes:**
-- The above works and has been tested with node.js `14.5.4` and `15.8.0`
 - Python 3 and Python 2 can coexist and `nexe` will still work, considering the `set config` area above
 - Don't use `npm install windows-build-tools` unless you're having some type of issue, because the above commands configures and installs the latest/preferred too.
 
@@ -117,14 +116,14 @@ compile({
     - Output executable file path
     - default: same as `name` with an OS specific extension.
  - #### `target: string | object`
-    - An object or string describing platform-arch-version. e.g. `'windows-ia32-10.13.0'`
+    - An object or string describing platform-arch-version. e.g. `'windows-ia32-18.1.0'`
       - each segment is optional, and will be merged with the current environment
       - Examples: ([full list](https://github.com/nexe/nexe/releases))
-        - `'win32-x86-10.13.0`
+        - `'win32-x86-18.1.0`
         - `{ platform: 'alpine' }`
-        - `darwin-10.13.0`
+        - `darwin-14.19.1`
         - `linux-x64`
-        - `macos-10.13.0`
+        - `macos-16.15.0`
 
         See [test/target.spec.ts](test/target.spec.ts)
     - If the [`build`](#build-boolean) flag is set, the platform portion of the target is ignored.
@@ -171,9 +170,6 @@ compile({
  - #### `vcBuild: string[]`
     - Options for windows build
     - default: `['nosign', 'release']`
- - #### `snapshot: string`
-    - path to a file to be used as the warmup snapshot for the build
-    - default: `null`
  - #### `resources: string[]`
     - Array of globs with files to include in the build
     - Example: `['./public/**/*']`
@@ -182,20 +178,6 @@ compile({
     - Path to use for storing nexe's build files
     - Override in the env with `NEXE_TEMP`
     - default: `~/.nexe`
- - #### `ico: string`
-    - Path to a user provided icon to be used (Windows only). Requires `--build` to be set.
- - #### `rc: object`
-    - Settings for patching the [node.rc](https://github.com/nodejs/node/blob/master/src/res/node.rc) configuration file (Windows only).
-    - Example (keys may vary depending on the version. Reference the file linked above):
-      ```javascript
-        {
-          CompanyName: "ACME Corp",
-          PRODUCTVERSION: "17,3,0,0",
-          FILEVERSION: "1,2,3,4"
-          ...
-        }
-      ```
-    - default: `{}`
  - #### `clean: boolean`
     - If included, nexe will remove temporary files for the accompanying configuration and exit
  - #### `enableNodeCli: boolean`
@@ -254,14 +236,12 @@ In order to use native modules, the native binaries must be shipped alongside th
 
 ## Troubleshooting
 
-`Error: Entry file "" not found!` means you need to provide `nexe` with input. Either use `-i` or pipe data to it.
-
 `Error: https://github.com/nexe/nexe/releases/download/v3.3.3/windows-x64-15.8.0 is not available, create it using the --build flag` or similar message means that it either:
 - You are having networking issues such as the download being blocked
 - You should specify the target so `nexe` knows what version of the executable to use.
 	- See the [releases page](https://github.com/nexe/nexe/releases) to find the executable's version number
 	- Example
-		- `nexe -i "app.js" -r "public/**/*.html" -o "dist/myApp.exe" -t x64-14.15.3`
+		- `nexe -i "app.js" -r "public/**/*.html" -o "dist/myApp.exe" -t x64-18.1.0`
 		- where `-i` specifies the input, `-r` specifies resources to embed, `-o` specifies the output, `-t` specifies the target.
 	- Alternatively you can compile the executable yourself, see that section for details
 

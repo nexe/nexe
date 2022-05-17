@@ -1,5 +1,6 @@
+import { rm } from 'node:fs/promises'
+
 import { NexeCompiler } from '../compiler'
-import { rimrafAsync } from '../util'
 import { NexeTarget } from '../target'
 
 export default async function clean(compiler: NexeCompiler, next: () => Promise<any>) {
@@ -11,9 +12,9 @@ export default async function clean(compiler: NexeCompiler, next: () => Promise<
     }
     const step = compiler.log.step('Cleaning up nexe build artifacts...')
     step.log(`Deleting contents at: ${path}`)
-    await rimrafAsync(path)
+    await rm(path, { recursive: true, force: true })
     step.log(`Deleted contents at: ${path}`)
-    return compiler.quit()
+    return await compiler.quit()
   }
-  return next()
+  return await next()
 }

@@ -1,14 +1,25 @@
 {
   "compilerOptions": {
-    "target":"es2015",
+    "outDir": "./lib/types",
+    "target":"es2020",
+    "lib": ["es2020"],
+    "module": "es2020",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
     "skipLibCheck": true,
+    "moduleResolution": "node",
     "experimentalDecorators": true,
-    "lib": ["es2018"],
-    "module": "commonjs",
-    "outDir": "./lib",
     "strict": true
   },
   "include":[
-    "src/**/*.ts"
-  ]
+    "src/**/*.ts",
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "transpiler": "ts-node/transpilers/swc",
+    "compilerOptions": {
+      "esModuleInterop": true,
+      "module": "commonjs"
+    }
+  }
 }

@@ -1,9 +1,10 @@
-import { padRight, isWindows } from '../src/util'
-import { expect } from 'chai'
+import { describe, it, expect } from 'vitest'
+
+import { padRight } from '../src/util'
 import chalk from 'chalk'
-import { getTarget, NexeTarget } from '../src/target'
-const b = chalk.blue
-const arch = process.arch === 'ia32' ? 'x86' : process.arch
+import { getTarget } from '../src/target'
+const b = chalk.blue,
+  arch = process.arch === 'ia32' ? 'x86' : process.arch
 
 describe('Targets', () => {
   ;[
@@ -16,7 +17,7 @@ describe('Targets', () => {
     ['static-x86-6.10.3', 'alpine-x86-6.10.3'],
     ['linux-x32', `linux-x86-${process.version.slice(1)}`],
     ['alpine-notsupported-6.10.3', `alpine-${arch}-6.10.3`],
-    ['not-a-thing', getTarget(process).toString()]
+    ['not-a-thing', getTarget(process).toString()],
   ].forEach(([input, expected]) => {
     it(`should accept: ${padRight(JSON.stringify(input), 53)} ${b('->')}   ${expected}`, () => {
       expect(getTarget(input).toString()).to.equal(expected)

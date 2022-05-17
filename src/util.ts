@@ -1,17 +1,40 @@
-import { readFile, writeFile, stat } from 'fs'
-import { execFile } from 'child_process'
-import { promisify } from 'util'
-import rimraf = require('rimraf')
+import { readFile, writeFile, stat } from 'node:fs/promises'
+import { execFile as exec } from 'node:child_process'
+import { promisify } from 'node:util'
 
-const rimrafAsync = promisify(rimraf)
 export const STDIN_FLAG = '[stdin]'
+
+export const esm: {
+  chalk: typeof import('chalk') | null
+  ora: typeof import('ora') | null
+  got: typeof import('got') | null
+} = {
+  got: null,
+  chalk: null,
+  ora: null,
+}
+
+export async function initEsm() {
+  await Promise.all(
+    (['chalk', 'got', 'ora'] as const).map(async (x) => {
+      esm[x] = await import(x)
+    })
+  )
+}
+
+const id = (x: any) => x
+export function color(color?: string, text?: string) {
+  return !color ? text : ((esm.chalk?.default as any)[color] || id)(text)
+}
+
+export type Func<T = any, Args = any> = (...args: Args[]) => T
 
 export async function each<T>(
   list: T[] | Promise<T[]>,
   action: (item: T, index: number, list: T[]) => Promise<any>
 ) {
   const l = await list
-  return Promise.all(l.map(action))
+  return await Promise.all(l.map(action))
 }
 
 export function wrap(code: string) {
@@ -30,8 +53,8 @@ function padRight(str: string, l: number) {
 }
 
 const bound: MethodDecorator = function bound<T>(
-  target: Object,
-  propertyKey: string | Symbol,
+  target: object,
+  propertyKey: string | symbol,
   descriptor: TypedPropertyDescriptor<T>
 ) {
   const configurable = true
@@ -51,8 +74,8 @@ const bound: MethodDecorator = function bound<T>(
 
 function dequote(input: string) {
   input = input.trim()
-  const singleQuote = input.startsWith("'") && input.endsWith("'")
-  const doubleQuote = input.startsWith('"') && input.endsWith('"')
+  const singleQuote = input.startsWith("'") && input.endsWith("'"),
+    doubleQuote = input.startsWith('"') && input.endsWith('"')
   if (singleQuote || doubleQuote) {
     return input.slice(1).slice(0, -1)
   }
@@ -64,30 +87,25 @@ export interface ReadFileAsync {
   (path: string, encoding: string): Promise<string>
 }
 
-const readFileAsync = promisify(readFile)
-const writeFileAsync = promisify(writeFile)
-const statAsync = promisify(stat)
-const execFileAsync = promisify(execFile)
-const isWindows = process.platform === 'win32'
+const execFile = promisify(exec),
+  isWindows = process.platform === 'win32'
 
-function pathExistsAsync(path: string) {
-  return statAsync(path)
-    .then((x) => true)
+async function pathExists(path: string) {
+  return await stat(path)
+    .then(() => true)
     .catch(falseOnEnoent)
 }
 
-function isDirectoryAsync(path: string) {
-  return statAsync(path)
+async function isDirectory(path: string) {
+  return await stat(path)
     .then((x) => x.isDirectory())
     .catch(falseOnEnoent)
 }
-/**
- * @param version See if this version is greather than the second one
- * @param operand Version to compare against
- */
+
 function semverGt(version: string, operand: string) {
   const [cMajor, cMinor, cPatch] = version.split('.').map(Number)
   let [major, minor, patch] = operand.split('.').map(Number)
+  major = Number(major)
   if (!minor) minor = 0
   if (!patch) patch = 0
   return (
@@ -100,14 +118,13 @@ function semverGt(version: string, operand: string) {
 export {
   dequote,
   padRight,
-  semverGt,
   bound,
   isWindows,
-  rimrafAsync,
-  statAsync,
-  execFileAsync,
-  readFileAsync,
-  pathExistsAsync,
-  isDirectoryAsync,
-  writeFileAsync,
+  stat,
+  execFile,
+  readFile,
+  pathExists,
+  isDirectory,
+  writeFile,
+  semverGt,
 }

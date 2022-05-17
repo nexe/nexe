@@ -1,45 +1,44 @@
-import colors from 'chalk'
-import ora from 'ora'
+import { Func, color, esm } from './util'
 
 const frameLength = 120
 
 export interface LogStep {
-  modify(text: string, color?: string): void
-  log(text: string, color?: string): void
-  pause(): void
-  resume(): void
+  modify: (text: string, color?: string) => void
+  log: (text: string, color?: string) => void
+  pause: () => void
+  resume: () => void
 }
 
 export class Logger {
   public verbose: boolean
-  private silent: boolean
+  private readonly silent: boolean
   private ora: any
-  private modify: Function
+  private readonly modify: Func
   public write: (text: string, color?: string) => void
 
   constructor(level: 'verbose' | 'silent' | 'info') {
     this.verbose = level === 'verbose'
     this.silent = level === 'silent'
     if (!this.silent) {
-      this.ora = ora({
+      this.ora = esm.ora?.default({
         text: 'Starting...',
         color: 'blue',
         spinner: 'dots',
       })
       this.ora.stop()
     }
-    const noop = () => {}
+    const noop = () => void 0
     this.modify = this.silent ? noop : this._modify.bind(this)
     this.write = this.silent ? noop : this._write.bind(this)
   }
 
-  flush() {
+  async flush() {
     !this.silent && this.ora.succeed()
-    return new Promise((resolve) => setTimeout(resolve, frameLength))
+    return await new Promise((resolve) => setTimeout(resolve, frameLength))
   }
 
-  _write(update: string, color = 'green') {
-    this.ora.succeed().text = (colors as any)[color](update)
+  _write(update: string, clr = 'green') {
+    this.ora.succeed().text = color(clr, update)
     this.ora.start()
   }
 
@@ -48,10 +47,12 @@ export class Logger {
     this.ora.color = color
   }
 
-  step(text: string, method: string = 'succeed'): LogStep {
+  step(text: string, method = 'succeed', clr?: string): LogStep {
     if (this.silent) {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       return { modify() {}, log() {}, pause() {}, resume() {} }
     }
+    text = color(clr, text)
     if (!this.ora.id) {
       this.ora.start().text = text
       if (method !== 'succeed') {

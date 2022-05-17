@@ -1,4 +1,3 @@
-import got = require('got')
 import { platforms, architectures, NexeTarget, getTarget, targetsEqual } from './target'
 export { NexeTarget }
 
@@ -21,6 +20,7 @@ interface NodeRelease {
 }
 
 async function getJson<T>(url: string, options?: any) {
+  const { default: got } = await import('got')
   return JSON.parse((await got(url, options)).body) as T
 }
 
@@ -31,17 +31,19 @@ function isBuildableVersion(version: string) {
   return !versionsToSkip.includes(Number(version.split('.')[0]))
 }
 
-export function getLatestGitRelease(options?: any) {
-  return getJson<GitRelease>('https://api.github.com/repos/nexe/nexe/releases/latest', options)
+export async function getLatestGitRelease(options?: any) {
+  return await getJson<GitRelease>(
+    'https://api.github.com/repos/nexe/nexe/releases/latest',
+    options
+  )
 }
 
 export async function getUnBuiltReleases(options?: any) {
   const nodeReleases = await getJson<NodeRelease[]>(
-    'https://nodejs.org/download/release/index.json'
-  )
-  const existingVersions = (await getLatestGitRelease(options)).assets.map((x) => getTarget(x.name))
-
-  const versionMap: { [key: string]: true } = {}
+      'https://nodejs.org/download/release/index.json'
+    ),
+    existingVersions = (await getLatestGitRelease(options)).assets.map((x) => getTarget(x.name)),
+    versionMap: { [key: string]: true } = {}
   return nodeReleases
     .reduce((versions: NexeTarget[], { version }) => {
       version = version.replace('v', '').trim()

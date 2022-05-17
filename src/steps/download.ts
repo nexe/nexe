@@ -1,15 +1,18 @@
-import download = require('download')
-import { pathExistsAsync } from '../util'
+import { dirname } from 'node:path'
+
+import download from 'download'
+
+import { pathExists } from '../util'
 import { LogStep } from '../logger'
-import { IncomingMessage } from 'http'
 import { NexeCompiler, NexeError } from '../compiler'
-import { dirname } from 'path'
+
+import type { IncomingMessage } from 'node:http'
 
 function fetchNodeSourceAsync(dest: string, url: string, step: LogStep, options = {}) {
   const setText = (p: number) => step.modify(`Downloading Node: ${p.toFixed()}%...`)
   return download(url, dest, Object.assign(options, { extract: true, strip: 1 }))
     .on('response', (res: IncomingMessage) => {
-      const total = +res.headers['content-length']!
+      const total = Number(res.headers['content-length'])
       let current = 0
       res.on('data', (data) => {
         current += data.length
@@ -30,11 +33,11 @@ async function fetchPrebuiltBinary(compiler: NexeCompiler, step: any) {
     await download(remoteAsset, dirname(filename), compiler.options.downloadOptions).on(
       'response',
       (res: IncomingMessage) => {
-        const total = +res.headers['content-length']!
+        const total = Number(res.headers['content-length'])
         let current = 0
         res.on('data', (data) => {
           current += data.length
-          step!.modify(`Downloading...${((current / total) * 100).toFixed()}%`)
+          step?.modify(`Downloading...${((current / total) * 100).toFixed()}%`)
         })
       }
     )
@@ -58,14 +61,14 @@ export default async function downloadNode(compiler: NexeCompiler, next: () => P
     { sourceUrl, downloadOptions, build } = compiler.options,
     url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`,
     step = log.step(
-      `Downloading ${build ? '' : 'pre-built '}Node.js${build ? `source from: ${url}` : ''}`
+      `Downloading ${build ? '' : 'pre-built '}Node.js${build ? ` source from: ${url}` : ''}`
     ),
     exeLocation = compiler.getNodeExecutableLocation(build ? undefined : target),
-    downloadExists = await pathExistsAsync(build ? src : exeLocation)
+    downloadExists = await pathExists(build ? src : exeLocation)
 
   if (downloadExists) {
     step.log('Already downloaded...')
-    return next()
+    return await next()
   }
 
   if (build) {
@@ -74,5 +77,5 @@ export default async function downloadNode(compiler: NexeCompiler, next: () => P
     await fetchPrebuiltBinary(compiler, step)
   }
 
-  return next()
+  return await next()
 }

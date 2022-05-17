@@ -1,12 +1,13 @@
-import { NexeCompiler, NexeError } from '../compiler'
-import { resolve, relative } from 'path'
+import { resolve, relative } from 'node:path'
+import { Readable } from 'node:stream'
 import resolveFiles, { resolveSync } from 'resolve-dependencies'
-import { dequote, STDIN_FLAG, semverGt, each } from '../util'
-import { Readable } from 'stream'
 
-function getStdIn(stdin: Readable): Promise<string> {
+import { NexeCompiler, NexeError } from '../compiler'
+import { dequote, STDIN_FLAG } from '../util'
+
+async function getStdIn(stdin: Readable): Promise<string> {
   let out = ''
-  return new Promise((resolve) => {
+  return await new Promise((resolve) => {
     stdin
       .setEncoding('utf8')
       .on('readable', () => {
@@ -28,12 +29,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   const { bundle: doBundle, cwd, input: inputPath } = compiler.options
   let input = inputPath
   compiler.entrypoint = './' + relative(cwd, input)
-
-  if (semverGt(compiler.target.version, '11.99')) {
-    compiler.startup = ''
-  } else {
-    compiler.startup = ';require("module").runMain();'
-  }
+  compiler.startup = ''
 
   if (!doBundle) {
     await compiler.addResource(resolve(cwd, input))
@@ -42,6 +38,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
 
   let code = ''
   if (typeof doBundle === 'string') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     code = await require(doBundle).createBundle(compiler.options)
   }
 
@@ -68,16 +65,17 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   )
 
   if (
-    warnings.filter((x) => x.startsWith('Error parsing file') && !x.includes('node_modules')).length
+    warnings.filter((x) => x.startsWith('Error parsing file') && !x.includes('node_modules'))
+      .length > 0
   ) {
     throw new NexeError('Parsing Error:\n' + warnings.join('\n'))
   }
 
-  //TODO: warnings.forEach((x) => console.log(x))
+  warnings.forEach((x: string) => compiler.log.step('[WARNING]: ' + x, 'stopAndPersist', 'yellow'))
 
   await Promise.all(
-    Object.entries(files).map(([key, file]) => {
-      return compiler.addResource(key, file)
+    Object.entries(files).map(async ([key, file]) => {
+      return await compiler.addResource(key, file)
     })
   )
 

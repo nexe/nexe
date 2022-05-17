@@ -1,0 +1,52 @@
+name: Base Builds
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ['14.19.1', '16.15.0', '18.1.0']
+        arch: [x64, x86]
+        plat: [arm, macos, windows, linux, alpine]
+        exclude: 
+          - plat: arm
+            arch: x86
+          - plat: macos
+            arch: x86
+        include:
+          - plat: arm
+            os: ubuntu-20.04
+          - plat: macos
+            os: macos-12
+          - plat: windows
+            os: windows-2022
+          - plat: linux
+            os: ubuntu-20.04
+          - plat: alpine
+            os: ubuntu-20.04
+    name: 'Target: ${{matrix.plat}}-${{ matrix.arch }}-${{ matrix.version }} on ${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v3.1.2
+        with:
+          python-version: '3.10.4'
+      - name: Setup Nasm
+        if: ${{ matrix.plat == 'windows' }}
+        uses: ilammy/setup-nasm@v1.3.0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.version }}
+      - uses: actions/checkout@v3
+
+        with:
+          node-version: 18
+      - name: 'Install Dependencies'
+        run: npm ci
+      - name: 'Build nexe base binary'
+        env:
+          NEXE_TARGET: ${{ matrix.plat }}-${{ matrix.arch }}-${{ matrix.version }}
+        run: npx ts-node tasks/build.ts
+ 

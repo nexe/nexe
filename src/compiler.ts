@@ -1,28 +1,19 @@
-import { delimiter, resolve, normalize, join } from 'path'
-import { Buffer } from 'buffer'
-import { createReadStream, ReadStream } from 'fs'
-import { spawn } from 'child_process'
+import { resolve, normalize, join } from 'node:path'
+import { Buffer } from 'node:buffer'
+import { createReadStream, ReadStream } from 'node:fs'
+import { spawn } from 'node:child_process'
+
+import { File } from 'resolve-dependencies'
+import MultiStream from 'multistream'
+
 import { Logger, LogStep } from './logger'
-import {
-  readFileAsync,
-  writeFileAsync,
-  pathExistsAsync,
-  statAsync,
-  dequote,
-  isWindows,
-  bound,
-  semverGt,
-  wrap,
-} from './util'
+import { readFile, writeFile, pathExists, isWindows, bound, wrap } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
-import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
-import { File } from 'resolve-dependencies'
 
-const isBsd = Boolean(~process.platform.indexOf('bsd'))
-const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
-const configure = isWindows ? 'configure' : './configure'
+const isBsd = Boolean(~process.platform.indexOf('bsd')),
+  make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
 
 type StringReplacer = (match: string) => string
 
@@ -45,7 +36,7 @@ export class NexeCompiler {
   /**
    * Epoch of when compilation started
    */
-  private start = Date.now()
+  private readonly start = Date.now()
   private compileStep: LogStep | undefined
   public log = new Logger(this.options.loglevel)
   /**
@@ -71,7 +62,7 @@ export class NexeCompiler {
   /**
    * The last shim (defaults to "require('module').runMain()")
    */
-  public startup: string = ''
+  public startup = ''
   /**
    * The main entrypoint filename for your application - eg. node mainFile.js
    */
@@ -93,10 +84,6 @@ export class NexeCompiler {
    */
   public stdinUsed = false
   /**
-   * Path to the configure script
-   */
-  public configureScript: string
-  /**
    * The file path of node binary
    */
   public nodeSrcBinPath: string
@@ -107,49 +94,41 @@ export class NexeCompiler {
 
   constructor(public options: NexeOptions) {
     const { python } = (this.options = options)
-    //SOMEDAY iterate over multiple targets with `--outDir`
+    // SOMEDAY iterate over multiple targets with `--outDir`
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
-    if (!/https?\:\/\//.test(options.remote)) {
+    if (!/https?:\/\//.test(options.remote)) {
       throw new NexeError(`Invalid remote URI scheme (must be http or https): ${options.remote}`)
     }
     this.remoteAsset = options.remote + this.target.toString()
     this.src = join(this.options.temp, this.target.version)
-    this.configureScript = configure + (semverGt(this.target.version, '10.10.0') ? '.py' : '')
     this.nodeSrcBinPath = isWindows
       ? join(this.src, 'Release', 'node.exe')
       : join(this.src, 'out', 'Release', 'node')
     this.log.step('nexe ' + version, 'info')
     this.bundle = new Bundle(options)
-    if (isWindows) {
-      const originalPath = process.env.PATH
-      delete process.env.PATH
-      this.env = { ...process.env }
-      this.env.PATH = python
-        ? (this.env.PATH = dequote(normalize(python)) + delimiter + originalPath)
-        : originalPath
-      process.env.PATH = originalPath
-    } else {
-      this.env = { ...process.env }
-      python && (this.env.PYTHON = python)
+
+    this.env = { ...process.env }
+    if (python) {
+      this.env.PYTHON = python
     }
   }
 
   @bound
-  addResource(absoluteFileName: string, content?: Buffer | string | File) {
-    return this.bundle.addResource(absoluteFileName, content)
+  async addResource(absoluteFileName: string, content?: Buffer | string | File) {
+    return await this.bundle.addResource(absoluteFileName, content)
   }
 
   @bound
   async readFileAsync(file: string) {
     this.assertBuild()
     let cachedFile = this.files.find((x) => normalize(x.filename) === normalize(file))
-    if (!cachedFile) {
+    if (cachedFile == null) {
       const absPath = join(this.src, file)
       cachedFile = {
         absPath,
         filename: file,
-        contents: await readFileAsync(absPath, 'utf-8').catch((x) => {
+        contents: await readFile(absPath, 'utf-8').catch((x) => {
           if (x.code === 'ENOENT') return ''
           throw x
         }),
@@ -160,15 +139,26 @@ export class NexeCompiler {
   }
 
   @bound
-  writeFileAsync(file: string, contents: string | Buffer) {
+  async writeFileAsync(file: string, contents: string | Buffer) {
     this.assertBuild()
-    return writeFileAsync(join(this.src, file), contents)
+    return await writeFile(join(this.src, file), contents)
   }
 
   @bound
-  async replaceInFileAsync(file: string, replace: string | RegExp, value: string | StringReplacer) {
+  async replaceInFileAsync(
+    file: string,
+    replace: string | RegExp,
+    value: string | StringReplacer
+  ): Promise<boolean> {
     const entry = await this.readFileAsync(file)
-    entry.contents = entry.contents.toString().replace(replace, value as any)
+    let replaced = false
+    const replacer = (match: string) => {
+      replaced = true
+      if (typeof value === 'function') return value(match)
+      return value
+    }
+    entry.contents = entry.contents.toString().replace(replace, replacer)
+    return replaced
   }
 
   @bound
@@ -177,10 +167,10 @@ export class NexeCompiler {
     entry.contents = contents
   }
 
-  quit(error?: any) {
+  async quit(error?: any) {
     const time = Date.now() - this.start
     this.log.write(`Finished in ${time / 1000}s`, error ? 'red' : 'green')
-    return this.log.flush()
+    return await this.log.flush()
   }
 
   assertBuild() {
@@ -199,11 +189,11 @@ export class NexeCompiler {
     return this.nodeSrcBinPath
   }
 
-  private _runBuildCommandAsync(command: string, args: string[]) {
+  private async _runBuildCommandAsync(command: string, args: string[]) {
     if (this.log.verbose) {
-      this.compileStep!.pause()
+      this.compileStep?.pause()
     }
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
@@ -211,13 +201,13 @@ export class NexeCompiler {
       })
         .once('error', (e: Error) => {
           if (this.log.verbose) {
-            this.compileStep!.resume()
+            this.compileStep?.resume()
           }
           reject(e)
         })
         .once('close', (code: number) => {
           if (this.log.verbose) {
-            this.compileStep!.resume()
+            this.compileStep?.resume()
           }
           if (code != 0) {
             const error = `${command} ${args.join(' ')} exited with code: ${code}`
@@ -228,59 +218,42 @@ export class NexeCompiler {
     })
   }
 
-  private _configureAsync() {
-    if (isWindows && semverGt(this.target.version, '10.15.99')) {
-      return Promise.resolve()
+  private async _configureAsync() {
+    if (isWindows) {
+      return await Promise.resolve()
     }
-    return this._runBuildCommandAsync(this.env.PYTHON || 'python', [
-      this.configureScript,
+    return await this._runBuildCommandAsync(this.env.PYTHON || 'python3', [
+      './configure.py',
       ...this.options.configure,
     ])
   }
 
   public async build(): Promise<ReadStream> {
-    this.compileStep!.log(
+    this.compileStep?.log(
       `Configuring node build${
-        this.options.configure.length ? ': ' + this.options.configure : '...'
+        this.options.configure.length > 0 ? ': ' + this.options.configure : '...'
       }`
     )
     await this._configureAsync()
     const buildOptions = this.options.make
-    this.compileStep!.log(
-      `Compiling Node${buildOptions.length ? ' with arguments: ' + buildOptions : '...'}`
+    this.compileStep?.log(
+      `Compiling Node${buildOptions.length > 0 ? ' with arguments: ' + buildOptions : '...'}`
     )
     await this._runBuildCommandAsync(make, buildOptions)
     return createReadStream(this.getNodeExecutableLocation())
   }
 
-  private async _shouldCompileBinaryAsync(binary: NodeJS.ReadableStream | null, location: string) {
-    //SOMEDAY combine make/configure/vcBuild/and modified times of included files
-    const { snapshot, build } = this.options
-
-    if (!binary) {
-      return true
-    }
-
-    if (build && snapshot != null && (await pathExistsAsync(snapshot))) {
-      const snapshotLastModified = (await statAsync(snapshot)).mtimeMs
-      const binaryLastModified = (await statAsync(location)).mtimeMs
-      return snapshotLastModified > binaryLastModified
-    }
-
-    return false
-  }
-
   async compileAsync(target: NexeTarget) {
-    const step = (this.compileStep = this.log.step('Compiling result'))
-    const build = this.options.build
-    const location = this.getNodeExecutableLocation(build ? undefined : target)
-    let binary = (await pathExistsAsync(location)) ? createReadStream(location) : null
+    const step = (this.compileStep = this.log.step('Compiling result')),
+      build = this.options.build,
+      location = this.getNodeExecutableLocation(build ? undefined : target)
+    let binary = (await pathExists(location)) ? createReadStream(location) : null
 
-    if (await this._shouldCompileBinaryAsync(binary, location)) {
+    if (binary == null) {
       binary = await this.build()
       step.log('Node binary compiled')
     }
-    return this._assembleDeliverable(binary!)
+    return await this._assembleDeliverable(binary)
   }
 
   code() {
