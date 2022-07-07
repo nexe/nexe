@@ -5,12 +5,12 @@
 
 const eol = require('os').EOL
 async function main() {
-  const util = require('../lib/cjs/util')
+  const util = require('./lib/cjs/util.js')
   await util.initEsm()
   const color = util.color,
-    options = require('../lib/cjs/options'),
-    nexe = require('../lib/cjs/nexe'),
-    NexeError = require('../lib/cjs/compiler').NexeError,
+    options = require('./lib/cjs/options.js'),
+    nexe = require('./lib/cjs/nexe.js'),
+    NexeError = require('./lib/cjs/compiler.js').NexeError,
     del = eol + eol,
     argv = options.argv,
     showHelp = argv.help || argv._.some((x) => x === 'help'),

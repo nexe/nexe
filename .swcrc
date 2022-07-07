@@ -2,17 +2,18 @@
   "module": {
     "type": "commonjs",
     "ignoreDynamic": true
+    
   },
   "jsc": {
     "parser": {
-      "syntax": "typescript",      
+      "syntax": "typescript",
       "dynamicImport": true,
       "decorators": true
     },
     "transform": {
       "legacyDecorator": true
     },
-    "target": "es2019",    
+    "target": "es2019",
     "externalHelpers": false
   }
 }

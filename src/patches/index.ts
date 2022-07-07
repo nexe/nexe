@@ -1,6 +1,6 @@
-import bootNexe from './third-party-main'
-import cli from './disable-node-cli'
-import flags from './flags'
+import bootNexe from './third-party-main.js'
+import cli from './disable-node-cli.js'
+import flags from './flags.js'
 
 const patches = [bootNexe, cli, flags]
 

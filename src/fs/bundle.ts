@@ -3,7 +3,7 @@ import { createReadStream } from 'node:fs'
 import { relative } from 'node:path'
 import { Readable } from 'node:stream'
 
-import { File } from 'resolve-dependencies'
+import type { File } from 'resolve-dependencies'
 import MultiStream from 'multistream'
 
 export type MultiStreams = Array<Readable | (() => Readable)>

@@ -1,4 +1,5 @@
-import { NexeCompiler, NexeError } from '../compiler'
+import type { NexeCompiler } from '../compiler.js'
+import { NexeError } from '../compiler.js'
 
 export default async function disableNodeCli(compiler: NexeCompiler, next: () => Promise<void>) {
   if (compiler.options.enableNodeCli) {

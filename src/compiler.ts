@@ -1,16 +1,19 @@
 import { resolve, normalize, join } from 'node:path'
 import { Buffer } from 'node:buffer'
-import { createReadStream, ReadStream } from 'node:fs'
+import type { ReadStream } from 'node:fs'
+import { createReadStream } from 'node:fs'
 import { spawn } from 'node:child_process'
 
-import { File } from 'resolve-dependencies'
+import type { File } from 'resolve-dependencies'
 import MultiStream from 'multistream'
 
-import { Logger, LogStep } from './logger'
-import { readFile, writeFile, pathExists, isWindows, bound, wrap } from './util'
-import { NexeOptions, version } from './options'
-import { NexeTarget } from './target'
-import { Bundle, toStream } from './fs/bundle'
+import type { LogStep } from './logger.js'
+import { Logger } from './logger.js'
+import { readFile, writeFile, pathExists, isWindows, bound, wrap } from './util.js'
+import { version } from './options.js'
+import type { NexeOptions } from './options.js'
+import type { NexeTarget } from './target.js'
+import { Bundle, toStream } from './fs/bundle.js'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd')),
   make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -123,7 +126,7 @@ export class NexeCompiler {
   async readFileAsync(file: string) {
     this.assertBuild()
     let cachedFile = this.files.find((x) => normalize(x.filename) === normalize(file))
-    if (cachedFile == null) {
+    if (!cachedFile) {
       const absPath = join(this.src, file)
       cachedFile = {
         absPath,
@@ -249,7 +252,7 @@ export class NexeCompiler {
       location = this.getNodeExecutableLocation(build ? undefined : target)
     let binary = (await pathExists(location)) ? createReadStream(location) : null
 
-    if (binary == null) {
+    if (!binary) {
       binary = await this.build()
       step.log('Node binary compiled')
     }

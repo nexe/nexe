@@ -2,8 +2,8 @@ import { relative } from 'node:path'
 
 import fg from 'fast-glob'
 
-import { each } from '../util'
-import { NexeCompiler } from '../compiler'
+import { each } from '../util.js'
+import type { NexeCompiler } from '../compiler.js'
 
 export default async function resource(compiler: NexeCompiler, next: () => Promise<any>) {
   const { cwd, resources } = compiler.options

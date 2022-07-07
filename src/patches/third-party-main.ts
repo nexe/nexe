@@ -1,6 +1,7 @@
 import { parse } from 'meriyah'
-import { NexeCompiler, NexeError } from '../compiler'
-import { wrap, semverGt } from '../util'
+import type { NexeCompiler } from '../compiler.js'
+import { NexeError } from '../compiler.js'
+import { wrap, semverGt } from '../util.js'
 
 export default async function main(compiler: NexeCompiler, next: () => Promise<void>) {
   let bootFile = 'lib/internal/bootstrap/pre_execution.js'

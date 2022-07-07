@@ -1,5 +1,5 @@
-import { NexeCompiler } from '../compiler'
-import { wrap } from '../util'
+import type { NexeCompiler } from '../compiler.js'
+import { wrap } from '../util.js'
 
 export default async function (compiler: NexeCompiler, next: () => Promise<void>) {
   await next()

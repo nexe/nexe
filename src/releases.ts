@@ -1,4 +1,4 @@
-import { platforms, architectures, NexeTarget, getTarget, targetsEqual } from './target'
+import { platforms, architectures, NexeTarget, getTarget, targetsEqual } from './target.js'
 export { NexeTarget }
 
 const versionsToSkip = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 17, 19, 21, 22]

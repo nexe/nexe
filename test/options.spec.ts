@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeOptions } from '../src/options'
 import * as path from 'path'
+
+import { normalizeOptions } from '../src/options.js'
 
 const ext = process.platform === 'win32' ? '.exe' : ''
 

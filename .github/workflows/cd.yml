@@ -1,16 +1,18 @@
 name: Base Builds
-on: 
-  workflow_dispatch:
+on:
+  push:
+    branches:
+      - refactor-old-node
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        version: ['14.19.1', '16.15.0', '18.1.0']
+        version: ['14.20.0', '16.16.0', '18.5.0']
         arch: [x64, x86]
         plat: [arm, macos, windows, linux, alpine]
-        exclude: 
+        exclude:
           - plat: arm
             arch: x86
           - plat: macos
@@ -40,7 +42,6 @@ jobs:
         with:
           node-version: ${{ matrix.version }}
       - uses: actions/checkout@v3
-
         with:
           node-version: 18
       - name: 'Install Dependencies'
@@ -49,4 +50,3 @@ jobs:
         env:
           NEXE_TARGET: ${{ matrix.plat }}-${{ matrix.arch }}-${{ matrix.version }}
         run: npx ts-node tasks/build.ts
- 

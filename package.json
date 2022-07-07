@@ -3,10 +3,12 @@
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
   "type": "commonjs",
-  "version": "4.0.0-rc.3",
+  "version": "4.0.0-rc.local",
   "bin": {
-    "nexe": "./bin/index.js"
+    "nexe": "./index.js"
   },
+  "types": "./lib/types/nexe.d.ts",
+  "main": "./lib/cjs/nexe.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
@@ -26,16 +28,17 @@
   },
   "files": [
     "lib",
-    "bin"
+    "index.js"
   ],
   "scripts": {
     "lint": "tsc --noEmit && eslint \"{src,tasks,test}/**/*.ts\" --fix",
-    "test": "vitest run",
+    "test": "vitest run && node test/exports.mjs",
+    "prepublishOnly": "npm run lint && npm run build && npm test",
     "build": "npm run cjs:build & npm run esm:build",
     "prebuild": "rm -rf lib",
     "cjs:build": "swc src -d lib/cjs --copy-files",
     "esm:build": "swc src -d lib/esm --copy-files -C module.type=es6",
-    "postbuild": "node -p \"JSON.stringify({ type: 'module'})\" > lib/esm/package.json && tsc --emitDeclarationOnly && ts-node tasks/post-build"
+    "postbuild": "node -p \"JSON.stringify({type:'module'})\" > lib/esm/package.json && tsc --emitDeclarationOnly && ts-node tasks/post-build"
   },
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
@@ -47,27 +50,28 @@
     "chalk": "^5.0.1",
     "download": "^8.0.0",
     "fast-glob": "^3.2.11",
-    "got": "^12.0.4",
+    "got": "^12.1.0",
     "meriyah": "^4.2.1",
     "minimist": "^1.2.6",
     "multistream": "^4.1.0",
-    "ora": "^6.1.0",
-    "resolve-dependencies": "^6.0.7"
+    "ora": "^6.1.2",
+    "resolve-dependencies": "^6.0.8"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.57",
-    "@swc/core": "^1.2.181",
+    "@swc/core": "^1.2.210",
     "@types/minimist": "^1.2.2",
     "@types/multistream": "^4.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.23.0",
-    "@typescript-eslint/parser": "^5.23.0",
-    "eslint": "^8.15.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
+    "eslint": "^8.19.0",
     "eslint-config-prettier": "~8.5.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.6.2",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.4",
-    "vitest": "^0.12.3"
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4",
+    "vitest": "^0.17.0"
   },
   "prettier": {
     "parser": "typescript",
@@ -78,6 +82,7 @@
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
     "plugins": [
+      "import",
       "@typescript-eslint"
     ],
     "extends": [
@@ -87,6 +92,17 @@
       "plugin:prettier/recommended"
     ],
     "rules": {
+      "@typescript-eslint/consistent-type-imports": [
+        2,
+        {
+          "prefer": "type-imports",
+          "disallowTypeAnnotations": false
+        }
+      ],
+      "import/extensions": [
+        2,
+        "ignorePackages"
+      ],
       "@typescript-eslint/no-unused-vars": [
         2,
         {

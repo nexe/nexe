@@ -1,8 +1,8 @@
 import { dirname, normalize, relative, resolve } from 'node:path'
 import { createWriteStream, chmodSync, statSync, mkdirSync } from 'node:fs'
-import { NexeCompiler } from '../compiler'
-import { NexeTarget } from '../target'
-import { STDIN_FLAG } from '../util'
+import type { NexeCompiler } from '../compiler.js'
+import type { NexeTarget } from '../target.js'
+import { STDIN_FLAG } from '../util.js'
 
 /**
  * The "cli" step detects the appropriate input. If no input options are passed,

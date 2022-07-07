@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
-
-import { padRight } from '../src/util'
 import chalk from 'chalk'
-import { getTarget } from '../src/target'
+
+import { padRight } from '../src/util.js'
+import { getTarget } from '../src/target.js'
+
 const b = chalk.blue,
   arch = process.arch === 'ia32' ? 'x86' : process.arch
 

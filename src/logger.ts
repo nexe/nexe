@@ -1,4 +1,5 @@
-import { Func, color, esm } from './util'
+import type { Func } from './util.js'
+import { color, esm } from './util.js'
 
 const frameLength = 120
 

@@ -10,7 +10,7 @@ declare module 'got' {
 declare module 'caw'
 
 declare module 'download' {
-  import { Duplex } from 'stream'
+  import type { Duplex } from 'stream'
   interface DownloadOptions {
     extract?: boolean
     strip?: number

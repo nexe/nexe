@@ -2,9 +2,10 @@ import { dirname } from 'node:path'
 
 import download from 'download'
 
-import { pathExists } from '../util'
-import { LogStep } from '../logger'
-import { NexeCompiler, NexeError } from '../compiler'
+import { pathExists } from '../util.js'
+import type { LogStep } from '../logger.js'
+import type { NexeCompiler } from '../compiler.js'
+import { NexeError } from '../compiler.js'
 
 import type { IncomingMessage } from 'node:http'
 

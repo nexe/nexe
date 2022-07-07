@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises'
 
-import { NexeCompiler } from '../compiler'
-import { NexeTarget } from '../target'
+import type { NexeCompiler } from '../compiler.js'
+import type { NexeTarget } from '../target.js'
 
 export default async function clean(compiler: NexeCompiler, next: () => Promise<any>) {
   const { options } = compiler

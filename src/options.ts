@@ -12,9 +12,11 @@ import parseArgv from 'minimist'
 
 import caw from 'caw'
 
-import { NexeCompiler, NexeError } from './compiler'
-import { getTarget, NexeTarget } from './target'
-import { isWindows, STDIN_FLAG, esm } from './util'
+import type { NexeCompiler } from './compiler.js'
+import { NexeError } from './compiler.js'
+import type { NexeTarget } from './target.js'
+import { getTarget } from './target.js'
+import { isWindows, STDIN_FLAG, esm } from './util.js'
 
 export const version = '{{replace:0}}'
 
@@ -197,18 +199,18 @@ export function resolveEntry(
     const inputPath = padRelative(input)
     result = resolveSync(cwd, inputPath)
   }
-  if (isEntryFile(maybeEntry) && (result == null || !result.absPath)) {
+  if (isEntryFile(maybeEntry) && (!result || !result.absPath)) {
     const inputPath = padRelative(maybeEntry)
     result = resolveSync(cwd, inputPath)
   }
-  if (!process.stdin.isTTY && (result == null || !result.absPath) && bundle === defaults.bundle) {
+  if (!process.stdin.isTTY && !result?.absPath && bundle === defaults.bundle) {
     return STDIN_FLAG
   }
-  if (result == null || !result.absPath) {
+  if (!result?.absPath) {
     result = resolveSync(cwd, '.')
   }
   if (!result.absPath) {
-    throw new NexeError(`Entry file "${input || ''}" not found!`)
+    throw new NexeError(`Entry file "${input || maybeEntry}" not found!`)
   }
   return result.absPath
 }

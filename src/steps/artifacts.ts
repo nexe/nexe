@@ -1,8 +1,8 @@
 import { join, dirname } from 'node:path'
 import { unlink, readdir, mkdir } from 'node:fs/promises'
 
-import { readFile, writeFile, isDirectory } from '../util'
-import { NexeCompiler } from '../compiler'
+import { readFile, writeFile, isDirectory } from '../util.js'
+import type { NexeCompiler } from '../compiler.js'
 
 async function readDirAsync(dir: string): Promise<string[]> {
   return await readdir(dir).then(async (paths) => {

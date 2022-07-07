@@ -1,4 +1,5 @@
-import { NexeCompiler, NexeError } from '../compiler'
+import type { NexeCompiler } from '../compiler.js'
+import { NexeError } from '../compiler.js'
 
 export default async function flags(compiler: NexeCompiler, next: () => Promise<void>) {
   const nodeflags = compiler.options.flags

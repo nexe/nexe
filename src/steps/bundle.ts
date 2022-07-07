@@ -1,9 +1,10 @@
 import { resolve, relative } from 'node:path'
-import { Readable } from 'node:stream'
+import type { Readable } from 'node:stream'
 import resolveFiles, { resolveSync } from 'resolve-dependencies'
 
-import { NexeCompiler, NexeError } from '../compiler'
-import { dequote, STDIN_FLAG } from '../util'
+import type { NexeCompiler } from '../compiler.js'
+import { NexeError } from '../compiler.js'
+import { dequote, STDIN_FLAG } from '../util.js'
 
 async function getStdIn(stdin: Readable): Promise<string> {
   let out = ''
