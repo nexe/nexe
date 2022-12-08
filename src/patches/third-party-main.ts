@@ -29,6 +29,8 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
 
   if (version.startsWith('4.')) {
     bootFile = 'src/node.js'
+  } else if (semverGt(version, '18.11.99')) {
+    bootFile = 'lib/internal/process/pre_execution.js'
   } else if (semverGt(version, '11.99')) {
     bootFile = 'lib/internal/bootstrap/pre_execution.js'
   } else if (semverGt(version, '9.10.1')) {
