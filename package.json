@@ -54,7 +54,6 @@
     "download": "^8.0.0",
     "globby": "^11.0.2",
     "got": "^11.8.2",
-    "highland": "^2.13.5",
     "lodash": "^4.17.21",
     "meriyah": "^4.3.3",
     "minimist": "^1.2.6",

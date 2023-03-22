@@ -6,14 +6,19 @@ import { argv } from '../options'
 import { File } from 'resolve-dependencies'
 import MultiStream = require('multistream')
 const archiver: any = require('archiver')
-const highland: any = require('highland')
 
 function makeRelativeToZip(cwd: string, path: string) {
   return '/snapshot/' + relative(cwd, path)
 }
 
 export function toStream(content: Buffer | string) {
-  return highland([content])
+  const readable = new Readable({
+    read() {
+      this.push(content)
+      this.push(null)
+    },
+  })
+  return readable
 }
 export class Bundle {
   cwd: string
@@ -42,8 +47,11 @@ export class Bundle {
 
   public async toBuffer(): Promise<Buffer> {
     this.zip.finalize()
-    return await new Promise((resolve) =>
-      highland(this.zip).toArray((arr: Array<Buffer>) => resolve(Buffer.concat(arr)))
-    )
+    const zipData: Buffer[] = []
+    this.zip.on('data', (data: Buffer) => zipData.push(data))
+    return await new Promise((resolve, reject) => {
+      this.zip.on('error', (error: Error) => reject(error))
+      this.zip.on('end', () => resolve(Buffer.concat(zipData)))
+    })
   }
 }
