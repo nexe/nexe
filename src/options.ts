@@ -1,4 +1,4 @@
-import * as parseArgv from 'minimist'
+import parseArgv from 'minimist'
 import { NexeCompiler, NexeError } from './compiler'
 import { isWindows, STDIN_FLAG } from './util'
 import { basename, extname, join, isAbsolute, resolve } from 'path'
