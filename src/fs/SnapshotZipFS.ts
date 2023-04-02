@@ -7,20 +7,11 @@ import {
   RmdirOptions,
   OpendirOptions,
 } from '@yarnpkg/fslib'
-import { ZipOpenFSOptions } from '@yarnpkg/fslib/lib/ZipOpenFS'
-import {
-  WriteFileOptions,
-  CreateWriteStreamOptions,
-  BasePortableFakeFS,
-  Dirent,
-  MkdirOptions,
-  Dir,
-} from '@yarnpkg/fslib/lib/FakeFS'
+import { BasePortableFakeFS, Dirent, MkdirOptions, Dir } from '@yarnpkg/fslib/lib/FakeFS'
 import { CustomDir } from '@yarnpkg/fslib/lib/algorithms/opendir'
 import { FSPath, ppath, npath, Filename } from '@yarnpkg/fslib/lib/path'
-// @ts-ignore
 import { resolve, toNamespacedPath } from 'path'
-import { WriteStream, constants } from 'fs'
+import { constants } from 'fs'
 
 export type SnapshotZipFSOptions = {
   baseFs: FakeFS<PortablePath>
@@ -28,7 +19,9 @@ export type SnapshotZipFSOptions = {
   zipFs: ZipFS
 }
 
-import { uniqBy } from 'lodash'
+const uniqBy = (arr: Array<string | Dirent>, pick: (...arg: any[]) => any) => {
+  return arr.filter((x, i, self) => i === self.findIndex((y) => pick(x) === pick(y)))
+}
 function uniqReaddir(arr: Array<string | Dirent>) {
   return uniqBy(arr, (s: string | Dirent) => (typeof s === 'string' ? s : s.name))
 }
