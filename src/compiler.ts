@@ -16,9 +16,11 @@ import {
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
+import { PassThrough, Readable, Stream, Transform } from 'stream'
 import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
 import { File } from 'resolve-dependencies'
+import { FactoryStream, LazyStream } from 'multistream'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -287,25 +289,34 @@ export class NexeCompiler {
     return [this.shims.join(''), this.startup].join(';')
   }
 
-  private async _assembleDeliverable(binary: NodeJS.ReadableStream) {
+  private async _assembleDeliverable(binary: Readable) {
     if (!this.options.mangle) {
       return binary
     }
+    const launchCode = this.code()
+    const vfsStream = await this.bundle.toStream()
+    let vfsSize = 0
+    const vfsSum = new Transform({
+      transform(chunk, _enc, cb) {
+        chunk && (vfsSize += chunk.length)
+        cb(null, chunk)
+      },
+    })
+    const onEnd = new Promise<void>((resolve) => vfsSum.once('end', resolve))
+    const streams = [binary, toStream(launchCode), vfsStream.pipe(vfsSum)]
 
-    const code = this.code(),
-      codeSize = Buffer.byteLength(code),
-      lengths = Buffer.from(Array(16))
-
-    const bundleBuffer = await this.bundle.toBuffer()
-
-    lengths.writeDoubleLE(codeSize, 0)
-    lengths.writeDoubleLE(bundleBuffer.length, 8)
-
-    return new (MultiStream as any)([
-      binary,
-      toStream(code),
-      toStream(bundleBuffer),
-      toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), lengths])),
-    ])
+    let done = false
+    return new MultiStream(async (cb) => {
+      if (done) cb(null, null)
+      else if (streams.length) cb(null, streams.shift() as Readable)
+      else {
+        done = true
+        await onEnd
+        const trailers = Buffer.alloc(16)
+        trailers.writeDoubleLE(Buffer.byteLength(launchCode), 0)
+        trailers.writeDoubleLE(vfsSize, 8)
+        cb(null, toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), trailers])))
+      }
+    })
   }
 }

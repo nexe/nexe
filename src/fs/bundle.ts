@@ -1,11 +1,7 @@
-import * as fs from 'fs'
-import { promisify } from 'util'
 import { relative } from 'path'
 import { Readable } from 'stream'
-import { argv } from '../options'
 import { File } from 'resolve-dependencies'
-import MultiStream = require('multistream')
-const archiver: any = require('archiver')
+import archiver from 'archiver'
 
 function makeRelativeToZip(cwd: string, path: string) {
   return '/snapshot/' + relative(cwd, path)
@@ -45,13 +41,8 @@ export class Bundle {
     }
   }
 
-  public async toBuffer(): Promise<Buffer> {
-    this.zip.finalize()
-    const zipData: Buffer[] = []
-    this.zip.on('data', (data: Buffer) => zipData.push(data))
-    return await new Promise((resolve, reject) => {
-      this.zip.on('error', (error: Error) => reject(error))
-      this.zip.on('end', () => resolve(Buffer.concat(zipData)))
-    })
+  public async toStream(): Promise<Readable> {
+    await this.zip.finalize()
+    return this.zip
   }
 }

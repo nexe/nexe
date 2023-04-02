@@ -1,14 +1,15 @@
 const fs = require('fs'),
   fd = fs.openSync(process.execPath, 'r'),
   stat = fs.statSync(process.execPath),
-  tailSize = Math.min(stat.size, 16000),
+  tailSize = Math.min(stat.size, 4096),
   tailWindow = Buffer.from(Array(tailSize))
 
 fs.readSync(fd, tailWindow, 0, tailSize, stat.size - tailSize)
 
 const footerPosition = tailWindow.indexOf('<nexe~~sentinel>')
-if (footerPosition == -1) {
-  throw 'Invalid Nexe binary'
+if (footerPosition === -1) {
+  process.stderr.write('Invalid Nexe binary')
+  process.exit(1)
 }
 
 const footer = tailWindow.slice(footerPosition, footerPosition + 32),
