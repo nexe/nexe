@@ -1,5 +1,5 @@
 import { each } from '../util'
-import * as globs from 'globby'
+import globs from 'globby'
 import { resolve } from 'path'
 import { NexeCompiler } from '../compiler'
 
