@@ -294,7 +294,7 @@ export class NexeCompiler {
       return binary
     }
     const launchCode = this.code()
-    const vfsStream = await this.bundle.toStream()
+    const vfsStream = this.bundle.toStream()
     let vfsSize = 0
     const vfsSum = new Transform({
       transform(chunk, _enc, cb) {

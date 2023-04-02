@@ -41,8 +41,8 @@ export class Bundle {
     }
   }
 
-  public async toStream(): Promise<Readable> {
-    await this.zip.finalize()
+  public toStream(): Readable {
+    setTimeout(() => this.zip.finalize())
     return this.zip
   }
 }
