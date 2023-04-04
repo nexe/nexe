@@ -294,28 +294,28 @@ export class NexeCompiler {
       return binary
     }
     const launchCode = this.code()
-    const vfsStream = this.bundle.toStream()
+    const codeSize = Buffer.byteLength(launchCode)
+    const sentinel = Buffer.from('<nexe~~sentinel>')
+
     let vfsSize = 0
-    const vfsSum = new Transform({
-      transform(chunk, _enc, cb) {
+    const streams = [binary, toStream(launchCode), this.bundle.toStream().pipe(new Transform({
+      transform: (chunk, _, cb) => {
+        vfsSize || this.bundle.finalize()
         chunk && (vfsSize += chunk.length)
         cb(null, chunk)
       },
-    })
-    const onEnd = new Promise<void>((resolve) => vfsSum.once('end', resolve))
-    const streams = [binary, toStream(launchCode), vfsStream.pipe(vfsSum)]
+    }))]
 
     let done = false
-    return new MultiStream(async (cb) => {
+    return new MultiStream((cb) => {
       if (done) cb(null, null)
       else if (streams.length) cb(null, streams.shift() as Readable)
       else {
         done = true
-        await onEnd
         const trailers = Buffer.alloc(16)
-        trailers.writeDoubleLE(Buffer.byteLength(launchCode), 0)
+        trailers.writeDoubleLE(codeSize, 0)
         trailers.writeDoubleLE(vfsSize, 8)
-        cb(null, toStream(Buffer.concat([Buffer.from('<nexe~~sentinel>'), trailers])))
+        cb(null, toStream(Buffer.concat([sentinel, trailers])))
       }
     })
   }

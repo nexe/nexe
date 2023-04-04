@@ -41,8 +41,11 @@ export class Bundle {
     }
   }
 
+  public finalize() {
+    return this.zip.finalize()
+  }
+
   public toStream(): Readable {
-    setTimeout(() => this.zip.finalize())
     return this.zip
   }
 }
