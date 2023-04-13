@@ -1,6 +1,6 @@
 const fs = require('fs'),
   fd = fs.openSync(process.execPath, 'r'),
-  stat = fs.statSync(process.execPath),
+  stat = fs.fstatSync(fd),
   tailSize = Math.min(stat.size, 16000),
   tailWindow = Buffer.from(Array(tailSize))
 
