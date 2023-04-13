@@ -1,7 +1,11 @@
 const fs = require('fs'),
   fd = fs.openSync(process.execPath, 'r'),
   stat = fs.fstatSync(fd),
-  tailSize = Math.min(stat.size, 16000),
+  defaultTailSize = 16000,
+  tailSize = Math.min(
+    stat.size,
+    require('os').platform() === 'darwin' ? defaultTailSize * 100 : defaultTailSize
+  ),
   tailWindow = Buffer.from(Array(tailSize))
 
 fs.readSync(fd, tailWindow, 0, tailSize, stat.size - tailSize)
