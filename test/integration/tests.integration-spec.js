@@ -114,7 +114,7 @@ describe('SnapshotZipFS', () => {
       fs.mkdirSync('node_modules/fake-package')
       fs.writeFileSync('node_modules/fake-package/package.json', '{ "name": "fake-package", "main": "some-file.js"}')
       fs.writeFileSync('node_modules/fake-package/some-file.js', `module.exports = { fake: 'package' }`)
-      expect(require(require.resolve('fake-package', { paths: ['.'] }))).to.eql({ fake: 'package' })
+      expect(require('fake-package')).to.eql({ fake: 'package' })
     })
   })
 })
