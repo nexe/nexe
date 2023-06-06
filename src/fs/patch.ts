@@ -51,7 +51,6 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   })
   const posixSnapshotZipFs = new PosixFS(snapshotZipFS)
   patchFs(fs, posixSnapshotZipFs)
-  const { readFileSync } = fs
 
   let log = (_: string) => true
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
@@ -70,7 +69,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   function internalModuleReadFile(this: any, original: any, ...args: any[]) {
     log(`internalModuleReadFile ${args[0]}`)
     try {
-      return fs.readFileSync(args[0], 'utf-8')
+      return posixSnapshotZipFs.readFileSync(args[0], 'utf-8')
     } catch (e) {
       return ''
     }
@@ -89,7 +88,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
     log(`internalModuleStat ${args[0]}`)
     try {
-      const stat = fs.statSync(args[0])
+      const stat = posixSnapshotZipFs.statSync(args[0])
       if (stat.isDirectory()) return 1
       return 0
     } catch (e) {
