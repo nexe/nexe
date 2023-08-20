@@ -1,4 +1,4 @@
-import * as parseArgv from 'minimist'
+import parseArgv from 'minimist'
 import { NexeCompiler, NexeError } from './compiler'
 import { isWindows, STDIN_FLAG } from './util'
 import { basename, extname, join, isAbsolute, resolve } from 'path'
@@ -9,7 +9,7 @@ import { resolveSync } from 'resolve-dependencies'
 const caw = require('caw')
 const c = process.platform === 'win32' ? chalk.constructor({ enabled: false }) : chalk
 
-export const version = '{{replace:0}}'
+export const version = '{{ version }}'
 
 export interface NexePatch {
   (compiler: NexeCompiler, next: () => Promise<void>): Promise<void>
