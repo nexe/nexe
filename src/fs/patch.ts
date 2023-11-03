@@ -82,7 +82,9 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
     if (returningArray == null) returningArray = Array.isArray(original.call(this, ''))
     const res = internalModuleReadFile.call(this, original, ...args)
     return returningArray && !Array.isArray(res)
-      ? [res, /"(main|name|type|exports|imports)"/.test(res)]
+      ? res === ''
+        ? []
+        : [res, /"(main|name|type|exports|imports)"/.test(res)]
       : res
   }
   patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {

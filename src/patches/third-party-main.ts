@@ -55,13 +55,22 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
   })
 
   const fileLines = file.contents.toString().split('\n')
-  fileLines.splice(
-    location.start.line,
-    0,
-    '{{ file("lib/fs/bootstrap.js") }}' +
-      '\n' +
-      (semverGt(version, '11.99') ? 'expandArgv1 = false;\n' : '')
-  )
+  if (semverGt(version, '19.99')) {
+    await compiler.replaceInFileAsync(
+      'lib/internal/modules/cjs/loader.js',
+      "'use strict';",
+      "'use strict';\n" + '{{ file("lib/fs/bootstrap.js") }}' + '\n'
+    )
+    fileLines.splice(location.start.line, 0, 'expandArgv1 = false;')
+  } else {
+    fileLines.splice(
+      location.start.line,
+      0,
+      '{{ file("lib/fs/bootstrap.js") }}' +
+        '\n' +
+        (semverGt(version, '11.99') ? 'expandArgv1 = false;\n' : '')
+    )
+  }
   file.contents = fileLines.join('\n')
 
   if (semverGt(version, '11.99')) {
