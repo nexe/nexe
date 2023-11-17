@@ -58,7 +58,7 @@ export default async function downloadNode(compiler: NexeCompiler, next: () => P
     { sourceUrl, downloadOptions, build } = compiler.options,
     url = sourceUrl || `https://nodejs.org/dist/v${version}/node-v${version}.tar.gz`,
     step = log.step(
-      `Downloading ${build ? '' : 'pre-built'} Node.js ${build ? `source from: ${url}` : ''}`
+      `Downloading ${build ? '' : 'pre-built '}Node.js${build ? ` source from: ${url}` : ''}`
     ),
     exeLocation = compiler.getNodeExecutableLocation(build ? undefined : target),
     downloadExists = await pathExistsAsync(build ? src : exeLocation)
