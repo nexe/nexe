@@ -6,7 +6,6 @@ export default async function disableNodeCli(compiler: NexeCompiler, next: () =>
     return next()
   }
 
-
   if (semverGt(compiler.target.version, '18.99')) {
     await compiler.replaceInFileAsync(
       'src/node.cc',
