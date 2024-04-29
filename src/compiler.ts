@@ -207,6 +207,7 @@ export class NexeCompiler {
       spawn(command, args, {
         cwd: this.src,
         env: this.env,
+        shell: true,
         stdio: this.log.verbose ? 'inherit' : 'ignore',
       })
         .once('error', (e: Error) => {
