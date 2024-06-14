@@ -130,6 +130,21 @@ export class SnapshotZipFS extends BasePortableFakeFS {
             )
           )
         ),
+        ppath.resolve(
+          snapshotPP,
+          npath.toPortablePath(
+            npath.relative(npath.fromPortablePath(process.cwd()), npath.fromPortablePath(p))
+          )
+        ),
+        ppath.resolve(
+          snapshotPP,
+          npath.toPortablePath(
+            npath.relative(
+              toNamespacedPath(npath.fromPortablePath(process.cwd())),
+              toNamespacedPath(npath.fromPortablePath(p))
+            )
+          )
+        ),
       ])
     )
     for (const path of pathsToTry) {
