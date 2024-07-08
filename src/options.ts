@@ -26,6 +26,7 @@ export interface NexeOptions {
   cwd: string
   fs: boolean | string[]
   flags: string[]
+  nodeOptions: string[]
   configure: string[]
   vcBuild: string[]
   make: string[]
@@ -60,6 +61,7 @@ export interface NexeOptions {
 
 const defaults = {
   flags: [],
+  nodeOptions: [],
   cwd: process.cwd(),
   fs: true,
   configure: [],
@@ -85,6 +87,7 @@ const alias = {
   r: 'resource',
   p: 'python',
   f: 'flag',
+  e: 'nodeOption',
   c: 'configure',
   m: 'make',
   h: 'help',
@@ -111,6 +114,7 @@ ${c.bold('nexe <entry-file> [options]')}
   -b   --build                      -- build from source
   -p   --python                     -- python3 (as python) executable path
   -f   --flag                       -- *v8 flags to include during compilation
+  -e   --node-option                -- node option
   -c   --configure                  -- *arguments to the configure step
   -m   --make                       -- *arguments to the make/build step
        --patch                      -- module with middleware default export for adding a build patch
@@ -242,6 +246,7 @@ function normalizeOptions(input?: Partial<NexeOptions>): NexeOptions {
   options.name = extractName(options)
   options.loglevel = extractLogLevel(options)
   options.flags = flatten(opts.flag, options.flags)
+  options.nodeOptions = flatten(opts['node-option'], options.nodeOptions)
   options.targets = flatten(opts.target, options.targets).map(getTarget)
   if (!options.targets.length) {
     options.targets.push(getTarget())
