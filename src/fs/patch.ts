@@ -88,14 +88,19 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
       : res
   }
   patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
-    log(`internalModuleStat ${args[0]}`)
+    let statPath = args[0]
+    //in node 22, the path arg moved to arg[1]
+    if (typeof args[0] !== 'string') statPath = args[1]
+    let result = 0
     try {
-      const stat = posixSnapshotZipFs.statSync(args[0])
-      if (stat.isDirectory()) return 1
-      return 0
+      const stat = posixSnapshotZipFs.statSync(statPath)
+      if (stat.isDirectory()) result = 1
+      else result = 0
     } catch (e) {
-      return -constants.ENOENT
+      result = -constants.ENOENT
     }
+    log(`internalModuleStat ${result} ${statPath}`)
+    return result
   }
 
   lazyRestoreFs = () => {
