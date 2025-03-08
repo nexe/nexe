@@ -337,7 +337,7 @@ function shimFs(binary: NexeBinary, fs: any = require('fs')) {
   }
   patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
     setupManifest()
-    const filepath = getKey(args[0])
+    const filepath = typeof args[0] === 'string' ? getKey(args[0]) : getKey(args[1])
     if (manifest[filepath]) {
       log('stat     (hit)              ' + filepath + '   ' + 0)
       return 0
