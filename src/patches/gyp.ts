@@ -2,7 +2,7 @@ import { NexeCompiler } from '../compiler'
 
 export default async function nodeGyp(
   { files, replaceInFileAsync }: NexeCompiler,
-  next: () => Promise<void>
+  next: () => Promise<void>,
 ) {
   await next()
 
@@ -16,6 +16,6 @@ export default async function nodeGyp(
       .filter((x) => x.filename.startsWith('lib'))
       .map((x) => `'${x.filename}'`)
       .toString()},
-  `.trim()
+  `.trim(),
   )
 }

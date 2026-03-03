@@ -54,7 +54,11 @@ function isArch(x: string): x is NodeArch {
 }
 
 class Target implements NexeTarget {
-  constructor(public arch: NodeArch, public platform: NodePlatform, public version: string) {}
+  constructor(
+    public arch: NodeArch,
+    public platform: NodePlatform,
+    public version: string,
+  ) {}
   toJSON() {
     return this.toString()
   }

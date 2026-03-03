@@ -34,7 +34,7 @@ export class Logger {
   }
 
   flush() {
-    !this.silent && this.ora.succeed()
+    if (!this.silent) this.ora.succeed()
     return new Promise((resolve) => setTimeout(resolve, frameLength))
   }
 

@@ -37,7 +37,7 @@ export function getLatestGitRelease(options?: any) {
 
 export async function getUnBuiltReleases(options?: any) {
   const nodeReleases = await getJson<NodeRelease[]>(
-    'https://nodejs.org/download/release/index.json'
+    'https://nodejs.org/download/release/index.json',
   )
   const existingVersions = (await getLatestGitRelease(options)).assets.map((x) => getTarget(x.name))
 

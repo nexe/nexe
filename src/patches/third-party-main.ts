@@ -59,7 +59,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
     await compiler.replaceInFileAsync(
       'lib/internal/modules/cjs/loader.js',
       "'use strict';",
-      "'use strict';\n" + '{{ file("lib/fs/bootstrap.js") }}' + '\n'
+      "'use strict';\n" + '{{ file("lib/fs/bootstrap.js") }}' + '\n',
     )
     fileLines.splice(location.start.line, 0, 'expandArgv1 = false;')
   } else {
@@ -68,7 +68,7 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
       0,
       '{{ file("lib/fs/bootstrap.js") }}' +
         '\n' +
-        (semverGt(version, '11.99') ? 'expandArgv1 = false;\n' : '')
+        (semverGt(version, '11.99') ? 'expandArgv1 = false;\n' : ''),
     )
   }
   file.contents = fileLines.join('\n')
@@ -78,19 +78,19 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
       await compiler.replaceInFileAsync(
         bootFile,
         'initializeFrozenIntrinsics();',
-        'initializeFrozenIntrinsics();\n' + wrap('{{ file("lib/patches/boot-nexe.js") }}')
+        'initializeFrozenIntrinsics();\n' + wrap('{{ file("lib/patches/boot-nexe.js") }}'),
       )
     } else {
       await compiler.replaceInFileAsync(
         bootFile,
         'initializePolicy();',
-        'initializePolicy();\n' + wrap('{{ file("lib/patches/boot-nexe.js") }}')
+        'initializePolicy();\n' + wrap('{{ file("lib/patches/boot-nexe.js") }}'),
       )
     }
     await compiler.replaceInFileAsync(
       bootFile,
       'assert(!CJSLoader.hasLoadedAnyUserCJSModule)',
-      '/*assert(!CJSLoader.hasLoadedAnyUserCJSModule)*/'
+      '/*assert(!CJSLoader.hasLoadedAnyUserCJSModule)*/',
     )
     const { contents: nodeccContents } = await compiler.readFileAsync('src/node.cc')
     if (nodeccContents.includes('if (env->worker_context() != nullptr) {')) {
@@ -98,20 +98,20 @@ export default async function main(compiler: NexeCompiler, next: () => Promise<v
         'src/node.cc',
         'if (env->worker_context() != nullptr) {',
         'if (env->worker_context() == nullptr) {\n' +
-          '  return StartExecution(env, "internal/main/run_main_module"); } else {\n'
+          '  return StartExecution(env, "internal/main/run_main_module"); } else {\n',
       )
     } else {
       await compiler.replaceInFileAsync(
         'src/node.cc',
         'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {',
         'MaybeLocal<Value> StartMainThreadExecution(Environment* env) {\n' +
-          '  return StartExecution(env, "internal/main/run_main_module");\n'
+          '  return StartExecution(env, "internal/main/run_main_module");\n',
       )
     }
   } else {
     await compiler.setFileContentsAsync(
       'lib/_third_party_main.js',
-      '{{ file("lib/patches/boot-nexe.js") }}'
+      '{{ file("lib/patches/boot-nexe.js") }}',
     )
   }
   return next()

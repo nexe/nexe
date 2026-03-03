@@ -8,7 +8,7 @@ export const STDIN_FLAG = '[stdin]'
 
 export async function each<T>(
   list: T[] | Promise<T[]>,
-  action: (item: T, index: number, list: T[]) => Promise<any>
+  action: (item: T, index: number, list: T[]) => Promise<any>,
 ) {
   const l = await list
   return Promise.all(l.map(action))
@@ -30,9 +30,9 @@ function padRight(str: string, l: number) {
 }
 
 const bound: MethodDecorator = function bound<T>(
-  target: Object,
-  propertyKey: string | Symbol,
-  descriptor: TypedPropertyDescriptor<T>
+  _target: object,
+  propertyKey: string | symbol,
+  descriptor: TypedPropertyDescriptor<T>,
 ) {
   const configurable = true
   return {
@@ -72,7 +72,7 @@ const isWindows = process.platform === 'win32'
 
 function pathExistsAsync(path: string) {
   return statAsync(path)
-    .then((x) => true)
+    .then(() => true)
     .catch(falseOnEnoent)
 }
 

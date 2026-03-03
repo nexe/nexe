@@ -1,13 +1,25 @@
 {
   "name": "nexe",
+  "version": "5.0.0-beta.4",
   "description": "Create a single executable out of your Node.js application",
   "license": "MIT",
-  "version": "5.0.0-beta.4",
   "contributors": [
     "Craig Condon <craig.j.condon@gmail.com> (http://crcn.io)",
     "Jared Allard <jaredallard@outlook.com>",
     "Caleb Boyd <caleb.boyd@hotmail.com>"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nexe/nexe.git"
+  },
+  "bin": {
+    "nexe": "index.js"
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "index.js",
+  "typings": "lib/nexe.d.ts",
   "scripts": {
     "ci:build": "ts-node tasks/build",
     "test": "mocha",
@@ -20,28 +32,6 @@
     "prebuild": "rimraf lib",
     "build": "tsc --declaration && tsc -p tasks && webpack",
     "postbuild": "ts-node tasks/post-build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/nexe/nexe.git"
-  },
-  "files": [
-    "lib"
-  ],
-  "typings": "lib/nexe.d.ts",
-  "main": "index.js",
-  "bin": {
-    "nexe": "index.js"
-  },
-  "engines": {
-    "node": ">=10"
-  },
-  "mocha": {
-    "spec": "./test/**/*.spec.ts",
-    "checkLeaks": true,
-    "require": [
-      "ts-node/register"
-    ]
   },
   "dependencies": {
     "@calebboyd/semaphore": "^1.3.1",
@@ -65,28 +55,38 @@
     "webpack-config-prefabs": "0.0.5"
   },
   "devDependencies": {
-    "@types/archiver": "^5.3.2",
-    "@types/chai": "^4",
+    "@types/archiver": "^7.0.0",
+    "@types/chai": "^5",
     "@types/download": "^8",
     "@types/globby": "^9",
-    "@types/lodash": "^4.14.192",
-    "@types/minimist": "^1.2.2",
-    "@types/mkdirp": "^1.0.2",
-    "@types/mocha": "^10.0.1",
-    "@types/multistream": "^4.1.0",
+    "@types/lodash": "^4.17.24",
+    "@types/minimist": "^1.2.5",
+    "@types/mkdirp": "^2.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/multistream": "^4.1.3",
     "@types/ora": "^3.2.0",
-    "@types/rimraf": "3.0.2",
-    "@types/semver": "^7.3.13",
-    "chai": "^4.3.7",
-    "execa": "^5.1.1",
-    "lodash": "^4.17.21",
-    "mocha": "^10.2.0",
-    "prettier": "^2.8.7",
-    "ts-node": "^10.9.1",
-    "tslint": "^6.1.1",
+    "@types/rimraf": "4.0.5",
+    "@types/semver": "^7.7.1",
+    "chai": "^6.2.2",
+    "execa": "^9.6.1",
+    "lodash": "^4.17.23",
+    "mocha": "^11.7.5",
+    "prettier": "^3.8.1",
+    "ts-node": "^10.9.2",
+    "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.3.0",
-    "typescript": "^5.0.3",
-    "webpack-cli": "^5.0.1"
+    "typescript": "^5.9.3",
+    "webpack-cli": "^6.0.1"
+  },
+  "mocha": {
+    "checkLeaks": true,
+    "require": [
+      "ts-node/register"
+    ],
+    "spec": "./test/**/*.spec.ts"
+  },
+  "engines": {
+    "node": ">=10"
   }
 }

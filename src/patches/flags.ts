@@ -9,7 +9,7 @@ export default async function flags(compiler: NexeCompiler, next: () => Promise<
   await compiler.replaceInFileAsync(
     'node.gyp',
     "'node_v8_options%': ''",
-    `'node_v8_options%': '${nodeflags.join(' ')}'`
+    `'node_v8_options%': '${nodeflags.join(' ')}'`,
   )
 
   return next()

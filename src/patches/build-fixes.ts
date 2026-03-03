@@ -5,12 +5,12 @@ export default async function buildFixes(compiler: NexeCompiler, next: () => Pro
     return next()
   }
 
-  const file = await compiler.readFileAsync('./tools/msvs/find_python.cmd')
+  await compiler.readFileAsync('./tools/msvs/find_python.cmd')
 
   await compiler.replaceInFileAsync(
     './tools/msvs/find_python.cmd',
     '%p%python.exe -V 2>&1',
-    '"%p%python.exe" -V 2>&1'
+    '"%p%python.exe" -V 2>&1',
   )
 
   return next()

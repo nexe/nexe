@@ -15,9 +15,9 @@ export default async function (compiler: NexeCompiler, next: () => Promise<void>
         '})()',
         'fsPatcher.shimFs(process.__nexe);',
         compiler.options.fs ? '' : 'restoreFs();',
-      ].join('\n')
+      ].join('\n'),
       //TODO support only restoring specific methods
-    )
+    ),
   )
   compiler.shims.push(
     wrap(`
@@ -26,7 +26,7 @@ export default async function (compiler: NexeCompiler, next: () => Promise<void>
       cluster._setupWorker()
       delete process.env.NODE_UNIQUE_ID
     }
-  `)
+  `),
   )
 
   compiler.shims.push(
@@ -34,10 +34,10 @@ export default async function (compiler: NexeCompiler, next: () => Promise<void>
       if (!process.send) {
         const path = require('path')
         const entry = path.resolve(path.dirname(process.execPath),${JSON.stringify(
-          compiler.entrypoint
+          compiler.entrypoint,
         )})
         process.argv.splice(1,0, entry)
       }
-    `)
+    `),
   )
 }
