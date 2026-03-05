@@ -29,15 +29,13 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
     deliverable
       .pipe(createWriteStream(output))
       .on('error', rej)
-      .once('close', (e: Error) => {
-        if (e) {
-          rej(e)
-        } else if (compiler.output) {
+      .once('close', () => {
+        if (compiler.output) {
           const output = compiler.output,
             mode = statSync(output).mode | 0o111,
             inputFileLogOutput = relative(
               process.cwd(),
-              resolve(compiler.options.cwd, compiler.entrypoint || compiler.options.input)
+              resolve(compiler.options.cwd, compiler.entrypoint || compiler.options.input),
             ),
             outputFileLogOutput = relative(process.cwd(), output)
 
@@ -49,7 +47,7 @@ export default async function cli(compiler: NexeCompiler, next: () => Promise<vo
                   ? STDIN_FLAG
                   : '[none]'
                 : inputFileLogOutput
-            }' written to: ${outputFileLogOutput}`
+            }' written to: ${outputFileLogOutput}`,
           )
           compiler.quit()
           res(output)

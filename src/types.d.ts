@@ -17,7 +17,7 @@ declare module 'download' {
   function download(
     url: string,
     destination?: string | DownloadOptions,
-    options?: DownloadOptions
+    options?: DownloadOptions,
   ): PromiseLike<Buffer> & Duplex
   export = download
 }

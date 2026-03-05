@@ -45,7 +45,7 @@ Object.defineProperty(
       enumerable: false,
       configurable: false,
     }
-  })()
+  })(),
 )
 
 const contentBuffer = Buffer.from(Array(contentSize)),

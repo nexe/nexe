@@ -1,4 +1,4 @@
-import { NexeTarget, architectures } from '../lib/target'
+import { NexeTarget } from '../lib/target'
 import { writeFileAsync, readFileAsync } from '../lib/util'
 import got from 'got'
 import execa = require('execa')
@@ -23,17 +23,6 @@ RUN rm /nexe_temp/\${NODE_VERSION}/out/Release/node && \
   npm install -g nexe@\${NEXE_VERSION}
 RUN echo "console.log('hello world')" >> index.js && \
   nexe --build --no-mangle --temp /nexe_temp -c="--fully-static" -o out
-`.trim()
-}
-
-function arm(target: NexeTarget) {
-  return `
-FROM hypriot/rpi-node
-ENV NEXE_VERSION=latest
-WORKDIR /
-
-RUN yarn global add nexe@\${NEXE_VERSION} && \
-  nexe --build --no-mangle -o out -t ${target.version}
 `.trim()
 }
 

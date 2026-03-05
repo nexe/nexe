@@ -1,7 +1,7 @@
 import { NexeCompiler, NexeError } from '../compiler'
 import { resolve, relative } from 'path'
 import resolveFiles, { resolveSync } from 'resolve-dependencies'
-import { dequote, STDIN_FLAG, semverGt, each } from '../util'
+import { dequote, STDIN_FLAG, semverGt } from '../util'
 import { Readable } from 'stream'
 
 function getStdIn(stdin: Readable): Promise<string> {
@@ -66,7 +66,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
   const { files, warnings } = await resolveFiles(
     input,
     ...Object.keys(compiler.bundle.list).filter((x) => x.endsWith('.js') || x.endsWith('.mjs')),
-    { cwd, expand: 'variable', loadContent: false }
+    { cwd, expand: 'variable', loadContent: false },
   )
 
   if (
@@ -81,7 +81,7 @@ export default async function bundle(compiler: NexeCompiler, next: any) {
     Object.entries(files).map(([key]) => {
       step.log(`Including dependency: ${key}`)
       return compiler.addResource(key)
-    })
+    }),
   )
 
   return next()

@@ -196,7 +196,7 @@ export function resolveEntry(
   input: string,
   cwd: string,
   maybeEntry: string | undefined,
-  bundle: boolean | string
+  bundle: boolean | string,
 ) {
   let result = null
   if (input === '-' || maybeEntry === '-') {

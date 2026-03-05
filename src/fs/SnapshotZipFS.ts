@@ -57,7 +57,7 @@ export class SnapshotZipFS extends BasePortableFakeFS {
     p: FSPath<PortablePath>,
     discard: () => Promise<T>,
     accept: (zipFS: ZipFS, zipInfo: { subPath: PortablePath }) => Promise<T>,
-    { requireSubpath = true }: { requireSubpath?: boolean } = {}
+    { requireSubpath = true }: { requireSubpath?: boolean } = {},
   ): Promise<T> {
     if (typeof p !== 'string') return await discard()
 
@@ -75,7 +75,7 @@ export class SnapshotZipFS extends BasePortableFakeFS {
     p: FSPath<PortablePath>,
     discard: () => T,
     accept: (zipFS: ZipFS, zipInfo: { subPath: PortablePath; archivePath: string }) => T,
-    { requireSubpath = true }: { requireSubpath?: boolean } = {}
+    { requireSubpath = true }: { requireSubpath?: boolean } = {},
   ): T {
     if (typeof p !== 'string') return discard()
 
@@ -104,7 +104,7 @@ export class SnapshotZipFS extends BasePortableFakeFS {
           // return the original path in case it wasn't under /snapshot, e.g. if it was for a node module - otherwise the node module parent path is the wrong one (and other things resolve relative to that)
           return p
         }
-      }
+      },
     )
   }
 
@@ -118,34 +118,34 @@ export class SnapshotZipFS extends BasePortableFakeFS {
         ppath.resolve(
           snapshotPP,
           npath.toPortablePath(
-            npath.relative(npath.fromPortablePath(this.root), npath.fromPortablePath(p))
-          )
+            npath.relative(npath.fromPortablePath(this.root), npath.fromPortablePath(p)),
+          ),
         ),
         ppath.resolve(
           snapshotPP,
           npath.toPortablePath(
             npath.relative(
               toNamespacedPath(npath.fromPortablePath(this.root)),
-              toNamespacedPath(npath.fromPortablePath(p))
-            )
-          )
+              toNamespacedPath(npath.fromPortablePath(p)),
+            ),
+          ),
         ),
         ppath.resolve(
           snapshotPP,
           npath.toPortablePath(
-            npath.relative(npath.fromPortablePath(process.cwd()), npath.fromPortablePath(p))
-          )
+            npath.relative(npath.fromPortablePath(process.cwd()), npath.fromPortablePath(p)),
+          ),
         ),
         ppath.resolve(
           snapshotPP,
           npath.toPortablePath(
             npath.relative(
               toNamespacedPath(npath.fromPortablePath(process.cwd())),
-              toNamespacedPath(npath.fromPortablePath(p))
-            )
-          )
+              toNamespacedPath(npath.fromPortablePath(p)),
+            ),
+          ),
         ),
-      ])
+      ]),
     )
     for (const path of pathsToTry) {
       const portablePath = npath.toPortablePath(path)
@@ -162,26 +162,26 @@ export class SnapshotZipFS extends BasePortableFakeFS {
       sourceFs: FakeFS<PortablePath>,
       sourceP: PortablePath,
       destFs: FakeFS<PortablePath>,
-      destP: PortablePath
+      destP: PortablePath,
     ) => {
       if ((flags & constants.COPYFILE_FICLONE_FORCE) !== 0)
         throw Object.assign(
           new Error(`EXDEV: cross-device clone not permitted, copyfile '${sourceP}' -> ${destP}'`),
-          { code: `EXDEV` }
+          { code: `EXDEV` },
         )
       if (flags & constants.COPYFILE_EXCL && (await this.existsPromise(sourceP)))
         throw Object.assign(
           new Error(`EEXIST: file already exists, copyfile '${sourceP}' -> '${destP}'`),
-          { code: `EEXIST` }
+          { code: `EEXIST` },
         )
 
       let content
       try {
         content = await sourceFs.readFilePromise(sourceP)
-      } catch (error) {
+      } catch {
         throw Object.assign(
           new Error(`EINVAL: invalid argument, copyfile '${sourceP}' -> '${destP}'`),
-          { code: `EINVAL` }
+          { code: `EINVAL` },
         )
       }
 
@@ -194,8 +194,13 @@ export class SnapshotZipFS extends BasePortableFakeFS {
         return await this.baseFs.copyFilePromise(sourceP, destP, flags)
       },
       async (zipFsS, { subPath: subPathS }) => {
-        return await fallback(zipFsS, subPathS, this.baseFs, destP)
-      }
+        return await fallback(
+          zipFsS as unknown as FakeFS<PortablePath>,
+          subPathS,
+          this.baseFs,
+          destP,
+        )
+      },
     )
   }
 
@@ -204,26 +209,26 @@ export class SnapshotZipFS extends BasePortableFakeFS {
       sourceFs: FakeFS<PortablePath>,
       sourceP: PortablePath,
       destFs: FakeFS<PortablePath>,
-      destP: PortablePath
+      destP: PortablePath,
     ) => {
       if ((flags & constants.COPYFILE_FICLONE_FORCE) !== 0)
         throw Object.assign(
           new Error(`EXDEV: cross-device clone not permitted, copyfile '${sourceP}' -> ${destP}'`),
-          { code: `EXDEV` }
+          { code: `EXDEV` },
         )
       if (flags & constants.COPYFILE_EXCL && this.existsSync(sourceP))
         throw Object.assign(
           new Error(`EEXIST: file already exists, copyfile '${sourceP}' -> '${destP}'`),
-          { code: `EEXIST` }
+          { code: `EEXIST` },
         )
 
       let content
       try {
         content = sourceFs.readFileSync(sourceP)
-      } catch (error) {
+      } catch {
         throw Object.assign(
           new Error(`EINVAL: invalid argument, copyfile '${sourceP}' -> '${destP}'`),
-          { code: `EINVAL` }
+          { code: `EINVAL` },
         )
       }
 
@@ -236,23 +241,23 @@ export class SnapshotZipFS extends BasePortableFakeFS {
         return this.baseFs.copyFileSync(sourceP, destP, flags)
       },
       (zipFsS, { subPath: subPathS }) => {
-        return fallback(zipFsS, subPathS, this.baseFs, destP)
-      }
+        return fallback(zipFsS as unknown as FakeFS<PortablePath>, subPathS, this.baseFs, destP)
+      },
     )
   }
   async readdirPromise(p: PortablePath): Promise<Array<Filename>>
   async readdirPromise(
     p: PortablePath,
-    opts: { withFileTypes: false } | null
+    opts: { withFileTypes: false } | null,
   ): Promise<Array<Filename>>
   async readdirPromise(p: PortablePath, opts: { withFileTypes: true }): Promise<Array<Dirent>>
   async readdirPromise(
     p: PortablePath,
-    opts: { withFileTypes: boolean }
+    opts: { withFileTypes: boolean },
   ): Promise<Array<Filename> | Array<Dirent>>
   async readdirPromise(
     p: PortablePath,
-    opts?: { withFileTypes?: boolean } | null
+    opts?: { withFileTypes?: boolean } | null,
   ): Promise<Array<string | Dirent>> {
     const fallback = async () => {
       return await this.baseFs.readdirPromise(p, opts as any)
@@ -263,12 +268,12 @@ export class SnapshotZipFS extends BasePortableFakeFS {
       async (zipFs, { subPath }) => {
         const fallbackPaths: Array<string | Dirent> = await fallback().catch(() => [])
         return Promise.resolve(
-          uniqReaddir(fallbackPaths.concat(await zipFs.readdirPromise(subPath, opts as any)))
+          uniqReaddir(fallbackPaths.concat(await zipFs.readdirPromise(subPath, opts as any))),
         )
       },
       {
         requireSubpath: false,
-      }
+      },
     )
   }
 
@@ -287,12 +292,12 @@ export class SnapshotZipFS extends BasePortableFakeFS {
         let fallbackPaths: Array<string | Dirent> = []
         try {
           fallbackPaths = fallback()
-        } catch (e) {}
+        } catch {}
         return fallbackPaths.concat(uniqReaddir(zipFs.readdirSync(subPath, opts as any)))
       },
       {
         requireSubpath: false,
-      }
+      },
     )
   }
 
@@ -316,7 +321,7 @@ export class SnapshotZipFS extends BasePortableFakeFS {
     return this.opendirSync(p, opts)
   }
 
-  opendirSync(p: PortablePath, opts?: OpendirOptions) {
+  opendirSync(p: PortablePath, _opts?: OpendirOptions) {
     const zipInfo = this.findZip(p)
     let zipFsDir: Dir<PortablePath> | null = null
     if (zipInfo) {

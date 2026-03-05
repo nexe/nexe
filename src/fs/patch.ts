@@ -1,5 +1,5 @@
 import { ZipFS, getLibzipSync } from '@yarnpkg/libzip'
-import { patchFs, npath, PosixFS, NodeFS } from '@yarnpkg/fslib'
+import { patchFs, PosixFS, NodeFS } from '@yarnpkg/fslib'
 import { SnapshotZipFS } from './SnapshotZipFS'
 import * as assert from 'assert'
 import * as constants from 'constants'
@@ -38,7 +38,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
     blob,
     0,
     binary.layout.resourceSize,
-    binary.layout.resourceStart
+    binary.layout.resourceStart,
   )
   assert.equal(bytesRead, binary.layout.resourceSize)
 
@@ -56,21 +56,21 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
   if ((process.env.DEBUG || '').toLowerCase().includes('nexe:require')) {
     process.stderr.write(
       // @ts-ignore
-      `[nexe] - FILES ${JSON.stringify(Array.from(zipFs.entries.keys()), null, 4)}\n`
+      `[nexe] - FILES ${JSON.stringify(Array.from(zipFs.entries.keys()), null, 4)}\n`,
     )
     process.stderr.write(
       // @ts-ignore
-      `[nexe] - DIRECTORIES ${JSON.stringify(Array.from(zipFs.listings.keys()), null, 4)}\n`
+      `[nexe] - DIRECTORIES ${JSON.stringify(Array.from(zipFs.listings.keys()), null, 4)}\n`,
     )
     log = (text: string) => {
       return process.stderr.write(`[nexe] - ${text}\n`)
     }
   }
-  function internalModuleReadFile(this: any, original: any, ...args: any[]) {
+  function internalModuleReadFile(this: any, _original: any, ...args: any[]) {
     log(`internalModuleReadFile ${args[0]}`)
     try {
       return posixSnapshotZipFs.readFileSync(args[0], 'utf-8')
-    } catch (e) {
+    } catch {
       return ''
     }
   }
@@ -87,7 +87,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
         : [res, /"(main|name|type|exports|imports)"/.test(res)]
       : res
   }
-  patches.internalModuleStat = function (this: any, original: any, ...args: any[]) {
+  patches.internalModuleStat = function (this: any, _original: any, ...args: any[]) {
     let statPath = args[0]
     //in node 22, the path arg moved to arg[1]
     if (typeof args[0] !== 'string') statPath = args[1]
@@ -96,7 +96,7 @@ function shimFs(binary: NexeHeader, fs: typeof import('fs') = require('fs')) {
       const stat = posixSnapshotZipFs.statSync(statPath)
       if (stat.isDirectory()) result = 1
       else result = 0
-    } catch (e) {
+    } catch {
       result = -constants.ENOENT
     }
     log(`internalModuleStat ${result} ${statPath}`)

@@ -14,7 +14,7 @@ function readDirAsync(dir: string): Promise<string[]> {
       paths.map((file: string) => {
         const path = join(dir, file)
         return isDirectoryAsync(path).then((x) => (x ? readDirAsync(path) : (path as any)))
-      })
+      }),
     ).then((result) => {
       return [].concat(...(result as any))
     })
@@ -48,7 +48,7 @@ export default async function artifacts(compiler: NexeCompiler, next: () => Prom
   await Promise.all(
     tmpFiles.map(async (path) => {
       return compiler.writeFileAsync(path.replace(temp, ''), await readFileAsync(path, 'utf-8'))
-    })
+    }),
   )
 
   await next()
@@ -63,6 +63,6 @@ export default async function artifacts(compiler: NexeCompiler, next: () => Prom
       await mkdirpAsync(dirname(tempFile))
       await writeFileAsync(tempFile, fileContents)
       await compiler.writeFileAsync(file.filename, file.contents)
-    })
+    }),
   )
 }

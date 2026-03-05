@@ -16,11 +16,11 @@ export default async function (compiler: NexeCompiler, next: () => Promise<void>
     'def configure_v8(o):',
     `def configure_v8(o):\n  o['variables']['${variablePrefix}embed_script'] = r'${resolve(
       cwd,
-      snapshot
+      snapshot,
     )}'\n  o['variables']['${variablePrefix}warmup_script'] = r'${resolve(
       cwd,
-      warmup || snapshot
-    )}'`
+      warmup || snapshot,
+    )}'`,
   )
 
   return next()

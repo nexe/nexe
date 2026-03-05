@@ -12,15 +12,13 @@ import {
   isWindows,
   bound,
   semverGt,
-  wrap,
 } from './util'
 import { NexeOptions, version } from './options'
 import { NexeTarget } from './target'
-import { PassThrough, Readable, Stream, Transform } from 'stream'
+import { Readable, Transform } from 'stream'
 import MultiStream = require('multistream')
 import { Bundle, toStream } from './fs/bundle'
 import { File } from 'resolve-dependencies'
-import { FactoryStream, LazyStream } from 'multistream'
 
 const isBsd = Boolean(~process.platform.indexOf('bsd'))
 const make = isWindows ? 'vcbuild.bat' : isBsd ? 'gmake' : 'make'
@@ -108,11 +106,11 @@ export class NexeCompiler {
   public remoteAsset: string
 
   constructor(public options: NexeOptions) {
-    const { python } = (this.options = options)
+    const { python } = this.options
     //SOMEDAY iterate over multiple targets with `--outDir`
     this.targets = options.targets as NexeTarget[]
     this.target = this.targets[0]
-    if (!/https?\:\/\//.test(options.remote)) {
+    if (!/https?:\/\//.test(options.remote)) {
       throw new NexeError(`Invalid remote URI scheme (must be http or https): ${options.remote}`)
     }
     this.remoteAsset = options.remote + this.target.toString()
@@ -133,7 +131,7 @@ export class NexeCompiler {
       process.env.PATH = originalPath
     } else {
       this.env = { ...process.env }
-      python && (this.env.PYTHON = python)
+      if (python) this.env.PYTHON = python
     }
   }
 
@@ -245,12 +243,12 @@ export class NexeCompiler {
     this.compileStep!.log(
       `Configuring node build${
         this.options.configure.length ? ': ' + this.options.configure : '...'
-      }`
+      }`,
     )
     await this._configureAsync()
     const buildOptions = this.options.make
     this.compileStep!.log(
-      `Compiling Node${buildOptions.length ? ' with arguments: ' + buildOptions : '...'}`
+      `Compiling Node${buildOptions.length ? ' with arguments: ' + buildOptions : '...'}`,
     )
     await this._runBuildCommandAsync(make, buildOptions)
     return createReadStream(this.getNodeExecutableLocation())
@@ -305,11 +303,11 @@ export class NexeCompiler {
       this.bundle.toStream().pipe(
         new Transform({
           transform: (chunk, _, cb) => {
-            vfsSize || this.bundle.finalize()
-            chunk && (vfsSize += chunk.length)
+            if (!vfsSize) this.bundle.finalize()
+            if (chunk) vfsSize += chunk.length
             cb(null, chunk)
           },
-        })
+        }),
       ),
     ]
 
